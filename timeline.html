@@ -1,0 +1,1669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Timeline</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f8f9;
+            --bg-hover: #ebecf0;
+            --border: #dfe1e6;
+            --text-primary: #172b4d;
+            --text-secondary: #5e6c84;
+            --text-tertiary: #8993a4;
+            --accent-blue: #0052cc;
+            --accent-green: #00875a;
+            --accent-orange: #ff8b00;
+            --accent-red: #de350b;
+            --accent-purple: #6554c0;
+            --today-line: #ff5630;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1c2128;
+            --bg-secondary: #22272b;
+            --bg-hover: #2c333a;
+            --border: #373d45;
+            --text-primary: #f1f2f4;
+            --text-secondary: #9fadbc;
+            --text-tertiary: #738496;
+            --accent-blue: #579dff;
+            --accent-green: #4bce97;
+            --accent-orange: #faa53d;
+            --accent-red: #f87462;
+            --accent-purple: #9f8fef;
+            --today-line: #ff7452;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            overflow-x: auto;
+        }
+        
+        .container {
+            min-width: 1400px;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 6px 16px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-icon {
+            padding: 6px 10px;
+            background: transparent;
+            border: 1px solid var(--border);
+        }
+        
+        /* Toolbar */
+        .toolbar {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .view-buttons {
+            display: flex;
+            gap: 0;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .view-btn {
+            padding: 6px 16px;
+            border: none;
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            border-right: 1px solid var(--border);
+        }
+        
+        .view-btn:last-child {
+            border-right: none;
+        }
+        
+        .view-btn.active {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .filter-input {
+            padding: 6px 12px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            width: 250px;
+        }
+        
+        /* Timeline Container */
+        .timeline-wrapper {
+            display: flex;
+            background: var(--bg-primary);
+            margin: 0;
+            height: calc(100vh - 140px);
+            overflow: hidden;
+        }
+        
+        /* Table Side */
+        .table-side {
+            width: 600px;
+            border-right: 2px solid var(--border);
+            overflow-y: auto;
+            background: var(--bg-primary);
+        }
+        
+        .table-header {
+            display: grid;
+            grid-template-columns: 40px 200px 100px 90px 90px 80px;
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border);
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .table-row {
+            display: grid;
+            grid-template-columns: 40px 200px 100px 90px 90px 80px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border); /* ✅ REATIVADO - alinhamento agora está garantido */
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            height: 49px; /* Altura fixa igual à chart-row */
+            box-sizing: border-box; /* Inclui padding na altura */
+        }
+        
+        .table-row:hover {
+            background: var(--bg-hover);
+        }
+        
+        .task-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .task-title {
+            font-size: 14px;
+            color: var(--text-primary);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .priority-high {
+            background: #ffebe6;
+            color: var(--accent-red);
+        }
+        
+        .priority-medium {
+            background: #fff4e6;
+            color: var(--accent-orange);
+        }
+        
+        .priority-low {
+            background: #e3fcef;
+            color: var(--accent-green);
+        }
+        
+        [data-theme="dark"] .priority-high {
+            background: rgba(248, 116, 98, 0.15);
+        }
+        
+        [data-theme="dark"] .priority-medium {
+            background: rgba(250, 165, 61, 0.15);
+        }
+        
+        [data-theme="dark"] .priority-low {
+            background: rgba(75, 206, 151, 0.15);
+        }
+        
+        .status-badge {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+        
+        .assignee {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-blue);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        /* Chart Side */
+        .chart-side {
+            flex: 1;
+            overflow-x: auto;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            position: relative;
+        }
+        
+        .chart-header {
+            background: var(--bg-secondary);
+            border-bottom: 2px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            min-height: 32px;
+        }
+        
+        .months-row {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .month-cell {
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            border-right: 1px solid var(--border);
+            background: var(--bg-secondary);
+        }
+        
+        .weeks-row {
+            display: flex;
+        }
+        
+        .week-cell {
+            padding: 4px 2px;
+            font-size: 10px;
+            color: var(--text-secondary);
+            border-right: 1px solid var(--border);
+            text-align: center;
+            min-width: 50px;
+        }
+        
+        .chart-body {
+            position: relative;
+            min-height: calc(100vh - 200px);
+        }
+        
+        .chart-row {
+            height: 49px;
+            border-bottom: 1px solid var(--border); /* ✅ REATIVADO - separação visual entre tarefas */
+            position: relative;
+            box-sizing: border-box; /* ✅ Inclui border na altura */
+        }
+        
+        .week-column {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            border-right: 1px solid var(--border);
+        }
+        
+        .week-column.today {
+            background: rgba(255, 86, 48, 0.05);
+            border-right: 2px solid var(--today-line);
+        }
+        
+        .task-bar {
+            position: absolute;
+            height: 26px;
+            top: 11px;
+            border-radius: 3px;
+            padding: 0; /* Removed padding to fix alignment */
+            font-size: 11px;
+            font-weight: 500;
+            color: white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+        }
+        
+        .task-bar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            filter: brightness(1.1);
+        }
+        
+        /* Task bar colors - visible in both themes */
+        .task-bar.status-backlog {
+            background: linear-gradient(135deg, #6b778c 0%, #8993a4 100%);
+        }
+        
+        .task-bar.status-a-fazer {
+            background: linear-gradient(135deg, var(--accent-blue) 0%, #0065ff 100%);
+        }
+        
+        .task-bar.status-em-progresso {
+            background: linear-gradient(135deg, var(--accent-orange) 0%, #ffa31a 100%);
+        }
+        
+        .task-bar.status-concluido {
+            background: linear-gradient(135deg, var(--accent-green) 0%, #00a86b 100%);
+        }
+        
+        /* Default colors for custom statuses */
+        .task-bar:not([class*="status-backlog"]):not([class*="status-a-fazer"]):not([class*="status-em-progresso"]):not([class*="status-concluido"]) {
+            background: linear-gradient(135deg, #6554c0 0%, #8777d9 100%);
+        }
+        
+        .task-bar-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px 0 0 3px;
+        }
+        
+        /* Delay indicator - red overlay */
+        .task-bar-delay {
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #de350b 0%, #ff5630 100%);
+            border-radius: 0 3px 3px 0;
+            z-index: 1;
+            opacity: 0.9;
+        }
+        
+        .task-bar-delay::after {
+            content: '⚠';
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Progress segments */
+        .task-bar-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 3px 0 0 3px;
+            z-index: 1;
+            transition: all 0.3s ease;
+        }
+        
+        .task-bar-remaining {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            height: 100%;
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            border-radius: 0 3px 3px 0;
+            opacity: 0.4;
+            z-index: 0;
+        }
+        
+        /* Percentage label */
+        .task-bar-percentage {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        /* Status colors (semaphore) */
+        .task-bar.status-green .task-bar-progress {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        }
+        
+        .task-bar.status-yellow .task-bar-progress {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        }
+        
+        .task-bar.status-red .task-bar-progress {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .task-bar.status-overdue {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        }
+        
+        /* Today line in chart */
+        .today-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--today-line);
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            flex: 1;
+            margin-right: 16px;
+        }
+        
+        .modal-close {
+            background: var(--bg-hover);
+            border: none;
+            border-radius: 4px;
+            padding: 8px;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        
+        .modal-close:hover {
+            background: var(--border);
+            color: var(--text-primary);
+        }
+        
+        .modal-body {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .modal-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        .modal-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+        
+        .modal-value {
+            font-size: 14px;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        
+        .modal-description {
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+        
+        .modal-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .modal-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .modal-badge.priority-high {
+            background: #ffebe6;
+            color: #de350b;
+        }
+        
+        .modal-badge.priority-medium {
+            background: #fff4e6;
+            color: #ff8b00;
+        }
+        
+        .modal-badge.priority-low {
+            background: #e3fcef;
+            color: #00875a;
+        }
+        
+        [data-theme="dark"] .modal-badge.priority-high {
+            background: rgba(222, 53, 11, 0.2);
+            color: #f87462;
+        }
+        
+        [data-theme="dark"] .modal-badge.priority-medium {
+            background: rgba(255, 139, 0, 0.2);
+            color: #faa53d;
+        }
+        
+        [data-theme="dark"] .modal-badge.priority-low {
+            background: rgba(0, 135, 90, 0.2);
+            color: #4bce97;
+        }
+        
+        .modal-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .empty-text {
+            font-size: 14px;
+        }
+        
+        /* Theme Toggle */
+        .theme-toggle {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        /* Task Count */
+        .task-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span>📅</span>
+                    <span>Timeline</span>
+                </div>
+                <span class="task-count" id="taskCount">0 tarefas</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn-secondary btn-icon" onclick="manualRefresh()" title="Atualizar">
+                    🔄
+                </button>
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    🌙
+                </button>
+                <button class="btn-secondary" onclick="window.close()" style="padding: 8px 16px;">
+                    ← Voltar ao Kanban
+                </button>
+            </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <div class="view-buttons">
+                    <button class="view-btn" onclick="changeView('days')" id="viewDays">Dias</button>
+                    <button class="view-btn active" onclick="changeView('weeks')" id="viewWeeks">Semanas</button>
+                    <button class="view-btn" onclick="changeView('months')" id="viewMonths">Meses</button>
+                </div>
+                
+                <!-- Seletor de Raia -->
+                <select id="swimlaneFilter" onchange="filterTimelineBySwimlane()" style="padding: 8px 12px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; font-size: 13px; cursor: pointer; margin-left: 12px; min-width: 180px;">
+                    <option value="all">📊 Todas as Tarefas</option>
+                    <option value="normal">📋 Modo Normal (Sem Raia)</option>
+                    <!-- Raias serão adicionadas via JavaScript -->
+                </select>
+                
+                <input 
+                    type="text" 
+                    class="filter-input" 
+                    placeholder="🔍 Filtrar tarefas..." 
+                    id="filterInput"
+                    onkeyup="filterTasks()"
+                    style="margin-left: 12px;"
+                >
+            </div>
+        </div>
+
+        <!-- Timeline Content -->
+        <div class="timeline-wrapper">
+            <!-- Table Side -->
+            <div class="table-side">
+                <div class="table-header">
+                    <div>#</div>
+                    <div>Tarefa</div>
+                    <div>Prioridade</div>
+                    <div>Data Início</div>
+                    <div>Data Fim</div>
+                    <div>Status</div>
+                </div>
+                <div id="tableBody"></div>
+            </div>
+
+            <!-- Chart Side -->
+            <div class="chart-side" id="chartSide">
+                <div class="chart-header" id="chartHeader"></div>
+                <div class="chart-body" id="chartBody"></div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-icon">📅</div>
+            <div class="empty-title">Nenhuma tarefa com datas definidas</div>
+            <div class="empty-text">Adicione datas de início e término nas suas tarefas no Kanban</div>
+            <button class="btn" onclick="window.close()" style="margin-top: 20px;">
+                ← Fechar e Voltar
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal de Detalhes da Tarefa -->
+    <div class="modal-overlay" id="taskModal" onclick="closeTaskModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTaskTitle">Título da Tarefa</h2>
+                <button class="modal-close" onclick="closeTaskModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-field">
+                    <div class="modal-label">ID da Tarefa</div>
+                    <div class="modal-value" id="modalTaskId">TF-001</div>
+                </div>
+                
+                <div class="modal-field">
+                    <div class="modal-label">Descrição</div>
+                    <div class="modal-value modal-description" id="modalTaskDescription">Descrição da tarefa</div>
+                </div>
+                
+                <div class="modal-field">
+                    <div class="modal-label">Prioridade & Status</div>
+                    <div class="modal-badges">
+                        <span class="modal-badge" id="modalTaskPriority">Média</span>
+                        <span class="modal-badge" id="modalTaskStatus" style="background: var(--accent-blue); color: white;">Status</span>
+                    </div>
+                </div>
+                
+                <div class="modal-dates">
+                    <div class="modal-field">
+                        <div class="modal-label">Data Início</div>
+                        <div class="modal-value" id="modalTaskStart">01/01/2024</div>
+                    </div>
+                    
+                    <div class="modal-field">
+                        <div class="modal-label">Data Fim</div>
+                        <div class="modal-value" id="modalTaskEnd">31/01/2024</div>
+                    </div>
+                </div>
+                
+                <div class="modal-field">
+                    <div class="modal-label">Lead Time</div>
+                    <div class="modal-value" id="modalTaskLeadTime">30 dias</div>
+                </div>
+                
+                <div class="modal-field" id="modalTaskAssigneeField" style="display: none;">
+                    <div class="modal-label">Responsável</div>
+                    <div class="modal-value" id="modalTaskAssignee">Nome</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Declarar funções antes para garantir hoisting
+        let changeView, filterTimelineBySwimlane, manualRefresh, toggleTheme;
+        
+        // Load tasks from localStorage
+        function loadTasks() {
+            const tasksData = localStorage.getItem('kanban-tasks');
+            return tasksData ? JSON.parse(tasksData) : [];
+        }
+
+        // Load swimlanes
+        function loadSwimlanes() {
+            const swimlanesData = localStorage.getItem('kanban-swimlanes');
+            return swimlanesData ? JSON.parse(swimlanesData) : [];
+        }
+
+        // Load swimlane mode
+        function loadSwimlanesMode() {
+            const mode = localStorage.getItem('kanban-swimlanes-mode');
+            return mode ? JSON.parse(mode) : false;
+        }
+
+        // Filter tasks by current mode
+        function filterTasksByMode(allTasks) {
+            const swimlanesMode = loadSwimlanesMode();
+            
+            if (swimlanesMode) {
+                // Swimlane mode: only tasks WITH swimlane
+                return allTasks.filter(t => t.swimlane && t.swimlane !== '');
+            } else {
+                // Normal mode: only tasks WITHOUT swimlane
+                return allTasks.filter(t => !t.swimlane || t.swimlane === '');
+            }
+        }
+
+        let allTasks = loadTasks();
+        let tasks = allTasks; // Agora usa todas as tarefas
+        let currentSwimlaneFilter = 'all'; // Filtro atual
+        let currentView = 'weeks';
+        let filteredTasks = tasks.filter(t => t.startDate && t.endDate);
+
+        // Inicializar seletor de raias
+        function initializeSwimlaneFilterTimeline() {
+            const select = document.getElementById('swimlaneFilter');
+            const swimlanes = loadSwimlanes();
+            
+            // Limpar opções existentes (mantém as duas primeiras)
+            while (select.options.length > 2) {
+                select.remove(2);
+            }
+            
+            // Adicionar raias
+            swimlanes.forEach(swimlane => {
+                const option = document.createElement('option');
+                option.value = swimlane.id;
+                option.textContent = `${swimlane.icon} ${swimlane.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Filtrar timeline por raia
+        filterTimelineBySwimlane = function() {
+            const select = document.getElementById('swimlaneFilter');
+            currentSwimlaneFilter = select.value;
+            
+            // Aplicar filtro
+            if (currentSwimlaneFilter === 'all') {
+                tasks = allTasks;
+            } else if (currentSwimlaneFilter === 'normal') {
+                tasks = allTasks.filter(t => !t.swimlane || t.swimlane === '');
+            } else {
+                tasks = allTasks.filter(t => t.swimlane === currentSwimlaneFilter);
+            }
+            
+            // Atualizar tarefas filtradas com datas
+            filteredTasks = tasks.filter(t => t.startDate && t.endDate);
+            
+            // Atualizar contador
+            updateTaskCountTimeline();
+            
+            // Redesenhar timeline
+            renderTimeline();
+        }
+
+        // Atualizar contador de tarefas
+        function updateTaskCountTimeline() {
+            const counter = document.getElementById('taskCount');
+            if (counter) {
+                const filterName = currentSwimlaneFilter === 'all' ? 'Todas' : 
+                                   currentSwimlaneFilter === 'normal' ? 'Normal' :
+                                   document.getElementById('swimlaneFilter').selectedOptions[0].textContent;
+                counter.textContent = `${filteredTasks.length} tarefas - ${filterName}`;
+            }
+        }
+
+        // Modal Functions
+        function showTaskModal(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (!task) return;
+            
+            // Update modal content
+            document.getElementById('modalTaskTitle').textContent = task.title;
+            document.getElementById('modalTaskId').textContent = `TF-${task.id}`;
+            document.getElementById('modalTaskDescription').textContent = task.description || 'Sem descrição';
+            
+            // Priority badge
+            const priorityBadge = document.getElementById('modalTaskPriority');
+            const priorityText = { high: 'Alta', medium: 'Média', low: 'Baixa' }[task.priority] || 'Média';
+            priorityBadge.textContent = priorityText;
+            priorityBadge.className = `modal-badge priority-${task.priority}`;
+            
+            // Status badge
+            const statusBadge = document.getElementById('modalTaskStatus');
+            statusBadge.textContent = task.status.replace(/-/g, ' ').toUpperCase();
+            
+            // Dates - Fix timezone issue
+            const formatDate = (dateStr) => {
+                const [year, month, day] = dateStr.split('-').map(Number);
+                const localDate = new Date(year, month - 1, day);
+                return localDate.toLocaleDateString('pt-BR');
+            };
+            
+            document.getElementById('modalTaskStart').textContent = formatDate(task.startDate);
+            document.getElementById('modalTaskEnd').textContent = formatDate(task.endDate);
+            
+            // Lead time
+            document.getElementById('modalTaskLeadTime').textContent = `${task.leadTime || 0} dias`;
+            
+            // Assignee
+            const assigneeField = document.getElementById('modalTaskAssigneeField');
+            if (task.assignee && task.assignee.trim()) {
+                assigneeField.style.display = 'block';
+                document.getElementById('modalTaskAssignee').textContent = task.assignee;
+            } else {
+                assigneeField.style.display = 'none';
+            }
+            
+            // Show modal
+            document.getElementById('taskModal').classList.add('active');
+        }
+        
+        function closeTaskModal(event) {
+            // Close only if clicking overlay or close button
+            if (!event || event.target.id === 'taskModal' || event.target.classList.contains('modal-close')) {
+                document.getElementById('taskModal').classList.remove('active');
+            }
+        }
+        
+        // Close modal on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeTaskModal();
+            }
+        });
+
+        // Initialize
+        renderTimeline();
+
+        // Theme Management
+        const savedTheme = localStorage.getItem('kanban-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon();
+
+        toggleTheme = function() {
+            console.log('🎨 toggleTheme chamado');
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            console.log('Tema atual:', current, '→ Novo tema:', newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('kanban-theme', newTheme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Change View
+        changeView = function(view) {
+            console.log('📅 changeView chamado com:', view);
+            currentView = view;
+            document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
+            const targetBtn = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
+            console.log('Botão alvo:', targetBtn);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
+            renderTimeline();
+        }
+
+        // Filter Tasks
+        function filterTasks() {
+            const searchTerm = document.getElementById('filterInput').value.toLowerCase();
+            filteredTasks = tasks.filter(t => {
+                if (!t.startDate || !t.endDate) return false;
+                const tags = t.tags ? t.tags.join(' ') : '';
+                const assignee = t.assignee || '';
+                const description = t.description || '';
+                const searchable = `${t.title} ${description} ${assignee} ${tags}`.toLowerCase();
+                return searchable.includes(searchTerm);
+            });
+            renderTimeline();
+        }
+
+        // Manual Refresh
+        manualRefresh = function() {
+            console.log('🔄 manualRefresh chamado');
+            allTasks = loadTasks();
+            console.log('Tarefas carregadas:', allTasks.length);
+            tasks = filterTasksByMode(allTasks);
+            console.log('Tarefas filtradas:', tasks.length);
+            filteredTasks = tasks.filter(t => t.startDate && t.endDate);
+            console.log('Tarefas com datas:', filteredTasks.length);
+            renderTimeline();
+            showNotification('✅ Timeline atualizada');
+        }
+
+        // Show Notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: var(--accent-green);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 3px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 10000;
+                font-weight: 600;
+                font-size: 14px;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.3s';
+                setTimeout(() => document.body.removeChild(notification), 300);
+            }, 2000);
+        }
+
+        // Render Timeline
+        function renderTimeline() {
+            const tasksWithDates = filteredTasks;
+            
+            // Update task count
+            document.getElementById('taskCount').textContent = `${tasksWithDates.length} tarefa${tasksWithDates.length !== 1 ? 's' : ''}`;
+            
+            if (tasksWithDates.length === 0) {
+                document.querySelector('.timeline-wrapper').style.display = 'none';
+                document.getElementById('emptyState').style.display = 'block';
+                return;
+            }
+            
+            document.querySelector('.timeline-wrapper').style.display = 'flex';
+            document.getElementById('emptyState').style.display = 'none';
+            
+            // Find date range
+            const dates = tasksWithDates.flatMap(t => [new Date(t.startDate), new Date(t.endDate)]);
+            const minDate = new Date(Math.min(...dates));
+            const maxDate = new Date(Math.max(...dates));
+            
+            // Add padding
+            minDate.setDate(minDate.getDate() - 7);
+            maxDate.setDate(maxDate.getDate() + 7);
+            
+            // Generate time periods
+            const periods = generatePeriods(minDate, maxDate);
+            
+            // Render table
+            renderTable(tasksWithDates);
+            
+            // Render chart
+            renderChart(tasksWithDates, periods, minDate, maxDate);
+        }
+
+        function generatePeriods(minDate, maxDate) {
+            const periods = [];
+            const current = new Date(minDate);
+            
+            // Helper function to format date as dd/mm/aa
+            const formatShortDate = (date) => {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const year = String(date.getFullYear()).slice(-2); // Last 2 digits
+                return `${day}/${month}/${year}`;
+            };
+            
+            if (currentView === 'days') {
+                // Days view - each day is a period
+                while (current <= maxDate) {
+                    const dayStart = new Date(current);
+                    const dayEnd = new Date(current);
+                    dayEnd.setHours(23, 59, 59, 999);
+                    
+                    periods.push({
+                        start: dayStart,
+                        end: dayEnd,
+                        label: formatShortDate(dayStart),
+                        month: dayStart.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }),
+                        fullDate: formatShortDate(dayStart)
+                    });
+                    
+                    current.setDate(current.getDate() + 1);
+                }
+            } else if (currentView === 'weeks') {
+                // Start from Monday
+                while (current.getDay() !== 1) {
+                    current.setDate(current.getDate() - 1);
+                }
+                
+                while (current <= maxDate) {
+                    const weekStart = new Date(current);
+                    const weekEnd = new Date(current);
+                    weekEnd.setDate(weekEnd.getDate() + 6);
+                    
+                    periods.push({
+                        start: weekStart,
+                        end: weekEnd,
+                        label: formatShortDate(weekStart),
+                        month: weekStart.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+                    });
+                    
+                    current.setDate(current.getDate() + 7);
+                }
+            } else {
+                // Months view
+                current.setDate(1);
+                
+                while (current <= maxDate) {
+                    const monthStart = new Date(current);
+                    const monthEnd = new Date(current.getFullYear(), current.getMonth() + 1, 0);
+                    
+                    periods.push({
+                        start: monthStart,
+                        end: monthEnd,
+                        label: monthStart.toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' }),
+                        month: monthStart.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+                    });
+                    
+                    current.setMonth(current.getMonth() + 1);
+                }
+            }
+            
+            return periods;
+        }
+
+        function renderTable(tasksWithDates) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+            
+            tasksWithDates.forEach(task => {
+                const row = document.createElement('div');
+                row.className = 'table-row';
+                row.onclick = () => showTaskModal(task.id);
+                
+                const priorityClass = `priority-${task.priority}`;
+                const priorityText = { high: 'Alta', medium: 'Média', low: 'Baixa' }[task.priority];
+                
+                // Fix timezone issue
+                const formatDate = (dateStr) => {
+                    const [year, month, day] = dateStr.split('-').map(Number);
+                    const localDate = new Date(year, month - 1, day);
+                    return localDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+                };
+                
+                const startDate = formatDate(task.startDate);
+                const endDate = formatDate(task.endDate);
+                
+                row.innerHTML = `
+                    <div class="task-id">TF-${task.id}</div>
+                    <div class="task-title" title="${task.title}">${task.title}</div>
+                    <div><span class="priority-badge ${priorityClass}">${priorityText}</span></div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">${startDate}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary);">${endDate}</div>
+                    <div><span class="priority-badge ${priorityClass}">${priorityText}</span></div>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function renderChart(tasksWithDates, periods, minDate, maxDate) {
+            const chartHeader = document.getElementById('chartHeader');
+            const chartBody = document.getElementById('chartBody');
+            
+            chartHeader.innerHTML = '';
+            chartBody.innerHTML = '';
+            
+            // Define column width based on view
+            let columnWidth;
+            let pixelsPerDay;
+            
+            if (currentView === 'days') {
+                columnWidth = 70; // Days: wider to fit dd/mm/aa format
+                pixelsPerDay = 70;
+            } else if (currentView === 'weeks') {
+                columnWidth = 50; // Weeks: medium columns
+                pixelsPerDay = 50 / 7;
+            } else {
+                columnWidth = 80; // Months: wider columns
+                pixelsPerDay = 1; // Will calculate based on month
+            }
+            
+            // Group periods by month
+            const monthGroups = {};
+            periods.forEach(p => {
+                if (!monthGroups[p.month]) monthGroups[p.month] = [];
+                monthGroups[p.month].push(p);
+            });
+            
+            // Render months row - COMENTADO PARA TER APENAS UMA LINHA DE CABEÇALHO
+            // const monthsRow = document.createElement('div');
+            // monthsRow.className = 'months-row';
+            // Object.entries(monthGroups).forEach(([month, periods]) => {
+            //     const cell = document.createElement('div');
+            //     cell.className = 'month-cell';
+            //     cell.style.width = (periods.length * columnWidth) + 'px';
+            //     cell.textContent = month;
+            //     monthsRow.appendChild(cell);
+            // });
+            // chartHeader.appendChild(monthsRow);
+            
+            // Render periods row
+            const periodsRow = document.createElement('div');
+            periodsRow.className = 'weeks-row';
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            periods.forEach((period, index) => {
+                const cell = document.createElement('div');
+                cell.className = 'week-cell';
+                cell.style.width = columnWidth + 'px';
+                
+                // Show different label based on view
+                if (currentView === 'days' && period.fullDate) {
+                    cell.textContent = period.fullDate;
+                    cell.style.fontSize = '10px';
+                } else {
+                    cell.textContent = period.label;
+                }
+                
+                periodsRow.appendChild(cell);
+                
+                // Add columns to body - COMENTADO para remover grid visual
+                // Mantemos apenas a linha "Hoje" para referência
+                const col = document.createElement('div');
+                col.className = 'week-column';
+                col.style.left = (index * columnWidth) + 'px';
+                col.style.width = columnWidth + 'px';
+                
+                // Check if today is in this period
+                if (today >= period.start && today <= period.end) {
+                    col.classList.add('today');
+                    chartBody.appendChild(col); // Adiciona apenas a coluna "Hoje"
+                }
+                
+                // chartBody.appendChild(col); // COMENTADO - não adiciona todas as colunas
+            });
+            chartHeader.appendChild(periodsRow);
+            
+            // Set chart body width
+            chartBody.style.width = (periods.length * columnWidth) + 'px';
+            
+            // Render task bars
+            tasksWithDates.forEach((task, index) => {
+                const row = document.createElement('div');
+                row.className = 'chart-row';
+                
+                const taskStart = new Date(task.startDate);
+                const taskEnd = new Date(task.endDate);
+                
+                // Calculate position based on view
+                let left, width;
+                
+                if (currentView === 'months') {
+                    // Months: calculate based on month boundaries
+                    let startPeriodIndex = -1;
+                    let endPeriodIndex = -1;
+                    
+                    periods.forEach((period, idx) => {
+                        if (taskStart >= period.start && taskStart <= period.end) {
+                            startPeriodIndex = idx;
+                        }
+                        if (taskEnd >= period.start && taskEnd <= period.end) {
+                            endPeriodIndex = idx;
+                        }
+                    });
+                    
+                    if (startPeriodIndex === -1) startPeriodIndex = 0;
+                    if (endPeriodIndex === -1) endPeriodIndex = periods.length - 1;
+                    
+                    // Calculate position within month
+                    const startPeriod = periods[startPeriodIndex];
+                    const daysInStartMonth = (startPeriod.end - startPeriod.start) / (1000 * 60 * 60 * 24) + 1;
+                    const dayOfMonth = (taskStart - startPeriod.start) / (1000 * 60 * 60 * 24);
+                    const percentInMonth = dayOfMonth / daysInStartMonth;
+                    
+                    left = (startPeriodIndex * columnWidth) + (percentInMonth * columnWidth);
+                    
+                    // Calculate width across months
+                    const numMonths = endPeriodIndex - startPeriodIndex;
+                    if (numMonths === 0) {
+                        // Same month
+                        const taskDays = (taskEnd - taskStart) / (1000 * 60 * 60 * 24) + 1;
+                        width = (taskDays / daysInStartMonth) * columnWidth;
+                    } else {
+                        // Spans multiple months
+                        const endPeriod = periods[endPeriodIndex];
+                        const daysInEndMonth = (endPeriod.end - endPeriod.start) / (1000 * 60 * 60 * 24) + 1;
+                        const dayInEndMonth = (taskEnd - endPeriod.start) / (1000 * 60 * 60 * 24);
+                        const percentInEndMonth = dayInEndMonth / daysInEndMonth;
+                        
+                        // First month partial + full months + last month partial
+                        const firstMonthWidth = (1 - percentInMonth) * columnWidth;
+                        const middleMonthsWidth = (numMonths - 1) * columnWidth;
+                        const lastMonthWidth = percentInEndMonth * columnWidth;
+                        
+                        width = firstMonthWidth + middleMonthsWidth + lastMonthWidth;
+                    }
+                    
+                } else {
+                    // Days or Weeks: align with periods
+                    let startPeriodIndex = -1;
+                    let endPeriodIndex = -1;
+                    
+                    // Find which periods contain task start and end
+                    periods.forEach((period, idx) => {
+                        if (taskStart >= period.start && taskStart <= period.end) {
+                            startPeriodIndex = idx;
+                        }
+                        if (taskEnd >= period.start && taskEnd <= period.end) {
+                            endPeriodIndex = idx;
+                        }
+                    });
+                    
+                    if (startPeriodIndex === -1) startPeriodIndex = 0;
+                    if (endPeriodIndex === -1) endPeriodIndex = periods.length - 1;
+                    
+                    if (currentView === 'days') {
+                        // Days: each day is a period, so align precisely
+                        left = startPeriodIndex * columnWidth;
+                        width = (endPeriodIndex - startPeriodIndex + 1) * columnWidth;
+                    } else {
+                        // Weeks: each week is a period
+                        const startPeriod = periods[startPeriodIndex];
+                        const endPeriod = periods[endPeriodIndex];
+                        
+                        // Calculate position within week
+                        const daysSinceWeekStart = (taskStart - startPeriod.start) / (1000 * 60 * 60 * 24);
+                        const daysFromWeekEnd = (taskEnd - endPeriod.start) / (1000 * 60 * 60 * 24);
+                        
+                        // Position based on week columns
+                        left = startPeriodIndex * columnWidth + (daysSinceWeekStart / 7) * columnWidth;
+                        
+                        // Calculate total span
+                        const numWeeks = endPeriodIndex - startPeriodIndex;
+                        
+                        if (numWeeks === 0) {
+                            // Task within single week
+                            const taskDays = (taskEnd - taskStart) / (1000 * 60 * 60 * 24) + 1;
+                            width = (taskDays / 7) * columnWidth;
+                        } else {
+                            // Task spans multiple weeks
+                            // Days remaining in start week
+                            const daysInStartWeek = 7 - daysSinceWeekStart;
+                            // Days in end week
+                            const daysInEndWeek = daysFromWeekEnd + 1;
+                            // Full weeks in between
+                            const fullWeeks = Math.max(0, numWeeks - 1);
+                            
+                            width = (daysInStartWeek / 7) * columnWidth + 
+                                   (fullWeeks * columnWidth) + 
+                                   (daysInEndWeek / 7) * columnWidth;
+                        }
+                    }
+                }
+                
+                // Create task bar
+                const bar = document.createElement('div');
+                bar.className = `task-bar status-${task.status}`;
+                bar.style.left = left + 'px';
+                bar.style.width = Math.max(width, 20) + 'px'; // Minimum 20px width
+                
+                // Calculate progress metrics
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                const totalDays = Math.max((taskEnd - taskStart) / (1000 * 60 * 60 * 24), 1);
+                const elapsedDays = Math.max((today - taskStart) / (1000 * 60 * 60 * 24), 0);
+                const progressPercent = Math.min((elapsedDays / totalDays) * 100, 100);
+                const overdueDays = Math.max(Math.floor((today - taskEnd) / (1000 * 60 * 60 * 24)), 0);
+                const isOverdue = today > taskEnd;
+                const taskStatus = (task.status || '').toLowerCase();
+                const isCompleted = taskStatus.includes('concluí') || taskStatus.includes('done') || taskStatus.includes('completo');
+                
+                // OPÇÃO 3: Semáforo de cores baseado no progresso
+                let statusColor = 'green';
+                if (isCompleted) {
+                    statusColor = 'completed';
+                } else if (isOverdue) {
+                    statusColor = 'red';
+                } else if (progressPercent >= 70) {
+                    statusColor = 'yellow';
+                } else {
+                    statusColor = 'green';
+                }
+                
+                bar.classList.add(`status-${statusColor}`);
+                
+                // OPÇÃO 1: Barra de progresso visual (verde/azul ou vermelho)
+                if (!isCompleted && today >= taskStart) {
+                    // Remove background da barra quando tem segmentos
+                    bar.style.background = 'transparent';
+                    
+                    if (isOverdue) {
+                        // Tarefa atrasada: barra verde (100%) + barra vermelha (atraso)
+                        const progressBar = document.createElement('div');
+                        progressBar.className = 'task-bar-progress';
+                        progressBar.style.width = '100%';
+                        bar.appendChild(progressBar);
+                        
+                        // Barra de atraso vermelha
+                        const overduePercent = (overdueDays / totalDays) * 100;
+                        let delayWidth;
+                        
+                        if (currentView === 'days') {
+                            delayWidth = overdueDays * 40;
+                        } else if (currentView === 'weeks') {
+                            delayWidth = overdueDays * (50 / 7);
+                        } else {
+                            const todayMonth = today.getMonth();
+                            const todayYear = today.getFullYear();
+                            const daysInMonth = new Date(todayYear, todayMonth + 1, 0).getDate();
+                            delayWidth = (overdueDays / daysInMonth) * 80;
+                        }
+                        
+                        delayWidth = Math.min(delayWidth, width * 0.4); // Max 40% da barra
+                        
+                        if (delayWidth > 5) {
+                            const delayBar = document.createElement('div');
+                            delayBar.className = 'task-bar-delay';
+                            delayBar.style.width = delayWidth + 'px';
+                            bar.appendChild(delayBar);
+                        }
+                        
+                    } else {
+                        // Tarefa no prazo: barra verde (progresso) + barra azul clara (restante)
+                        const progressBar = document.createElement('div');
+                        progressBar.className = 'task-bar-progress';
+                        progressBar.style.width = progressPercent + '%';
+                        bar.appendChild(progressBar);
+                        
+                        const remainingBar = document.createElement('div');
+                        remainingBar.className = 'task-bar-remaining';
+                        remainingBar.style.left = progressPercent + '%';
+                        remainingBar.style.width = (100 - progressPercent) + '%';
+                        bar.appendChild(remainingBar);
+                    }
+                } else if (isCompleted) {
+                    // Tarefa concluída: barra verde sólida
+                    bar.style.background = 'transparent';
+                    const completedBar = document.createElement('div');
+                    completedBar.className = 'task-bar-progress';
+                    completedBar.style.width = '100%';
+                    bar.appendChild(completedBar);
+                }
+                // Senão (não iniciada): mantém background padrão do status
+                
+                // OPÇÃO 2: Porcentagem dentro da barra
+                if (currentView !== 'months' || width > 60) {
+                    const percentLabel = document.createElement('div');
+                    percentLabel.className = 'task-bar-percentage';
+                    
+                    if (isCompleted) {
+                        percentLabel.textContent = '✓ 100%';
+                    } else if (isOverdue) {
+                        percentLabel.textContent = `⚠ ${Math.round(progressPercent)}% (+${overdueDays}d)`;
+                    } else if (today >= taskStart) {
+                        percentLabel.textContent = `${Math.round(progressPercent)}%`;
+                    } else {
+                        percentLabel.textContent = task.title;
+                    }
+                    
+                    bar.appendChild(percentLabel);
+                } else {
+                    // Months view: show task ID
+                    const idLabel = document.createElement('div');
+                    idLabel.className = 'task-bar-percentage';
+                    idLabel.textContent = `TF-${task.id}`;
+                    bar.appendChild(idLabel);
+                }
+                
+                // OPÇÃO 4: Tooltip detalhado
+                const remainingDays = Math.max(Math.ceil((taskEnd - today) / (1000 * 60 * 60 * 24)), 0);
+                let tooltipText = `📋 ${task.title}\n`;
+                tooltipText += `📅 ${task.startDate} → ${task.endDate} (${Math.round(totalDays)} dias)\n`;
+                
+                if (isCompleted) {
+                    tooltipText += `✅ Status: Concluído`;
+                } else if (isOverdue) {
+                    tooltipText += `⏱️ Decorrido: ${Math.round(elapsedDays)} dias (${Math.round(progressPercent)}%)\n`;
+                    tooltipText += `⚠️ ATRASADO: ${overdueDays} dias\n`;
+                    tooltipText += `❌ Status: Crítico`;
+                } else if (today >= taskStart) {
+                    tooltipText += `⏱️ Decorrido: ${Math.round(elapsedDays)} dias (${Math.round(progressPercent)}%)\n`;
+                    tooltipText += `⏳ Restante: ${remainingDays} dias\n`;
+                    if (progressPercent >= 70) {
+                        tooltipText += `⚠️ Status: Atenção`;
+                    } else {
+                        tooltipText += `✅ Status: No prazo`;
+                    }
+                } else {
+                    tooltipText += `⏳ Inicia em: ${Math.ceil((taskStart - today) / (1000 * 60 * 60 * 24))} dias\n`;
+                    tooltipText += `📊 Status: Aguardando início`;
+                }
+                
+                bar.title = tooltipText;
+                bar.onclick = () => showTaskModal(task.id);
+                
+                row.appendChild(bar);
+                chartBody.appendChild(row);
+            });
+            
+            // Add today line (works in all modes)
+            try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                
+                
+                
+                
+                if (today >= minDate && today <= maxDate) {
+                    let todayPosition = null;
+                    
+                    // Find which period contains today
+                    let todayPeriodIndex = -1;
+                    periods.forEach((period, idx) => {
+                        if (today >= period.start && today <= period.end) {
+                            todayPeriodIndex = idx;
+                        }
+                    });
+                    
+                    if (todayPeriodIndex !== -1) {
+                        const todayPeriod = periods[todayPeriodIndex];
+                        
+                        if (currentView === 'days') {
+                            // Each day is a column
+                            todayPosition = todayPeriodIndex * columnWidth + (columnWidth / 2);
+                            
+                            
+                        } else if (currentView === 'weeks') {
+                            // Calculate position within week
+                            const daysSinceWeekStart = (today - todayPeriod.start) / (1000 * 60 * 60 * 24);
+                            const percentInWeek = daysSinceWeekStart / 7;
+                            todayPosition = (todayPeriodIndex * columnWidth) + (percentInWeek * columnWidth);
+                            
+                            
+                        } else if (currentView === 'months') {
+                            // Calculate position within month
+                            const todayMonth = today.getMonth();
+                            const todayYear = today.getFullYear();
+                            const daysInMonth = new Date(todayYear, todayMonth + 1, 0).getDate();
+                            const dayOfMonth = today.getDate();
+                            const percentInMonth = (dayOfMonth - 1) / daysInMonth;
+                            todayPosition = (todayPeriodIndex * columnWidth) + (percentInMonth * columnWidth);
+                            
+                        }
+                        
+                        if (todayPosition !== null && todayPosition >= 0) {
+                            const todayLine = document.createElement('div');
+                            todayLine.className = 'today-line';
+                            todayLine.style.left = todayPosition + 'px';
+                            todayLine.title = 'Hoje';
+                            chartBody.appendChild(todayLine);
+                            
+                        }
+                    }
+                }
+                
+                
+            } catch (error) {
+                console.error('❌ Erro ao adicionar linha Hoje:', error);
+                console.error('Stack:', error.stack);
+            }
+        }
+
+        // Auto-refresh
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'kanban-tasks' || e.key === 'kanban-swimlanes-mode') {
+                manualRefresh();
+            }
+        });
+
+        setInterval(() => {
+            const currentAllTasks = loadTasks();
+            
+            if (JSON.stringify(currentAllTasks) !== JSON.stringify(allTasks)) {
+                allTasks = currentAllTasks;
+                filterTimelineBySwimlane(); // Reaplicar filtro
+            }
+        }, 3000);
+
+        // Inicializar ao carregar página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSwimlaneFilterTimeline();
+            updateTaskCountTimeline();
+        });
+    </script>
+</body>
+</html>

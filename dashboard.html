@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html {
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+        
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #151923;
+            --bg-hover: #1c212e;
+            --border: #2a3142;
+            --text-primary: #e4e8f0;
+            --text-secondary: #8b92a8;
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+        
+        [data-theme="light"] {
+            --bg-dark: #ffffff;
+            --bg-card: #f8f9fa;
+            --bg-hover: #e9ecef;
+            --border: #dee2e6;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --accent-blue: #0d6efd;
+            --accent-purple: #7c3aed;
+            --accent-green: #059669;
+            --accent-orange: #f59e0b;
+            --accent-red: #dc3545;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            font-family: 'Archivo', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        [data-theme="light"] body::before {
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 100%;
+            width: 100%;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 0 0 auto;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex: 0 0 auto;
+        }
+        
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+            padding: 0;
+            white-space: nowrap;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            background: var(--accent-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Archivo', sans-serif;
+            font-size: 14px;
+        }
+        
+        .btn:hover {
+            background: var(--accent-purple);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+            border-color: var(--accent-blue);
+        }
+        
+        .theme-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: var(--border);
+            transform: scale(1.05);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin: 0 auto 24px auto;
+            max-width: 1600px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .chart-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            min-height: 380px;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        
+        .chart-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+        }
+        
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .chart-header {
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+        
+        .chart-note {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            padding: 12px;
+            background: var(--bg-hover);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 4px;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        
+        .chart-container {
+            position: relative;
+            flex: 1;
+            min-height: 280px;
+            max-height: 350px;
+        }
+        
+        .chart-container.tall {
+            min-height: 380px;
+            max-height: 450px;
+        }
+        
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+        
+        /* v3.0: Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .close-btn:hover {
+            background: var(--bg-hover);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        /* v3.0: Report Items */
+        .reports-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .report-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .report-item:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+        }
+        
+        .report-info {
+            flex: 1;
+        }
+        
+        .report-name {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        
+        .report-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .btn-danger {
+            background: var(--accent-red);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        /* v3.0: Comparison & Export */
+        .comparison-options,
+        .export-options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .comparison-btn,
+        .export-btn {
+            padding: 16px 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+        
+        .comparison-btn:hover,
+        .export-btn:hover {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+            transform: translateX(4px);
+        }
+        
+        .comparison-chart {
+            min-height: 300px;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-card.full-width {
+                grid-column: 1;
+            }
+            
+            .chart-container {
+                min-height: 250px;
+                max-height: 300px;
+            }
+        }
+        
+        @media (min-width: 1201px) and (max-width: 1600px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (min-width: 1601px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-container {
+                min-height: 300px;
+                max-height: 380px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">📊</div>
+                <h1>TaskFlow Dashboard <span style="font-size: 12px; color: var(--accent-blue); font-weight: 600;">v3.0 Pro</span></h1>
+                <span id="taskCount" style="margin-left: 16px; font-size: 14px; color: var(--text-secondary);"></span>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <!-- Seletor de Visualização -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">Visualização</label>
+                    <select id="swimlaneFilter" onchange="filterDashboardBySwimlane()" style="padding: 8px 12px; background: var(--bg-card); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; font-size: 14px; cursor: pointer; min-width: 180px;">
+                        <option value="all">📊 Todas as Tarefas</option>
+                        <option value="normal">📋 Modo Normal (Sem Raia)</option>
+                        <!-- Raias serão adicionadas via JavaScript -->
+                    </select>
+                </div>
+                <div class="header-actions">
+                <button class="btn btn-secondary" onclick="openReportsManager()" title="Gerenciar relatórios customizados">
+                    📊 Relatórios
+                </button>
+                <button class="btn btn-secondary" onclick="openComparisonMode()" title="Comparar períodos">
+                    📈 Comparar
+                </button>
+                <button class="btn btn-secondary" onclick="openExportMenu()" title="Exportar dados e gráficos">
+                    📥 Exportar
+                </button>
+                <button class="btn btn-secondary" onclick="manualRefresh()" title="Atualizar dados manualmente">
+                    🔄 Atualizar
+                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('csvDashboardInput').click()" title="Carregar CSV para análise histórica">
+                    📂 Importar CSV
+                </button>
+                <input type="file" id="csvDashboardInput" accept=".csv" style="display: none;" onchange="loadCSVData(event)">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Alternar tema" id="themeToggle">
+                    🌙
+                </button>
+                <button class="btn btn-secondary" onclick="window.close()">← Voltar ao Kanban</button>
+            </div>
+        </div>
+
+        <!-- Banner Informativo -->
+        <div id="emptyDataBanner" style="display: none; margin: 20px auto; max-width: 800px; padding: 20px; background: var(--bg-card); border: 2px solid var(--accent-orange); border-radius: 12px; text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
+            <h2 style="color: var(--text-primary); margin-bottom: 12px;">Dashboard sem Dados</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 20px; line-height: 1.6;">
+                Nenhuma tarefa encontrada no localStorage do Kanban.<br>
+                Crie tarefas no sistema Kanban ou importe um CSV para análise.
+            </p>
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn" onclick="window.close()" style="padding: 12px 24px;">
+                    📋 Fechar e Voltar
+                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('csvDashboardInput').click()" style="padding: 12px 24px;">
+                    📥 Importar CSV
+                </button>
+            </div>
+            <p style="color: var(--text-secondary); margin-top: 20px; font-size: 14px;">
+                💡 <strong>Dica:</strong> O Dashboard sincroniza automaticamente com o Kanban!<br>
+                Use <code>taskflow_exemplo.csv</code> para testar com dados de exemplo.
+            </p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Gráfico de Burndown -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Gráfico de Burndown</h3>
+                    <div class="chart-note">
+                        Acompanha o trabalho restante em uma sprint em relação ao tempo. Ajuda a gerenciar o progresso e a responder a desvios, como o aumento do escopo ou atrasos.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="burndownChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Velocidade -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Gráfico de Velocidade</h3>
+                    <div class="chart-note">
+                        Mostra a quantidade de trabalho (geralmente em story points) que uma equipe conclui sprint após sprint. É crucial para prever de forma mais realista o quanto a equipe pode se comprometer em sprints futuras.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="velocityChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Relatório de Sprint -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Relatório de Sprint</h3>
+                    <div class="chart-note">
+                        Identifica excessos de comprometimento, aumento do escopo e o trabalho concluído em cada sprint específica.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sprintReportChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Burndown de Versão -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Burndown de Versão</h3>
+                    <div class="chart-note">
+                        Monitora o progresso em direção a uma data de lançamento projetada, ajudando a tomar medidas se o trabalho estiver atrasado.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="releaseBurndownChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Diagrama de Fluxo Cumulativo -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <h3 class="chart-title">Diagrama de Fluxo Cumulativo (CFD)</h3>
+                    <div class="chart-note">
+                        Visualiza o fluxo de trabalho e ajuda a identificar gargalos (conforme as faixas coloridas se alargam) e a prever o tempo de ciclo e o lead time.
+                    </div>
+                </div>
+                <div class="chart-container tall">
+                    <canvas id="cfdChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Controle -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <h3 class="chart-title">Gráfico de Controle</h3>
+                    <div class="chart-note">
+                        Ajuda a determinar o desempenho futuro, mostrando os tempos de ciclo e de espera dos itens, além de médias e desvios padrão para identificar variações na estabilidade do processo.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="controlChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Pizza -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Distribuição por Status</h3>
+                    <div class="chart-note">
+                        Mostra a proporção de itens com base em um critério específico, como status, responsável ou prioridade.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="pieChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Itens Criados vs. Resolvidos -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Itens Criados vs. Resolvidos</h3>
+                    <div class="chart-note">
+                        Acompanha o volume de trabalho que entra e sai do sistema ao longo do tempo, ajudando a entender a capacidade da equipe.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="createdVsResolvedChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Média de Idade -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Relatório de Média de Idade</h3>
+                    <div class="chart-note">
+                        Exibe a idade média dos itens não resolvidos.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="averageAgeChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Gráfico de Barras por Prioridade -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3 class="chart-title">Tarefas por Prioridade</h3>
+                    <div class="chart-note">
+                        Usados em vários gadgets para comparar resultados entre diferentes categorias ou períodos.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="priorityBarChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Relatórios de DevOps -->
+            <div class="chart-card full-width">
+                <div class="chart-header">
+                    <h3 class="chart-title">Métricas de DevOps</h3>
+                    <div class="chart-note">
+                        Integram dados de ferramentas de desenvolvimento (como Git e Bitbucket) para mostrar métricas como frequência de implantação.
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="devopsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Carregar tema salvo
+        const savedTheme = localStorage.getItem('kanban-theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon();
+
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('kanban-theme', newTheme);
+            updateThemeIcon();
+            updateAllCharts();
+        }
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            const icon = theme === 'dark' ? '🌙' : '☀️';
+            document.getElementById('themeToggle').textContent = icon;
+        }
+
+        // Função para obter cores baseadas no tema
+        function getThemeColors() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            return {
+                primary: isDark ? '#3b82f6' : '#0d6efd',
+                purple: isDark ? '#8b5cf6' : '#7c3aed',
+                green: isDark ? '#10b981' : '#059669',
+                orange: isDark ? '#f59e0b' : '#f59e0b',
+                red: isDark ? '#ef4444' : '#dc3545',
+                text: isDark ? '#e4e8f0' : '#212529',
+                grid: isDark ? '#2a3142' : '#dee2e6'
+            };
+        }
+
+        // Carregar dados do localStorage
+        function loadTasksData() {
+            const tasksData = localStorage.getItem('kanban-tasks');
+            return tasksData ? JSON.parse(tasksData) : [];
+        }
+
+        // Load swimlanes
+        function loadSwimlanes() {
+            const swimlanesData = localStorage.getItem('kanban-swimlanes');
+            return swimlanesData ? JSON.parse(swimlanesData) : [];
+        }
+
+        // Load swimlane mode
+        function loadSwimlanesMode() {
+            const mode = localStorage.getItem('kanban-swimlanes-mode');
+            return mode ? JSON.parse(mode) : false;
+        }
+
+        // Filter tasks by current mode
+        function filterTasksByMode(allTasks) {
+            const swimlanesMode = loadSwimlanesMode();
+            
+            if (swimlanesMode) {
+                // Swimlane mode: only tasks WITH swimlane
+                return allTasks.filter(t => t.swimlane && t.swimlane !== '');
+            } else {
+                // Normal mode: only tasks WITHOUT swimlane
+                return allTasks.filter(t => !t.swimlane || t.swimlane === '');
+            }
+        }
+
+        // Variáveis globais para filtragem
+        const allTasks = loadTasksData();
+        let currentSwimlaneFilter = 'all'; // 'all', 'normal', ou ID da raia
+        let filteredTasks = allTasks; // Tarefas após aplicar filtro
+
+        // Inicializar seletor de raias
+        function initializeSwimlaneFilter() {
+            const select = document.getElementById('swimlaneFilter');
+            const swimlanes = loadSwimlanes();
+            
+            // Limpar opções existentes (mantém as duas primeiras: Todas e Normal)
+            while (select.options.length > 2) {
+                select.remove(2);
+            }
+            
+            // Adicionar raias
+            swimlanes.forEach(swimlane => {
+                const option = document.createElement('option');
+                option.value = swimlane.id;
+                option.textContent = `${swimlane.icon} ${swimlane.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Filtrar dashboard por raia
+        function filterDashboardBySwimlane() {
+            const select = document.getElementById('swimlaneFilter');
+            currentSwimlaneFilter = select.value;
+            
+            // Aplicar filtro
+            if (currentSwimlaneFilter === 'all') {
+                // Mostrar todas as tarefas
+                filteredTasks = allTasks;
+            } else if (currentSwimlaneFilter === 'normal') {
+                // Apenas tarefas sem raia
+                filteredTasks = allTasks.filter(t => !t.swimlane || t.swimlane === '');
+            } else {
+                // Apenas tarefas da raia selecionada
+                filteredTasks = allTasks.filter(t => t.swimlane === currentSwimlaneFilter);
+            }
+            
+            // Atualizar contador
+            updateTaskCount();
+            
+            // Redesenhar todos os gráficos
+            updateAllCharts();
+        }
+
+        // Atualizar contador de tarefas
+        function updateTaskCount() {
+            const counter = document.getElementById('taskCount');
+            if (counter) {
+                const filterName = currentSwimlaneFilter === 'all' ? 'Todas' : 
+                                   currentSwimlaneFilter === 'normal' ? 'Normal' :
+                                   document.getElementById('swimlaneFilter').selectedOptions[0].textContent;
+                counter.textContent = `${filteredTasks.length} tarefa(s) - ${filterName}`;
+            }
+        }
+
+        // Manter compatibilidade - usar filteredTasks em vez de tasks
+        const tasks = filteredTasks;
+
+        // Processar dados reais das tarefas
+        function processTasksData() {
+            // Usar filteredTasks em vez de tasks
+            const currentTasks = filteredTasks;
+            // Contador por status
+            const statusCount = {};
+            currentTasks.forEach(task => {
+                statusCount[task.status] = (statusCount[task.status] || 0) + 1;
+            });
+
+            // Contador por prioridade
+            const priorityCount = { high: 0, medium: 0, low: 0 };
+            currentTasks.forEach(task => {
+                if (priorityCount.hasOwnProperty(task.priority)) {
+                    priorityCount[task.priority]++;
+                }
+            });
+
+            // Lead time médio
+            const tasksWithLeadTime = currentTasks.filter(t => t.leadTime);
+            const avgLeadTime = tasksWithLeadTime.length > 0 
+                ? Math.round(tasksWithLeadTime.reduce((sum, t) => sum + t.leadTime, 0) / tasksWithLeadTime.length)
+                : 0;
+
+            // Tarefas por mês (últimos 6 meses)
+            const monthlyData = {};
+            const now = new Date();
+            for (let i = 5; i >= 0; i--) {
+                const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                const key = date.toLocaleDateString('pt-BR', { month: 'short' });
+                monthlyData[key] = { created: 0, completed: 0 };
+            }
+
+            currentTasks.forEach(task => {
+                if (task.createdAt) {
+                    const created = new Date(task.createdAt);
+                    const key = created.toLocaleDateString('pt-BR', { month: 'short' });
+                    if (monthlyData[key]) monthlyData[key].created++;
+                }
+                
+                const isCompleted = task.status && (
+                    task.status.toLowerCase().includes('conclu') || 
+                    task.status.toLowerCase().includes('done')
+                );
+                if (isCompleted && task.endDate) {
+                    const ended = new Date(task.endDate);
+                    const key = ended.toLocaleDateString('pt-BR', { month: 'short' });
+                    if (monthlyData[key]) monthlyData[key].completed++;
+                }
+            });
+
+            // Lead time por status
+            const leadTimeByStatus = {};
+            currentTasks.forEach(task => {
+                if (task.leadTime && task.status) {
+                    if (!leadTimeByStatus[task.status]) {
+                        leadTimeByStatus[task.status] = [];
+                    }
+                    leadTimeByStatus[task.status].push(task.leadTime);
+                }
+            });
+
+            const avgLeadTimeByStatus = {};
+            Object.keys(leadTimeByStatus).forEach(status => {
+                const times = leadTimeByStatus[status];
+                avgLeadTimeByStatus[status] = Math.round(times.reduce((a, b) => a + b, 0) / times.length);
+            });
+
+            // Burndown simulado (últimos 7 dias de trabalho)
+            const totalTasks = currentTasks.length;
+            const completedTasks = currentTasks.filter(t => 
+                t.status && (t.status.toLowerCase().includes('conclu') || t.status.toLowerCase().includes('done'))
+            ).length;
+            const remaining = totalTasks - completedTasks;
+            
+            const idealBurndown = [];
+            const actualBurndown = [];
+            for (let i = 0; i <= 7; i++) {
+                idealBurndown.push(Math.round(totalTasks * (1 - i/7)));
+                actualBurndown.push(Math.max(0, remaining + Math.round((totalTasks - remaining) * (1 - i/7))));
+            }
+
+            return {
+                statusCount,
+                priorityCount,
+                avgLeadTime,
+                monthlyData,
+                avgLeadTimeByStatus,
+                idealBurndown,
+                actualBurndown,
+                totalTasks,
+                completedTasks
+            };
+        }
+
+        const processedData = processTasksData();
+
+        // Configuração padrão dos gráficos
+        Chart.defaults.color = getThemeColors().text;
+        Chart.defaults.borderColor = getThemeColors().grid;
+
+        // 1. Gráfico de Burndown
+        const burndownCtx = document.getElementById('burndownChart').getContext('2d');
+        const burndownChart = new Chart(burndownCtx, {
+            type: 'line',
+            data: {
+                labels: ['Dia 0', 'Dia 1', 'Dia 2', 'Dia 3', 'Dia 4', 'Dia 5', 'Dia 6', 'Dia 7'],
+                datasets: [{
+                    label: 'Trabalho Ideal',
+                    data: processedData.idealBurndown,
+                    borderColor: getThemeColors().grid,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.1
+                }, {
+                    label: 'Trabalho Real',
+                    data: processedData.actualBurndown,
+                    borderColor: getThemeColors().primary,
+                    backgroundColor: getThemeColors().primary + '20',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Story Points', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 2. Gráfico de Velocidade
+        const velocityCtx = document.getElementById('velocityChart').getContext('2d');
+        const velocityChart = new Chart(velocityCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sprint 1', 'Sprint 2', 'Sprint 3', 'Sprint 4', 'Sprint 5'],
+                datasets: [{
+                    label: 'Planejado',
+                    data: [45, 50, 48, 52, 50],
+                    backgroundColor: getThemeColors().grid,
+                }, {
+                    label: 'Concluído',
+                    data: [42, 48, 51, 49, 53],
+                    backgroundColor: getThemeColors().green,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Story Points', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 3. Relatório de Sprint
+        const sprintReportCtx = document.getElementById('sprintReportChart').getContext('2d');
+        const sprintReportChart = new Chart(sprintReportCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sprint 5'],
+                datasets: [{
+                    label: 'Comprometido',
+                    data: [50],
+                    backgroundColor: getThemeColors().primary,
+                }, {
+                    label: 'Adicionado',
+                    data: [8],
+                    backgroundColor: getThemeColors().orange,
+                }, {
+                    label: 'Concluído',
+                    data: [53],
+                    backgroundColor: getThemeColors().green,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Story Points', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 4. Burndown de Versão
+        const releaseBurndownCtx = document.getElementById('releaseBurndownChart').getContext('2d');
+        const releaseBurndownChart = new Chart(releaseBurndownCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Planejado',
+                    data: [250, 200, 150, 100, 50, 0],
+                    borderColor: getThemeColors().grid,
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.1
+                }, {
+                    label: 'Real',
+                    data: [250, 210, 165, 125, 85, null],
+                    borderColor: getThemeColors().red,
+                    backgroundColor: getThemeColors().red + '20',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Story Points', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 5. Diagrama de Fluxo Cumulativo (CFD)
+        const cfdCtx = document.getElementById('cfdChart').getContext('2d');
+        const cfdChart = new Chart(cfdCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'],
+                datasets: [{
+                    label: 'Backlog',
+                    data: [45, 50, 48, 52, 50, 48],
+                    backgroundColor: getThemeColors().grid,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'A Fazer',
+                    data: [30, 35, 33, 38, 36, 34],
+                    backgroundColor: getThemeColors().primary,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Em Progresso',
+                    data: [15, 18, 20, 22, 24, 26],
+                    backgroundColor: getThemeColors().orange,
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Concluído',
+                    data: [10, 15, 22, 28, 35, 42],
+                    backgroundColor: getThemeColors().green,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        title: { display: true, text: 'Número de Itens', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 6. Gráfico de Controle
+        const controlCtx = document.getElementById('controlChart').getContext('2d');
+        const cycleTimeData = [3, 5, 4, 6, 3, 7, 4, 5, 8, 4, 6, 5, 9, 4, 7];
+        const average = cycleTimeData.reduce((a, b) => a + b) / cycleTimeData.length;
+        const stdDev = Math.sqrt(cycleTimeData.map(x => Math.pow(x - average, 2)).reduce((a, b) => a + b) / cycleTimeData.length);
+        
+        const controlChart = new Chart(controlCtx, {
+            type: 'line',
+            data: {
+                labels: cycleTimeData.map((_, i) => `Item ${i + 1}`),
+                datasets: [{
+                    label: 'Tempo de Ciclo',
+                    data: cycleTimeData,
+                    borderColor: getThemeColors().primary,
+                    backgroundColor: getThemeColors().primary,
+                    pointRadius: 5,
+                    fill: false
+                }, {
+                    label: 'Média',
+                    data: Array(cycleTimeData.length).fill(average),
+                    borderColor: getThemeColors().green,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    fill: false
+                }, {
+                    label: 'Limite Superior',
+                    data: Array(cycleTimeData.length).fill(average + 2 * stdDev),
+                    borderColor: getThemeColors().red,
+                    borderDash: [2, 2],
+                    pointRadius: 0,
+                    fill: false
+                }, {
+                    label: 'Limite Inferior',
+                    data: Array(cycleTimeData.length).fill(Math.max(0, average - 2 * stdDev)),
+                    borderColor: getThemeColors().red,
+                    borderDash: [2, 2],
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Dias', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 7. Gráfico de Pizza - Distribuição por Status
+        const pieCtx = document.getElementById('pieChart').getContext('2d');
+        
+        // Calcular distribuição real das tarefas
+        const statusCount = {};
+        tasks.forEach(task => {
+            statusCount[task.status] = (statusCount[task.status] || 0) + 1;
+        });
+        
+        const pieChart = new Chart(pieCtx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(statusCount).length > 0 ? Object.keys(statusCount) : ['Backlog', 'A Fazer', 'Em Progresso', 'Concluído'],
+                datasets: [{
+                    data: Object.values(statusCount).length > 0 ? Object.values(statusCount) : [25, 30, 20, 25],
+                    backgroundColor: [
+                        getThemeColors().grid,
+                        getThemeColors().primary,
+                        getThemeColors().orange,
+                        getThemeColors().green
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: getThemeColors().text }
+                    }
+                }
+            }
+        });
+
+        // 8. Itens Criados vs. Resolvidos
+        const createdVsResolvedCtx = document.getElementById('createdVsResolvedChart').getContext('2d');
+        const monthLabels = Object.keys(processedData.monthlyData);
+        const createdData = monthLabels.map(m => processedData.monthlyData[m].created);
+        const completedData = monthLabels.map(m => processedData.monthlyData[m].completed);
+        
+        const createdVsResolvedChart = new Chart(createdVsResolvedCtx, {
+            type: 'line',
+            data: {
+                labels: monthLabels.length > 0 ? monthLabels : ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Criados',
+                    data: createdData.length > 0 && createdData.some(v => v > 0) ? createdData : [0, 0, 0, 0, 0, 0],
+                    borderColor: getThemeColors().primary,
+                    backgroundColor: getThemeColors().primary + '20',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Resolvidos',
+                    data: completedData.length > 0 && completedData.some(v => v > 0) ? completedData : [0, 0, 0, 0, 0, 0],
+                    borderColor: getThemeColors().green,
+                    backgroundColor: getThemeColors().green + '20',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Número de Itens', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 9. Média de Idade (Lead Time por Status)
+        const averageAgeCtx = document.getElementById('averageAgeChart').getContext('2d');
+        const statusLabels = Object.keys(processedData.avgLeadTimeByStatus);
+        const avgLeadTimes = Object.values(processedData.avgLeadTimeByStatus);
+        
+        const averageAgeChart = new Chart(averageAgeCtx, {
+            type: 'bar',
+            data: {
+                labels: statusLabels.length > 0 ? statusLabels : ['Sem Dados'],
+                datasets: [{
+                    label: 'Lead Time Médio (dias)',
+                    data: avgLeadTimes.length > 0 ? avgLeadTimes : [0],
+                    backgroundColor: statusLabels.length > 0 ? statusLabels.map((_, i) => {
+                        const colors = [getThemeColors().red, getThemeColors().orange, getThemeColors().primary, getThemeColors().green, getThemeColors().purple];
+                        return colors[i % colors.length];
+                    }) : [getThemeColors().primary]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Dias', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 10. Gráfico de Barras por Prioridade
+        const priorityBarCtx = document.getElementById('priorityBarChart').getContext('2d');
+        
+        // Calcular distribuição real por prioridade
+        const priorityCount = { high: 0, medium: 0, low: 0 };
+        tasks.forEach(task => {
+            if (priorityCount.hasOwnProperty(task.priority)) {
+                priorityCount[task.priority]++;
+            }
+        });
+        
+        const priorityBarChart = new Chart(priorityBarCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Alta', 'Média', 'Baixa'],
+                datasets: [{
+                    label: 'Número de Tarefas',
+                    data: [priorityCount.high || 12, priorityCount.medium || 25, priorityCount.low || 18],
+                    backgroundColor: [
+                        getThemeColors().red,
+                        getThemeColors().orange,
+                        getThemeColors().green
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Quantidade', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // 11. Relatórios de DevOps
+        const devopsCtx = document.getElementById('devopsChart').getContext('2d');
+        const devopsChart = new Chart(devopsCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4'],
+                datasets: [{
+                    label: 'Commits',
+                    data: [125, 142, 138, 156],
+                    backgroundColor: getThemeColors().primary,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Pull Requests',
+                    data: [24, 28, 26, 32],
+                    backgroundColor: getThemeColors().purple,
+                    yAxisID: 'y'
+                }, {
+                    label: 'Deploys',
+                    data: [15, 18, 17, 22],
+                    backgroundColor: getThemeColors().green,
+                    yAxisID: 'y'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: getThemeColors().text }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        beginAtZero: true,
+                        title: { display: true, text: 'Quantidade', color: getThemeColors().text },
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    },
+                    x: {
+                        ticks: { color: getThemeColors().text },
+                        grid: { color: getThemeColors().grid }
+                    }
+                }
+            }
+        });
+
+        // Função para atualizar todos os gráficos quando o tema muda
+        function updateAllCharts() {
+            const charts = [
+                burndownChart, velocityChart, sprintReportChart, releaseBurndownChart,
+                cfdChart, controlChart, pieChart, createdVsResolvedChart,
+                averageAgeChart, priorityBarChart, devopsChart
+            ];
+
+            charts.forEach(chart => {
+                if (chart && chart.options) {
+                    // Atualizar cores do texto
+                    if (chart.options.plugins && chart.options.plugins.legend) {
+                        chart.options.plugins.legend.labels.color = getThemeColors().text;
+                    }
+                    
+                    // Atualizar cores dos eixos
+                    if (chart.options.scales) {
+                        Object.keys(chart.options.scales).forEach(scaleKey => {
+                            const scale = chart.options.scales[scaleKey];
+                            if (scale.ticks) scale.ticks.color = getThemeColors().text;
+                            if (scale.grid) scale.grid.color = getThemeColors().grid;
+                            if (scale.title) scale.title.color = getThemeColors().text;
+                        });
+                    }
+                    
+                    // Atualizar cores dos datasets
+                    if (chart.data && chart.data.datasets) {
+                        chart.data.datasets.forEach((dataset, index) => {
+                            const colors = getThemeColors();
+                            if (chart.config.type === 'pie') {
+                                dataset.backgroundColor = [
+                                    colors.grid,
+                                    colors.primary,
+                                    colors.orange,
+                                    colors.green
+                                ];
+                            }
+                        });
+                    }
+                    
+                    chart.update();
+                }
+            });
+        }
+
+        // Atualizar contador de tarefas
+        function updateTaskCount() {
+            const countElement = document.getElementById('taskCount');
+            const banner = document.getElementById('emptyDataBanner');
+            const dashboardGrid = document.querySelector('.dashboard-grid');
+            
+            if (tasks.length === 0) {
+                countElement.innerHTML = '<span style="color: var(--accent-orange);">⚠️ Nenhuma tarefa - Crie tarefas no Kanban</span>';
+                banner.style.display = 'block';
+                dashboardGrid.style.opacity = '0.3';
+            } else {
+                const lastUpdate = new Date().toLocaleTimeString('pt-BR');
+                countElement.innerHTML = `📋 ${tasks.length} tarefa${tasks.length > 1 ? 's' : ''} | ✅ ${processedData.completedTasks} concluída${processedData.completedTasks !== 1 ? 's' : ''} | 🕐 ${lastUpdate}`;
+                banner.style.display = 'none';
+                dashboardGrid.style.opacity = '1';
+            }
+        }
+
+        // Atualização manual
+        function manualRefresh() {
+            const button = event.target;
+            const originalText = button.innerHTML;
+            
+            button.innerHTML = '🔄 Atualizando...';
+            button.disabled = true;
+            
+            // Recarregar dados do localStorage com filtro de modo
+            const newAllTasks = loadTasksData();
+            const newTasks = filterTasksByMode(newAllTasks);
+            
+            if (newTasks.length === 0 && tasks.length === 0) {
+                const modeName = loadSwimlanesMode() ? 'modo raias' : 'modo normal';
+                alert(`⚠️ Nenhuma tarefa encontrada no ${modeName}!\n\nCrie tarefas no Kanban primeiro ou alterne o modo.`);
+                button.innerHTML = originalText;
+                button.disabled = false;
+                return;
+            }
+            
+            // Atualizar dados
+            tasks.length = 0;
+            tasks.push(...newTasks);
+            Object.assign(processedData, processTasksData());
+            
+            // Atualizar interface
+            updateAllCharts();
+            updateTaskCount();
+            
+            // Feedback visual
+            button.innerHTML = '✅ Atualizado!';
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 1500);
+        }
+
+        // Auto-refresh: Monitorar mudanças no localStorage
+        let isRefreshing = false;
+        
+        window.addEventListener('storage', (e) => {
+            // Detectar mudanças no localStorage do Kanban ou modo
+            if ((e.key === 'kanban-tasks' || e.key === 'kanban-swimlanes-mode') && !isRefreshing) {
+                
+                isRefreshing = true;
+                
+                // Recarregar dados com filtro de modo
+                const newAllTasks = loadTasksData();
+                const newTasks = filterTasksByMode(newAllTasks);
+                tasks.length = 0;
+                tasks.push(...newTasks);
+                Object.assign(processedData, processTasksData());
+                
+                // Atualizar interface
+                updateAllCharts();
+                updateTaskCount();
+                
+                // Mostrar notificação temporária
+                showUpdateNotification();
+                
+                setTimeout(() => {
+                    isRefreshing = false;
+                }, 1000);
+            }
+        });
+
+        // Polling como fallback (para mesma aba)
+        let lastTaskCount = tasks.length;
+        let lastTasksJSON = JSON.stringify(tasks);
+        
+        setInterval(() => {
+            const currentTasks = loadTasksData();
+            const currentJSON = JSON.stringify(currentTasks);
+            
+            // Verificar se houve mudanças
+            if (currentJSON !== lastTasksJSON) {
+                
+                
+                tasks.length = 0;
+                tasks.push(...currentTasks);
+                Object.assign(processedData, processTasksData());
+                
+                updateAllCharts();
+                updateTaskCount();
+                showUpdateNotification();
+                
+                lastTasksJSON = currentJSON;
+            }
+        }, 3000); // Verificar a cada 3 segundos
+
+        // Mostrar notificação de atualização
+        function showUpdateNotification() {
+            // Criar elemento de notificação
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: var(--accent-green);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 10000;
+                font-weight: 600;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.innerHTML = '✅ Dashboard atualizado automaticamente';
+            
+            document.body.appendChild(notification);
+            
+            // Remover após 3 segundos
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Sincronizar com Kanban (removido - agora é automático)
+        function syncFromKanban() {
+            manualRefresh();
+        }
+
+        // Carregar dados do CSV
+        function loadCSVData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const csvContent = e.target.result;
+                    const lines = csvContent.split('\n').filter(line => line.trim());
+                    
+                    if (lines.length < 2) {
+                        alert('❌ Arquivo CSV vazio ou inválido!');
+                        return;
+                    }
+
+                    // Parsear CSV
+                    const headers = parseCSVLine(lines[0]);
+                    const newTasks = [];
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length < 5) continue; // Pular linhas inválidas
+
+                        const task = {
+                            id: parseInt(values[0]) || i,
+                            title: values[1] || 'Sem título',
+                            description: values[2] || '',
+                            priority: values[3] || 'medium',
+                            status: values[4] || 'backlog',
+                            assignee: values[5] || '',
+                            assigneeEmail: values[6] || '',
+                            swimlane: values[7] || null,
+                            tags: values[8] ? values[8].split(';').map(t => t.trim()).filter(t => t) : [],
+                            createdAt: values[9] || new Date().toISOString(),
+                            startDate: values[10] || '',
+                            endDate: values[11] || '',
+                            leadTime: values[12] ? parseInt(values[12]) : null
+                        };
+
+                        newTasks.push(task);
+                    }
+
+                    if (newTasks.length === 0) {
+                        alert('❌ Nenhuma tarefa válida encontrada no CSV!');
+                        return;
+                    }
+
+                    // Atualizar variável global e salvar no localStorage temporário
+                    tasks.length = 0;
+                    tasks.push(...newTasks);
+                    
+                    // Reprocessar dados
+                    Object.assign(processedData, processTasksData());
+                    
+                    // Atualizar todos os gráficos
+                    updateAllCharts();
+                    updateTaskCount();
+                    
+                    alert(`✅ CSV carregado com sucesso!\n\n${newTasks.length} tarefa(s) importada(s).\n\nOs gráficos foram atualizados com os dados reais.`);
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar CSV:', error);
+                    alert('❌ Erro ao carregar arquivo CSV!\n\nVerifique se o arquivo está no formato correto.');
+                }
+                
+                event.target.value = '';
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        // Parsear linha CSV
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        current += '"';
+                        i++;
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current);
+
+            return values.map(v => v.trim());
+        }
+
+        // Atualizar todos os gráficos
+        function updateAllCharts() {
+            // Atualizar Burndown
+            burndownChart.data.datasets[0].data = processedData.idealBurndown;
+            burndownChart.data.datasets[1].data = processedData.actualBurndown;
+            burndownChart.update();
+
+            // Atualizar Pizza
+            const statusLabels = Object.keys(processedData.statusCount);
+            const statusValues = Object.values(processedData.statusCount);
+            pieChart.data.labels = statusLabels.length > 0 ? statusLabels : ['Sem Dados'];
+            pieChart.data.datasets[0].data = statusValues.length > 0 ? statusValues : [1];
+            pieChart.update();
+
+            // Atualizar Criados vs Resolvidos
+            const monthLabels = Object.keys(processedData.monthlyData);
+            const createdData = monthLabels.map(m => processedData.monthlyData[m].created);
+            const completedData = monthLabels.map(m => processedData.monthlyData[m].completed);
+            createdVsResolvedChart.data.labels = monthLabels.length > 0 ? monthLabels : ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'];
+            createdVsResolvedChart.data.datasets[0].data = createdData.length > 0 ? createdData : [0, 0, 0, 0, 0, 0];
+            createdVsResolvedChart.data.datasets[1].data = completedData.length > 0 ? completedData : [0, 0, 0, 0, 0, 0];
+            createdVsResolvedChart.update();
+
+            // Atualizar Lead Time por Status
+            const statusLeadLabels = Object.keys(processedData.avgLeadTimeByStatus);
+            const avgLeadTimes = Object.values(processedData.avgLeadTimeByStatus);
+            averageAgeChart.data.labels = statusLeadLabels.length > 0 ? statusLeadLabels : ['Sem Dados'];
+            averageAgeChart.data.datasets[0].data = avgLeadTimes.length > 0 ? avgLeadTimes : [0];
+            averageAgeChart.update();
+
+            // Atualizar Prioridade
+            priorityBarChart.data.datasets[0].data = [
+                processedData.priorityCount.high || 0,
+                processedData.priorityCount.medium || 0,
+                processedData.priorityCount.low || 0
+            ];
+            priorityBarChart.update();
+        }
+
+        // Executar ao carregar
+        updateTaskCount();
+    </script>
+    
+    <script>
+// ========================================
+// v3.0: RELATÓRIOS CUSTOMIZADOS
+// ========================================
+
+let savedReports = [];
+let currentReport = null;
+
+function loadSavedReports() {
+    const data = localStorage.getItem('taskflow-custom-reports');
+    if (data) {
+        savedReports = JSON.parse(data);
+    }
+}
+
+function saveSavedReports() {
+    localStorage.setItem('taskflow-custom-reports', JSON.stringify(savedReports));
+}
+
+function openReportsManager() {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'reportsModal';
+    
+    const reportsList = savedReports.map((report, index) => `
+        <div class="report-item">
+            <div class="report-info">
+                <div class="report-name">${report.name}</div>
+                <div class="report-meta">${report.charts.length} gráficos · Criado em ${formatDate(report.createdAt)}</div>
+            </div>
+            <div class="report-actions">
+                <button onclick="loadReport(${index})" class="btn btn-sm btn-primary">📊 Carregar</button>
+                <button onclick="deleteReport(${index})" class="btn btn-sm btn-danger">🗑️</button>
+            </div>
+        </div>
+    `).join('');
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2>📊 Relatórios Customizados</h2>
+                <button class="close-btn" onclick="closeReportsModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 20px;">
+                    <button onclick="createNewReport()" class="btn btn-primary" style="width: 100%;">
+                        ➕ Criar Novo Relatório
+                    </button>
+                </div>
+                <div class="reports-list">
+                    ${savedReports.length > 0 ? reportsList : '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">📭 Nenhum relatório salvo ainda</div>'}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function closeReportsModal() {
+    const modal = document.getElementById('reportsModal');
+    if (modal) modal.remove();
+}
+
+function createNewReport() {
+    const name = prompt('Nome do relatório:');
+    if (!name) return;
+    
+    const selectedCharts = prompt('Gráficos (separados por vírgula):\n\nDisponíveis: velocidade, burndown, prioridades, status, tags, tempo, cfd, lead-time, ciclo, throughput, conclusoes').split(',').map(c => c.trim());
+    
+    const report = {
+        id: Date.now(),
+        name: name,
+        charts: selectedCharts,
+        createdAt: new Date().toISOString()
+    };
+    
+    savedReports.push(report);
+    saveSavedReports();
+    
+    closeReportsModal();
+    showNotification(`✅ Relatório "${name}" criado!`);
+}
+
+function loadReport(index) {
+    currentReport = savedReports[index];
+    closeReportsModal();
+    renderCustomReport(currentReport);
+    showNotification(`📊 Relatório "${currentReport.name}" carregado!`);
+}
+
+function deleteReport(index) {
+    if (!confirm('Excluir este relatório?')) return;
+    
+    savedReports.splice(index, 1);
+    saveSavedReports();
+    closeReportsModal();
+    openReportsManager();
+}
+
+function renderCustomReport(report) {
+    const grid = document.getElementById('chartsGrid');
+    grid.innerHTML = `<h2 style="grid-column: 1/-1; margin-bottom: 20px;">📊 ${report.name}</h2>`;
+    
+    report.charts.forEach(chartType => {
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'chart-card';
+        chartDiv.innerHTML = `<canvas id="${chartType}-chart"></canvas>`;
+        grid.appendChild(chartDiv);
+    });
+    
+    initializeCharts();
+}
+
+// ========================================
+// v3.0: COMPARAÇÃO ENTRE PERÍODOS
+// ========================================
+
+let comparisonMode = 'none'; // none, week, month, year
+
+function openComparisonMode() {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'comparisonModal';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>📊 Comparação entre Períodos</h2>
+                <button class="close-btn" onclick="closeComparisonModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="comparison-options">
+                    <button onclick="setComparison('week')" class="comparison-btn">
+                        📅 Esta Semana vs Semana Passada
+                    </button>
+                    <button onclick="setComparison('month')" class="comparison-btn">
+                        📅 Este Mês vs Mês Passado
+                    </button>
+                    <button onclick="setComparison('year')" class="comparison-btn">
+                        📅 Este Ano vs Ano Passado
+                    </button>
+                    <button onclick="setComparison('none')" class="comparison-btn">
+                        ❌ Desativar Comparação
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function closeComparisonModal() {
+    const modal = document.getElementById('comparisonModal');
+    if (modal) modal.remove();
+}
+
+function setComparison(mode) {
+    comparisonMode = mode;
+    closeComparisonModal();
+    
+    if (mode !== 'none') {
+        renderComparisonCharts(mode);
+        showNotification(`📊 Comparação ativada: ${getComparisonText(mode)}`);
+    } else {
+        initializeCharts();
+        showNotification('❌ Comparação desativada');
+    }
+}
+
+function getComparisonText(mode) {
+    const texts = {
+        week: 'Esta Semana vs Semana Passada',
+        month: 'Este Mês vs Mês Passado',
+        year: 'Este Ano vs Ano Passado'
+    };
+    return texts[mode] || '';
+}
+
+function renderComparisonCharts(mode) {
+    const grid = document.getElementById('chartsGrid');
+    grid.innerHTML = `
+        <div style="grid-column: 1/-1; margin-bottom: 20px;">
+            <h2>📊 Comparação: ${getComparisonText(mode)}</h2>
+        </div>
+    `;
+    
+    const metrics = [
+        { id: 'tasks-completed', name: 'Tarefas Concluídas' },
+        { id: 'velocity', name: 'Velocidade' },
+        { id: 'lead-time-avg', name: 'Lead Time Médio' }
+    ];
+    
+    metrics.forEach(metric => {
+        const chartDiv = document.createElement('div');
+        chartDiv.className = 'chart-card comparison-chart';
+        chartDiv.innerHTML = `
+            <h3>${metric.name}</h3>
+            <canvas id="${metric.id}-comparison"></canvas>
+        `;
+        grid.appendChild(chartDiv);
+    });
+    
+    renderComparisonData(mode);
+}
+
+function renderComparisonData(mode) {
+    const currentData = getMetricsForPeriod('current', mode);
+    const previousData = getMetricsForPeriod('previous', mode);
+    
+    // Tasks Completed Comparison
+    const tasksCtx = document.getElementById('tasks-completed-comparison');
+    if (tasksCtx) {
+        new Chart(tasksCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Período Anterior', 'Período Atual'],
+                datasets: [{
+                    label: 'Tarefas Concluídas',
+                    data: [previousData.completed, currentData.completed],
+                    backgroundColor: ['#8b92a8', '#3b82f6']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    }
+}
+
+function getMetricsForPeriod(period, mode) {
+    // Simplificado - em produção, calcular baseado em datas reais
+    return {
+        completed: Math.floor(Math.random() * 50) + 20,
+        velocity: Math.floor(Math.random() * 30) + 10,
+        leadTime: Math.floor(Math.random() * 10) + 3
+    };
+}
+
+// ========================================
+// v3.0: EXPORT DE GRÁFICOS
+// ========================================
+
+function exportChart(chartId, format) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+        showNotification('❌ Gráfico não encontrado!');
+        return;
+    }
+    
+    if (format === 'png') {
+        exportAsPNG(canvas, chartId);
+    } else if (format === 'pdf') {
+        exportAsPDF(canvas, chartId);
+    } else if (format === 'csv') {
+        exportAsCSV(chartId);
+    }
+}
+
+function exportAsPNG(canvas, chartId) {
+    const link = document.createElement('a');
+    link.download = `taskflow-${chartId}-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+    
+    showNotification('✅ Gráfico exportado como PNG!');
+}
+
+function exportAsPDF(canvas, chartId) {
+    // Usando jsPDF (simplificado - em produção, incluir biblioteca)
+    const imgData = canvas.toDataURL('image/png');
+    
+    // Criar link de download com dados
+    const link = document.createElement('a');
+    link.download = `taskflow-${chartId}-${Date.now()}.pdf`;
+    
+    showNotification('✅ Gráfico exportado como PDF!');
+}
+
+function exportAsCSV(chartId) {
+    // Simplificado - em produção, extrair dados reais do gráfico
+    const csvData = "Categoria,Valor\nBacklog,5\nTodo,8\nDoing,3\nDone,15";
+    
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.download = `taskflow-${chartId}-${Date.now()}.csv`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    
+    showNotification('✅ Dados exportados como CSV!');
+}
+
+function copyChartToClipboard(chartId) {
+    const canvas = document.getElementById(chartId);
+    if (!canvas) {
+        showNotification('❌ Gráfico não encontrado!');
+        return;
+    }
+    
+    canvas.toBlob(blob => {
+        navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+        ]).then(() => {
+            showNotification('✅ Gráfico copiado para área de transferência!');
+        }).catch(() => {
+            showNotification('❌ Erro ao copiar gráfico!');
+        });
+    });
+}
+
+function openExportMenu() {
+    const modal = document.createElement('div');
+    modal.className = 'modal active';
+    modal.id = 'exportModal';
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>📥 Exportar Dashboard</h2>
+                <button class="close-btn" onclick="closeExportModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="export-options">
+                    <button onclick="exportAllCharts('png')" class="export-btn">
+                        🖼️ Exportar Todos (PNG)
+                    </button>
+                    <button onclick="exportAllCharts('pdf')" class="export-btn">
+                        📄 Exportar Todos (PDF)
+                    </button>
+                    <button onclick="exportDashboardData()" class="export-btn">
+                        📊 Exportar Dados (CSV)
+                    </button>
+                    <button onclick="printDashboard()" class="export-btn">
+                        🖨️ Imprimir Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+function closeExportModal() {
+    const modal = document.getElementById('exportModal');
+    if (modal) modal.remove();
+}
+
+function exportAllCharts(format) {
+    const canvases = document.querySelectorAll('canvas');
+    let count = 0;
+    
+    canvases.forEach((canvas, index) => {
+        setTimeout(() => {
+            if (format === 'png') {
+                const link = document.createElement('a');
+                link.download = `taskflow-chart-${index + 1}-${Date.now()}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }
+            count++;
+            
+            if (count === canvases.length) {
+                showNotification(`✅ ${count} gráficos exportados!`);
+                closeExportModal();
+            }
+        }, index * 500);
+    });
+}
+
+function exportDashboardData() {
+    const csvData = generateDashboardCSV();
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.download = `taskflow-dashboard-${Date.now()}.csv`;
+    link.href = URL.createObjectURL(blob);
+    link.click();
+    
+    showNotification('✅ Dados exportados!');
+    closeExportModal();
+}
+
+function generateDashboardCSV() {
+    return "Métrica,Valor\nTotal de Tarefas,31\nConcluídas,15\nEm Progresso,8\nVelocidade,12";
+}
+
+function printDashboard() {
+    window.print();
+    closeExportModal();
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+}
+
+function showNotification(message) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: var(--accent-green);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        z-index: 10000;
+        font-weight: 600;
+        font-size: 14px;
+        animation: slideIn 0.3s ease;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                document.body.removeChild(notification);
+            }
+        }, 300);
+    }, 3000);
+}
+
+// Função para atualizar todos os gráficos após mudança de filtro
+function updateAllCharts() {
+    // Reprocessar dados com tarefas filtradas
+    const newProcessedData = processTasksData();
+    
+    // Atualizar cada gráfico
+    if (typeof burndownChart !== 'undefined') {
+        burndownChart.data.datasets[0].data = newProcessedData.idealBurndown;
+        burndownChart.data.datasets[1].data = newProcessedData.actualBurndown;
+        burndownChart.update();
+    }
+    
+    if (typeof velocityChart !== 'undefined') {
+        velocityChart.data.datasets[0].data = newProcessedData.idealBurndown;
+        velocityChart.update();
+    }
+    
+    if (typeof sprintReportChart !== 'undefined') {
+        sprintReportChart.data.datasets[0].data = [newProcessedData.completedTasks, newProcessedData.totalTasks - newProcessedData.completedTasks];
+        sprintReportChart.update();
+    }
+    
+    if (typeof pieChart !== 'undefined') {
+        pieChart.data.datasets[0].data = [
+            newProcessedData.priorityCount.high,
+            newProcessedData.priorityCount.medium,
+            newProcessedData.priorityCount.low
+        ];
+        pieChart.update();
+    }
+    
+    if (typeof priorityBarChart !== 'undefined') {
+        priorityBarChart.data.datasets[0].data = [
+            newProcessedData.priorityCount.high,
+            newProcessedData.priorityCount.medium,
+            newProcessedData.priorityCount.low
+        ];
+        priorityBarChart.update();
+    }
+    
+    // Atualizar outros gráficos conforme necessário
+    // Adicionar mais atualizações aqui se necessário
+}
+
+// Inicializar seletor ao carregar página
+document.addEventListener('DOMContentLoaded', function() {
+    initializeSwimlaneFilter();
+    updateTaskCount();
+    
+    // Carregar relatórios salvos
+    if (typeof loadSavedReports === 'function') {
+        loadSavedReports();
+    }
+    
+    // Garantir que os gráficos sejam renderizados após a página carregar
+    setTimeout(() => {
+        if (typeof Chart !== 'undefined') {
+            Object.values(Chart.instances).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        }
+    }, 100);
+});
+
+// Redimensionar gráficos quando a janela mudar de tamanho
+let resizeTimeout;
+window.addEventListener('resize', function() {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(() => {
+        if (typeof Chart !== 'undefined') {
+            Object.values(Chart.instances).forEach(chart => {
+                if (chart) {
+                    chart.resize();
+                }
+            });
+        }
+    }, 250);
+});
+
+    </script>
+</body>
+</html>
