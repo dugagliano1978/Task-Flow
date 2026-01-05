@@ -652,6 +652,30 @@
         .settings-section button:active {
             transform: scale(0.98);
         }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -910,6 +934,10 @@
         </button>
     </nav>
 
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    
     <script>
         // PWA Install
         let deferredPrompt;
@@ -985,12 +1013,20 @@
         function getFilteredTasks() {
             const { tasks } = loadData();
             
+            console.log(`🔍 FILTRO: "${currentSwimlaneFilter}"`);
+            
             if (currentSwimlaneFilter === 'all') {
+                console.log(`   → Mostrando TODAS as ${tasks.length} tarefas`);
                 return tasks;
             } else if (currentSwimlaneFilter === 'normal') {
-                return tasks.filter(t => !t.swimlane || t.swimlane === '');
+                const filtered = tasks.filter(t => !t.swimlane || t.swimlane === '');
+                console.log(`   → Mostrando ${filtered.length} tarefas SEM RAIA`);
+                return filtered;
             } else {
-                return tasks.filter(t => t.swimlane === currentSwimlaneFilter);
+                const filtered = tasks.filter(t => t.swimlane === currentSwimlaneFilter);
+                console.log(`   → Mostrando ${filtered.length} tarefas da raia "${currentSwimlaneFilter}"`);
+                console.log(`   → IDs que passaram no filtro:`, filtered.map(t => `${t.title} (swimlane="${t.swimlane}")`));
+                return filtered;
             }
         }
 
@@ -1052,13 +1088,32 @@
             const tasks = getFilteredTasks();
             
             const total = tasks.length;
-            const completed = tasks.filter(t => t.status && (t.status.toLowerCase().includes('conclu') || t.status.toLowerCase().includes('done'))).length;
-            const inProgress = tasks.filter(t => t.status && t.status.toLowerCase().includes('progress')).length;
+            
+            // Contar por COLUNA (como o kanban salva)
+            const completed = tasks.filter(t => {
+                if (!t.column) return false;
+                const col = t.column.toLowerCase();
+                return col.includes('done') || col.includes('concluí') || col.includes('finaliz');
+            }).length;
+            
+            const inProgress = tasks.filter(t => {
+                if (!t.column) return false;
+                const col = t.column.toLowerCase();
+                return col.includes('doing') || col.includes('progresso') || col.includes('andamento');
+            }).length;
+            
             const overdue = tasks.filter(t => {
                 if (!t.endDate) return false;
                 const end = new Date(t.endDate);
                 const now = new Date();
-                const isCompleted = t.status && (t.status.toLowerCase().includes('conclu') || t.status.toLowerCase().includes('done'));
+                
+                // Verificar se está concluído pela COLUNA
+                const isCompleted = t.column && (
+                    t.column.toLowerCase().includes('done') || 
+                    t.column.toLowerCase().includes('concluí') ||
+                    t.column.toLowerCase().includes('finaliz')
+                );
+                
                 return end < now && !isCompleted;
             }).length;
             
@@ -1068,6 +1123,39 @@
             document.getElementById('overdueTasks').textContent = overdue;
         }
 
+        function isTaskCompleted(task) {
+            // Verifica pela COLUNA (como kanban salva)
+            if (task.column) {
+                const col = task.column.toLowerCase();
+                return col.includes('done') || col.includes('concluí') || col.includes('finaliz');
+            }
+            // Fallback: verifica por status (compatibilidade)
+            if (task.status) {
+                const status = task.status.toLowerCase();
+                return status.includes('conclu') || status.includes('done') || status.includes('finaliz');
+            }
+            return false;
+        }
+        
+        function getTaskStatusLabel(task) {
+            // Retorna label baseado na COLUNA
+            if (!task.column) return '';
+            
+            const col = task.column.toLowerCase();
+            if (col.includes('done') || col.includes('concluí') || col.includes('finaliz')) {
+                return 'Concluído';
+            }
+            if (col.includes('doing') || col.includes('progresso') || col.includes('andamento')) {
+                return 'Em Progresso';
+            }
+            if (col.includes('todo') || col.includes('fazer')) {
+                return 'A Fazer';
+            }
+            
+            // Retorna nome da coluna se não reconhecer
+            return task.column;
+        }
+        
         function renderRecentTasks() {
             const tasks = getFilteredTasks();
             const container = document.getElementById('recentTasksList');
@@ -1080,7 +1168,8 @@
             }
             
             container.innerHTML = recent.map(task => {
-                const isCompleted = task.status && (task.status.toLowerCase().includes('conclu') || task.status.toLowerCase().includes('done'));
+                const isCompleted = isTaskCompleted(task);
+                const statusLabel = getTaskStatusLabel(task);
                 return `
                     <div class="task-item ${task.priority || 'medium'}">
                         <div class="task-checkbox ${isCompleted ? 'completed' : ''}" onclick="toggleTask(${task.id})"></div>
@@ -1088,7 +1177,7 @@
                             <div class="task-title">${task.title}</div>
                             <div class="task-meta">
                                 <span class="task-badge">${task.priority === 'high' ? '🔴' : task.priority === 'low' ? '🟢' : '🟡'} ${task.priority || 'Média'}</span>
-                                ${task.status ? `<span class="task-badge">${task.status}</span>` : ''}
+                                ${statusLabel ? `<span class="task-badge">${statusLabel}</span>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1106,7 +1195,8 @@
             }
             
             container.innerHTML = tasks.map(task => {
-                const isCompleted = task.status && (task.status.toLowerCase().includes('conclu') || task.status.toLowerCase().includes('done'));
+                const isCompleted = isTaskCompleted(task);
+                const statusLabel = getTaskStatusLabel(task);
                 return `
                     <div class="task-item ${task.priority || 'medium'}">
                         <div class="task-checkbox ${isCompleted ? 'completed' : ''}" onclick="toggleTask(${task.id})"></div>
@@ -1114,7 +1204,7 @@
                             <div class="task-title">${task.title}</div>
                             <div class="task-meta">
                                 <span class="task-badge">${task.priority === 'high' ? '🔴' : task.priority === 'low' ? '🟢' : '🟡'} ${task.priority || 'Média'}</span>
-                                ${task.status ? `<span class="task-badge">${task.status}</span>` : ''}
+                                ${statusLabel ? `<span class="task-badge">${statusLabel}</span>` : ''}
                                 ${task.endDate ? `<span class="task-badge">📅 ${new Date(task.endDate).toLocaleDateString('pt-BR')}</span>` : ''}
                             </div>
                         </div>
@@ -1190,23 +1280,44 @@
             const tasks = getFilteredTasks();
             const container = document.getElementById('statsChart');
             
-            const statusCount = {};
+            // Contar por STATUS baseado na COLUNA
+            const statusCount = {
+                'Concluído': 0,
+                'Em Progresso': 0,
+                'A Fazer': 0
+            };
+            
             tasks.forEach(task => {
-                const status = task.status || 'Sem status';
-                statusCount[status] = (statusCount[status] || 0) + 1;
+                if (isTaskCompleted(task)) {
+                    statusCount['Concluído']++;
+                } else if (task.column) {
+                    const col = task.column.toLowerCase();
+                    if (col.includes('doing') || col.includes('progresso') || col.includes('andamento')) {
+                        statusCount['Em Progresso']++;
+                    } else {
+                        statusCount['A Fazer']++;
+                    }
+                } else {
+                    statusCount['A Fazer']++;
+                }
             });
             
-            const statuses = Object.keys(statusCount).slice(0, 5);
-            const maxCount = Math.max(...Object.values(statusCount));
+            const statuses = Object.keys(statusCount).filter(s => statusCount[s] > 0);
+            const maxCount = Math.max(...Object.values(statusCount), 1);
+            
+            if (statuses.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Sem dados</div></div>';
+                return;
+            }
             
             container.innerHTML = statuses.map((status, index) => {
                 const count = statusCount[status];
                 const height = (count / maxCount) * 180;
-                const left = index * 20;
+                const left = index * 33;
                 
                 return `
                     <div class="chart-bar" style="height: ${height}px; left: ${left}%;">
-                        <div class="chart-label">${status.substring(0, 8)}</div>
+                        <div class="chart-label">${status}<br>${count}</div>
                     </div>
                 `;
             }).join('');
@@ -1263,8 +1374,23 @@
             if (section === 'notes') renderNotes();
         }
 
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+        
         function refreshData() {
+            // Mostrar indicador visual
             document.getElementById('pullRefresh').classList.add('active');
+            
+            // Força reload do localStorage (limpa cache)
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks') || '[]');
+            const taskCount = tasks.length;
             
             setTimeout(() => {
                 updateKPIs();
@@ -1276,6 +1402,18 @@
                 renderNotes();
                 
                 document.getElementById('pullRefresh').classList.remove('active');
+                
+                // Feedback de sucesso
+                const newTaskCount = JSON.parse(localStorage.getItem('kanban-tasks') || '[]').length;
+                console.log(`✅ Dados atualizados! ${newTaskCount} tarefas carregadas.`);
+                
+                // Mostrar toast
+                showToast(`✅ Atualizado! ${newTaskCount} ${newTaskCount === 1 ? 'tarefa' : 'tarefas'}`);
+                
+                // Vibrar no mobile (se suportado)
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
             }, 500);
         }
 
@@ -1289,14 +1427,86 @@
             const notes = JSON.parse(localStorage.getItem('kanban-notes')) || [];
             const reminders = JSON.parse(localStorage.getItem('kanban-reminders')) || [];
             
+            // Contar tarefas por status
+            const tasksByStatus = {
+                total: tasks.length,
+                withSwimlane: tasks.filter(t => t.swimlane).length,
+                withoutSwimlane: tasks.filter(t => !t.swimlane).length,
+                completed: tasks.filter(t => t.status && (t.status.toLowerCase().includes('conclu') || t.status.toLowerCase().includes('done'))).length,
+                inProgress: tasks.filter(t => t.status && t.status.toLowerCase().includes('progress')).length,
+                toDo: tasks.filter(t => !t.status || t.status.toLowerCase().includes('fazer') || t.status.toLowerCase().includes('to do')).length
+            };
+            
             document.getElementById('storageInfo').innerHTML = `
                 <div style="margin-top: 8px; padding: 8px; background: var(--light); border-radius: 6px;">
-                    <div><strong>📊 Tarefas:</strong> ${tasks.length}</div>
-                    <div><strong>🏊 Raias:</strong> ${swimlanes.length}</div>
-                    <div><strong>📝 Notas:</strong> ${notes.length}</div>
-                    <div><strong>🔔 Lembretes:</strong> ${reminders.length}</div>
+                    <div><strong>📊 Total de Tarefas:</strong> ${tasksByStatus.total}</div>
+                    <div style="margin-left: 16px; font-size: 12px; color: #666;">
+                        • Com raia: ${tasksByStatus.withSwimlane}<br>
+                        • Sem raia: ${tasksByStatus.withoutSwimlane}<br>
+                        • Concluídas: ${tasksByStatus.completed}<br>
+                        • Em progresso: ${tasksByStatus.inProgress}<br>
+                        • A fazer: ${tasksByStatus.toDo}
+                    </div>
+                    <div style="margin-top: 8px;"><strong>🏊 Raias:</strong> ${swimlanes.length}</div>
+                    <div style="margin-top: 8px;"><strong>📝 Notas:</strong> ${notes.length}</div>
+                    <div style="margin-top: 8px;"><strong>🔔 Lembretes:</strong> ${reminders.length}</div>
+                    <button onclick="debugTasks()" style="margin-top: 12px; width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600;">
+                        🐛 Ver Todas as Tarefas (Console)
+                    </button>
                 </div>
             `;
+        }
+        
+        function debugTasks() {
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks')) || [];
+            const swimlanes = JSON.parse(localStorage.getItem('kanban-swimlanes')) || [];
+            
+            console.clear();
+            console.log('='.repeat(60));
+            console.log('🐛 DEBUG - TODAS AS TAREFAS NO LOCALSTORAGE');
+            console.log('='.repeat(60));
+            console.log(`Total: ${tasks.length} tarefas`);
+            console.log('');
+            
+            console.log('🏊 RAIAS DISPONÍVEIS:');
+            swimlanes.forEach(sw => {
+                console.log(`   ${sw.icon} ${sw.name}`);
+                console.log(`      ID: "${sw.id}"`);
+            });
+            console.log('');
+            
+            console.log('📋 TAREFAS:');
+            tasks.forEach((task, index) => {
+                console.log(`[${index + 1}] ${task.title}`);
+                console.log(`    ID: ${task.id}`);
+                console.log(`    Coluna: ${task.column || 'SEM COLUNA'}`);
+                console.log(`    Raia ID: "${task.swimlane || 'SEM RAIA (normal)'}"`);
+                
+                // Mostrar se a raia existe
+                if (task.swimlane) {
+                    const sw = swimlanes.find(s => s.id === task.swimlane);
+                    if (sw) {
+                        console.log(`    Raia Nome: ${sw.icon} ${sw.name} ✅`);
+                    } else {
+                        console.log(`    ⚠️ ATENÇÃO: Raia "${task.swimlane}" NÃO ENCONTRADA!`);
+                    }
+                }
+                
+                console.log(`    Prioridade: ${task.priority || 'SEM PRIORIDADE'}`);
+                console.log('');
+            });
+            
+            console.log('='.repeat(60));
+            console.log('📊 RESUMO:');
+            console.log(`   • Total de raias: ${swimlanes.length}`);
+            console.log(`   • Tarefas com raia: ${tasks.filter(t => t.swimlane).length}`);
+            console.log(`   • Tarefas sem raia: ${tasks.filter(t => !t.swimlane).length}`);
+            console.log('');
+            console.log('🔍 FILTRO ATUAL:');
+            console.log(`   • currentSwimlaneFilter = "${currentSwimlaneFilter}"`);
+            console.log('='.repeat(60));
+            
+            showToast('🐛 Debug completo no Console! (F12)');
         }
 
         function closeSettings() {
@@ -1732,7 +1942,39 @@ Escolha uma opção acima para começar!
         setInterval(() => {
             updateKPIs();
             renderRecentTasks();
+            renderStats();
+            renderAllTasks();
+            renderTimeline();
+            renderReminders();
+            renderNotes();
         }, 30000);
+        
+        // Sync in real-time when localStorage changes (from kanban-advanced)
+        window.addEventListener('storage', (e) => {
+            if (e.key && e.key.startsWith('kanban-')) {
+                // Dados do kanban mudaram, atualizar tudo
+                console.log('🔄 Sincronizando dados do Kanban...');
+                updateKPIs();
+                renderRecentTasks();
+                renderStats();
+                renderAllTasks();
+                renderTimeline();
+                renderReminders();
+                renderNotes();
+            }
+        });
+        
+        // Also refresh when window gains focus (user returns to mobile)
+        window.addEventListener('focus', () => {
+            console.log('📱 Mobile em foco - Atualizando dados...');
+            updateKPIs();
+            renderRecentTasks();
+            renderStats();
+            renderAllTasks();
+            renderTimeline();
+            renderReminders();
+            renderNotes();
+        });
     </script>
 </body>
 </html>
