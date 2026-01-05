@@ -1,0 +1,1989 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#3498db">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="TaskFlow">
+    <title>TaskFlow Mobile</title>
+    <link rel="manifest" href="manifest.json">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --bg: #f8f9fa;
+            --text: #2c3e50;
+            --border: #dfe6e9;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: 70px;
+        }
+
+        /* Header */
+        .mobile-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+            z-index: 1000;
+        }
+
+        .header-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .header-btn:active {
+            transform: scale(0.95);
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Main Content */
+        .mobile-content {
+            margin-top: 60px;
+            padding: 16px;
+            padding-bottom: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-action {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, var(--primary) 0%, #667eea 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .kpi-card.success {
+            background: linear-gradient(135deg, var(--secondary) 0%, #27ae60 100%);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .kpi-card.warning {
+            background: linear-gradient(135deg, var(--warning) 0%, #e67e22 100%);
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+
+        .kpi-card.danger {
+            background: linear-gradient(135deg, var(--danger) 0%, #c0392b 100%);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .kpi-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Task List */
+        .task-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 2px 4px var(--shadow);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .task-item.high {
+            border-left-color: var(--danger);
+        }
+
+        .task-item.medium {
+            border-left-color: var(--warning);
+        }
+
+        .task-item.low {
+            border-left-color: var(--secondary);
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 2px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .task-checkbox.completed {
+            background: var(--secondary);
+            border-color: var(--secondary);
+            position: relative;
+        }
+
+        .task-checkbox.completed::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 16px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-info {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .task-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        /* Timeline */
+        .timeline-container {
+            overflow-x: auto;
+            margin: 0 -16px;
+            padding: 0 16px;
+        }
+
+        .timeline-bar {
+            min-width: 800px;
+            height: 40px;
+            background: linear-gradient(to right, #3498db, #2ecc71);
+            border-radius: 8px;
+            margin-bottom: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .timeline-today {
+            background: #e74c3c;
+            width: 3px;
+        }
+
+        /* Notes */
+        .note-item {
+            background: #fff9e6;
+            border-left: 4px solid var(--warning);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        .note-text {
+            font-size: 14px;
+            line-height: 1.5;
+            color: var(--dark);
+            margin-bottom: 6px;
+        }
+
+        .note-date {
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Reminders */
+        .reminder-item {
+            background: #e8f4fd;
+            border-left: 4px solid var(--primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px var(--shadow);
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #95a5a6;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 8px 16px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            flex: 1;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #95a5a6;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-text {
+            font-size: 14px;
+        }
+
+        /* Pull to Refresh */
+        .pull-refresh {
+            text-align: center;
+            padding: 12px;
+            color: var(--primary);
+            font-size: 14px;
+            display: none;
+        }
+
+        .pull-refresh.active {
+            display: block;
+        }
+
+        /* Hidden sections */
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Install Prompt */
+        .install-prompt {
+            position: fixed;
+            bottom: 80px;
+            left: 16px;
+            right: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            display: none;
+            z-index: 999;
+        }
+
+        .install-prompt.show {
+            display: block;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .install-text {
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .install-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .install-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .install-btn.primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .install-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .install-btn:active {
+            transform: scale(0.98);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--primary);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Charts */
+        .chart-container {
+            height: 200px;
+            position: relative;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: calc(20% - 8px);
+            background: linear-gradient(to top, var(--primary), #667eea);
+            border-radius: 4px 4px 0 0;
+            transition: all 0.3s;
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -24px;
+            width: 100%;
+            text-align: center;
+            font-size: 11px;
+            color: #666;
+        }
+
+        /* Responsive */
+        @media (max-width: 320px) {
+            .kpi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Filter Menu */
+        .filter-menu {
+            position: fixed;
+            top: 60px;
+            right: 0;
+            width: 300px;
+            max-width: 90%;
+            height: calc(100vh - 60px);
+            background: white;
+            box-shadow: -4px 0 12px var(--shadow);
+            z-index: 1001;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+
+        .filter-menu.active {
+            transform: translateX(0);
+        }
+
+        .filter-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .filter-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .filter-options {
+            padding: 12px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 16px;
+            margin-bottom: 8px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-option:has(input:checked) {
+            border-color: var(--primary);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .filter-option input[type="radio"] {
+            margin-top: 4px;
+            cursor: pointer;
+        }
+
+        .filter-info {
+            flex: 1;
+        }
+
+        .filter-name {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 4px;
+        }
+
+        .filter-desc {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .filter-overlay {
+            position: fixed;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .filter-overlay.active {
+            display: block;
+        }
+
+        .header-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .filter-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: var(--danger);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Settings Modal */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .settings-modal.active {
+            display: flex;
+        }
+
+        .settings-modal .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        .settings-section button:active {
+            transform: scale(0.98);
+        }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 10000;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Install Prompt -->
+    <div class="install-prompt" id="installPrompt">
+        <div class="install-text">
+            📱 Instale o TaskFlow na sua tela inicial para acesso rápido!
+        </div>
+        <div class="install-actions">
+            <button class="install-btn primary" onclick="installPWA()">Instalar</button>
+            <button class="install-btn secondary" onclick="dismissInstall()">Agora não</button>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="mobile-header">
+        <div class="header-title">
+            <span>📊</span>
+            <span id="headerTitle">Dashboard</span>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn" onclick="toggleFilterMenu()" title="Filtrar" id="filterBtn">
+                🎯
+            </button>
+            <button class="header-btn" onclick="refreshData()" title="Atualizar">
+                🔄
+            </button>
+            <button class="header-btn" onclick="openSettings()" title="Configurações">
+                ⚙️
+            </button>
+        </div>
+    </header>
+
+    <!-- Filter Menu -->
+    <div class="filter-menu" id="filterMenu">
+        <div class="filter-header">
+            <span>🎯 Filtrar Visualização</span>
+            <button class="filter-close" onclick="toggleFilterMenu()">✕</button>
+        </div>
+        <div class="filter-options">
+            <label class="filter-option">
+                <input type="radio" name="swimlaneFilter" value="all" checked onchange="applyFilter()">
+                <div class="filter-info">
+                    <div class="filter-name">📊 Todas as Tarefas</div>
+                    <div class="filter-desc">Modo normal + todas as raias</div>
+                </div>
+            </label>
+            <label class="filter-option">
+                <input type="radio" name="swimlaneFilter" value="normal" onchange="applyFilter()">
+                <div class="filter-info">
+                    <div class="filter-name">📋 Modo Normal</div>
+                    <div class="filter-desc">Apenas tarefas sem raia</div>
+                </div>
+            </label>
+            <div id="swimlaneFilters"></div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal settings-modal" id="settingsModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px 12px 0 0;">
+                <h2 style="margin: 0; font-size: 20px;">⚙️ Configurações</h2>
+                <button class="close-btn" onclick="closeSettings()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 32px; height: 32px; border-radius: 50%; font-size: 20px; cursor: pointer; position: absolute; right: 20px; top: 20px;">×</button>
+            </div>
+            <div style="padding: 20px;">
+                <!-- Dados de Teste -->
+                <div class="settings-section">
+                    <h3 style="font-size: 14px; color: var(--dark); margin-bottom: 8px; font-weight: 600;">📊 Dados de Demonstração</h3>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                        <strong>⚠️ Atenção:</strong> O mobile lê automaticamente os dados do TaskFlow.<br><br>
+                        Use este botão APENAS para importar dados de TESTE/DEMONSTRAÇÃO.<br><br>
+                        Para usar dados REAIS: Crie tarefas no kanban-advanced.html e toque 🔄 aqui.
+                    </p>
+                    <button onclick="importTestData()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-bottom: 8px;">
+                        📥 Importar Dados de TESTE (12 tarefas de exemplo)
+                    </button>
+                </div>
+
+                <div style="height: 1px; background: var(--border); margin: 20px 0;"></div>
+
+                <!-- Backup -->
+                <div class="settings-section">
+                    <h3 style="font-size: 14px; color: var(--dark); margin-bottom: 8px; font-weight: 600;">💾 Backup</h3>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                        Exporte todos os seus dados em formato JSON.
+                    </p>
+                    <button onclick="exportData()" style="width: 100%; padding: 12px; background: var(--secondary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        📤 Exportar Dados
+                    </button>
+                </div>
+
+                <div style="height: 1px; background: var(--border); margin: 20px 0;"></div>
+
+                <!-- Limpar Dados -->
+                <div class="settings-section">
+                    <h3 style="font-size: 14px; color: var(--danger); margin-bottom: 8px; font-weight: 600;">🗑️ Zona de Perigo</h3>
+                    <p style="font-size: 12px; color: #666; margin-bottom: 12px;">
+                        ⚠️ Atenção! Esta ação não pode ser desfeita.
+                    </p>
+                    <button onclick="clearAllData()" style="width: 100%; padding: 12px; background: white; color: var(--danger); border: 2px solid var(--danger); border-radius: 8px; font-weight: 600; cursor: pointer;">
+                        🗑️ Apagar Todos os Dados
+                    </button>
+                </div>
+
+                <div style="height: 1px; background: var(--border); margin: 20px 0;"></div>
+
+                <!-- Info -->
+                <div class="settings-section">
+                    <h3 style="font-size: 14px; color: var(--dark); margin-bottom: 8px; font-weight: 600;">ℹ️ Informações</h3>
+                    <div style="font-size: 12px; color: #666; line-height: 1.6;">
+                        <div><strong>Versão:</strong> 3.0.56</div>
+                        <div><strong>Tipo:</strong> PWA (Progressive Web App)</div>
+                        <div><strong>Armazenamento:</strong> localStorage</div>
+                        <div id="storageInfo"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div class="filter-overlay" id="settingsOverlay" onclick="closeSettings()"></div>
+
+    <!-- Filter Overlay -->
+    <div class="filter-overlay" id="filterOverlay" onclick="toggleFilterMenu()"></div>
+
+    <!-- Main Content -->
+    <main class="mobile-content">
+        <!-- Pull to Refresh -->
+        <div class="pull-refresh" id="pullRefresh">
+            🔄 Atualizando...
+        </div>
+
+        <!-- Dashboard Section -->
+        <section class="section active" id="dashboardSection">
+            <!-- KPIs -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-value" id="totalTasks">0</div>
+                    <div class="kpi-label">Total</div>
+                </div>
+                <div class="kpi-card success">
+                    <div class="kpi-value" id="completedTasks">0</div>
+                    <div class="kpi-label">Concluídas</div>
+                </div>
+                <div class="kpi-card warning">
+                    <div class="kpi-value" id="inProgressTasks">0</div>
+                    <div class="kpi-label">Em Andamento</div>
+                </div>
+                <div class="kpi-card danger">
+                    <div class="kpi-value" id="overdueTasks">0</div>
+                    <div class="kpi-label">Atrasadas</div>
+                </div>
+            </div>
+
+            <!-- Recent Tasks -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📋</span>
+                        <span>Tarefas Recentes</span>
+                    </div>
+                    <button class="card-action" onclick="switchSection('tasks')">→</button>
+                </div>
+                <div id="recentTasksList"></div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📊</span>
+                        <span>Estatísticas</span>
+                    </div>
+                </div>
+                <div class="chart-container" id="statsChart"></div>
+            </div>
+        </section>
+
+        <!-- Tasks Section -->
+        <section class="section" id="tasksSection">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>✅</span>
+                        <span>Minhas Tarefas</span>
+                    </div>
+                </div>
+                <div id="allTasksList"></div>
+            </div>
+        </section>
+
+        <!-- Timeline Section -->
+        <section class="section" id="timelineSection">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📅</span>
+                        <span>Cronograma</span>
+                    </div>
+                </div>
+                <div class="timeline-container" id="timelineContainer"></div>
+            </div>
+        </section>
+
+        <!-- Reminders Section -->
+        <section class="section" id="remindersSection">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>🔔</span>
+                        <span>Lembretes</span>
+                    </div>
+                </div>
+                <div id="remindersList"></div>
+            </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section class="section" id="notesSection">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">
+                        <span>📝</span>
+                        <span>Notas</span>
+                    </div>
+                    <button class="card-action" onclick="addNote()">+</button>
+                </div>
+                <div id="notesList"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="switchSection('dashboard')" data-section="dashboard">
+            <div class="nav-icon">📊</div>
+            <div>Dashboard</div>
+        </button>
+        <button class="nav-item" onclick="switchSection('tasks')" data-section="tasks">
+            <div class="nav-icon">✅</div>
+            <div>Tarefas</div>
+        </button>
+        <button class="nav-item" onclick="switchSection('timeline')" data-section="timeline">
+            <div class="nav-icon">📅</div>
+            <div>Timeline</div>
+        </button>
+        <button class="nav-item" onclick="switchSection('reminders')" data-section="reminders">
+            <div class="nav-icon">🔔</div>
+            <div>Lembretes</div>
+        </button>
+        <button class="nav-item" onclick="switchSection('notes')" data-section="notes">
+            <div class="nav-icon">📝</div>
+            <div>Notas</div>
+        </button>
+    </nav>
+
+    
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+    
+    <script>
+        // PWA Install
+        let deferredPrompt;
+        
+        // PWA Install Prompt
+        // Note: beforeinstallprompt requires HTTPS and Service Worker
+        // Mobile works without PWA installation
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install prompt if not installed
+            if (!window.matchMedia('(display-mode: standalone)').matches) {
+                setTimeout(() => {
+                    document.getElementById('installPrompt').classList.add('show');
+                }, 3000);
+            }
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        
+                    }
+                    deferredPrompt = null;
+                    dismissInstall();
+                });
+            }
+        }
+
+        function dismissInstall() {
+            document.getElementById('installPrompt').classList.remove('show');
+        }
+
+        // Service Worker Registration (OPCIONAL)
+        // Descomente as linhas abaixo se quiser PWA com cache offline
+        // IMPORTANTE: Precisa do arquivo sw.js no GitHub!
+        /*
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+                .catch(err => console.log('⚠️ Service Worker falhou:', err));
+        }
+        */
+
+        // Data Loading
+        let currentSwimlaneFilter = 'all'; // Filtro global
+
+        function loadData() {
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks')) || [];
+            const notes = JSON.parse(localStorage.getItem('kanban-notes')) || [];
+            const reminders = JSON.parse(localStorage.getItem('kanban-reminders')) || [];
+            const swimlanes = JSON.parse(localStorage.getItem('kanban-swimlanes')) || [];
+            
+            return { tasks, notes, reminders, swimlanes };
+        }
+
+        function loadSwimlanes() {
+            const { swimlanes } = loadData();
+            const container = document.getElementById('swimlaneFilters');
+            
+            if (swimlanes.length === 0) {
+                container.innerHTML = '<div style="padding: 16px; text-align: center; color: #999; font-size: 13px;">Nenhuma raia disponível</div>';
+                return;
+            }
+            
+            container.innerHTML = swimlanes.map(swimlane => `
+                <label class="filter-option">
+                    <input type="radio" name="swimlaneFilter" value="${swimlane.id}" onchange="applyFilter()">
+                    <div class="filter-info">
+                        <div class="filter-name">${swimlane.icon} ${swimlane.name}</div>
+                        <div class="filter-desc">Apenas tarefas desta raia</div>
+                    </div>
+                </label>
+            `).join('');
+        }
+
+        function getFilteredTasks() {
+            const { tasks } = loadData();
+            
+            console.log(`🔍 FILTRO: "${currentSwimlaneFilter}"`);
+            
+            if (currentSwimlaneFilter === 'all') {
+                console.log(`   → Mostrando TODAS as ${tasks.length} tarefas`);
+                return tasks;
+            } else if (currentSwimlaneFilter === 'normal') {
+                const filtered = tasks.filter(t => !t.swimlane || t.swimlane === '');
+                console.log(`   → Mostrando ${filtered.length} tarefas SEM RAIA`);
+                return filtered;
+            } else {
+                const filtered = tasks.filter(t => t.swimlane === currentSwimlaneFilter);
+                console.log(`   → Mostrando ${filtered.length} tarefas da raia "${currentSwimlaneFilter}"`);
+                console.log(`   → IDs que passaram no filtro:`, filtered.map(t => `${t.title} (swimlane="${t.swimlane}")`));
+                return filtered;
+            }
+        }
+
+        function toggleFilterMenu() {
+            const menu = document.getElementById('filterMenu');
+            const overlay = document.getElementById('filterOverlay');
+            const btn = document.getElementById('filterBtn');
+            
+            const isActive = menu.classList.contains('active');
+            
+            if (isActive) {
+                menu.classList.remove('active');
+                overlay.classList.remove('active');
+                btn.classList.remove('active');
+            } else {
+                menu.classList.add('active');
+                overlay.classList.add('active');
+                btn.classList.add('active');
+                loadSwimlanes();
+            }
+        }
+
+        function applyFilter() {
+            const selected = document.querySelector('input[name="swimlaneFilter"]:checked');
+            currentSwimlaneFilter = selected ? selected.value : 'all';
+            
+            // Fechar menu
+            toggleFilterMenu();
+            
+            // Atualizar visualizações
+            updateKPIs();
+            renderRecentTasks();
+            renderStats();
+            renderAllTasks();
+            renderTimeline();
+            
+            // Mostrar badge no botão de filtro
+            updateFilterBadge();
+        }
+
+        function updateFilterBadge() {
+            const btn = document.getElementById('filterBtn');
+            const existingBadge = btn.querySelector('.filter-badge');
+            
+            if (existingBadge) {
+                existingBadge.remove();
+            }
+            
+            if (currentSwimlaneFilter !== 'all') {
+                const badge = document.createElement('span');
+                badge.className = 'filter-badge';
+                badge.textContent = '•';
+                btn.style.position = 'relative';
+                btn.appendChild(badge);
+            }
+        }
+
+        function updateKPIs() {
+            const tasks = getFilteredTasks();
+            
+            const total = tasks.length;
+            
+            // Contar por COLUNA (como o kanban salva)
+            const completed = tasks.filter(t => {
+                if (!t.column) return false;
+                const col = t.column.toLowerCase();
+                return col.includes('done') || col.includes('concluí') || col.includes('finaliz');
+            }).length;
+            
+            const inProgress = tasks.filter(t => {
+                if (!t.column) return false;
+                const col = t.column.toLowerCase();
+                return col.includes('doing') || col.includes('progresso') || col.includes('andamento');
+            }).length;
+            
+            const overdue = tasks.filter(t => {
+                if (!t.endDate) return false;
+                const end = new Date(t.endDate);
+                const now = new Date();
+                
+                // Verificar se está concluído pela COLUNA
+                const isCompleted = t.column && (
+                    t.column.toLowerCase().includes('done') || 
+                    t.column.toLowerCase().includes('concluí') ||
+                    t.column.toLowerCase().includes('finaliz')
+                );
+                
+                return end < now && !isCompleted;
+            }).length;
+            
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('completedTasks').textContent = completed;
+            document.getElementById('inProgressTasks').textContent = inProgress;
+            document.getElementById('overdueTasks').textContent = overdue;
+        }
+
+        function isTaskCompleted(task) {
+            // Verifica pela COLUNA (como kanban salva)
+            if (task.column) {
+                const col = task.column.toLowerCase();
+                return col.includes('done') || col.includes('concluí') || col.includes('finaliz');
+            }
+            // Fallback: verifica por status (compatibilidade)
+            if (task.status) {
+                const status = task.status.toLowerCase();
+                return status.includes('conclu') || status.includes('done') || status.includes('finaliz');
+            }
+            return false;
+        }
+        
+        function getTaskStatusLabel(task) {
+            // Retorna label baseado na COLUNA
+            if (!task.column) return '';
+            
+            const col = task.column.toLowerCase();
+            if (col.includes('done') || col.includes('concluí') || col.includes('finaliz')) {
+                return 'Concluído';
+            }
+            if (col.includes('doing') || col.includes('progresso') || col.includes('andamento')) {
+                return 'Em Progresso';
+            }
+            if (col.includes('todo') || col.includes('fazer')) {
+                return 'A Fazer';
+            }
+            
+            // Retorna nome da coluna se não reconhecer
+            return task.column;
+        }
+        
+        function renderRecentTasks() {
+            const tasks = getFilteredTasks();
+            const container = document.getElementById('recentTasksList');
+            
+            const recent = tasks.slice(0, 5);
+            
+            if (recent.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Nenhuma tarefa encontrada</div></div>';
+                return;
+            }
+            
+            container.innerHTML = recent.map(task => {
+                const isCompleted = isTaskCompleted(task);
+                const statusLabel = getTaskStatusLabel(task);
+                return `
+                    <div class="task-item ${task.priority || 'medium'}">
+                        <div class="task-checkbox ${isCompleted ? 'completed' : ''}" onclick="toggleTask(${task.id})"></div>
+                        <div class="task-info">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span class="task-badge">${task.priority === 'high' ? '🔴' : task.priority === 'low' ? '🟢' : '🟡'} ${task.priority || 'Média'}</span>
+                                ${statusLabel ? `<span class="task-badge">${statusLabel}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderAllTasks() {
+            const tasks = getFilteredTasks();
+            const container = document.getElementById('allTasksList');
+            
+            if (tasks.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-text">Nenhuma tarefa encontrada</div></div>';
+                return;
+            }
+            
+            container.innerHTML = tasks.map(task => {
+                const isCompleted = isTaskCompleted(task);
+                const statusLabel = getTaskStatusLabel(task);
+                return `
+                    <div class="task-item ${task.priority || 'medium'}">
+                        <div class="task-checkbox ${isCompleted ? 'completed' : ''}" onclick="toggleTask(${task.id})"></div>
+                        <div class="task-info">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span class="task-badge">${task.priority === 'high' ? '🔴' : task.priority === 'low' ? '🟢' : '🟡'} ${task.priority || 'Média'}</span>
+                                ${statusLabel ? `<span class="task-badge">${statusLabel}</span>` : ''}
+                                ${task.endDate ? `<span class="task-badge">📅 ${new Date(task.endDate).toLocaleDateString('pt-BR')}</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderTimeline() {
+            const tasks = getFilteredTasks();
+            const container = document.getElementById('timelineContainer');
+            
+            const tasksWithDates = tasks.filter(t => t.startDate && t.endDate);
+            
+            if (tasksWithDates.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Nenhuma tarefa com datas definidas</div></div>';
+                return;
+            }
+            
+            // Simple timeline visualization
+            container.innerHTML = `
+                <div class="timeline-bar">
+                    <div class="timeline-marker timeline-today" style="left: 50%;"></div>
+                </div>
+                ${tasksWithDates.slice(0, 10).map(task => `
+                    <div class="task-item ${task.priority || 'medium'}">
+                        <div class="task-info">
+                            <div class="task-title">${task.title}</div>
+                            <div class="task-meta">
+                                <span class="task-badge">📅 ${new Date(task.startDate).toLocaleDateString('pt-BR')} → ${new Date(task.endDate).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function renderReminders() {
+            const { reminders } = loadData();
+            const container = document.getElementById('remindersList');
+            
+            if (reminders.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">🔔</div><div class="empty-text">Nenhum lembrete encontrado</div></div>';
+                return;
+            }
+            
+            container.innerHTML = reminders.map(reminder => `
+                <div class="reminder-item">
+                    <div class="note-text">${reminder.title}</div>
+                    <div class="note-date">📅 ${new Date(reminder.date).toLocaleDateString('pt-BR')} ${reminder.time || ''}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderNotes() {
+            const { notes } = loadData();
+            const container = document.getElementById('notesList');
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📝</div><div class="empty-text">Nenhuma nota encontrada</div></div>';
+                return;
+            }
+            
+            container.innerHTML = notes.map(note => `
+                <div class="note-item">
+                    <div class="note-text">${note.content}</div>
+                    <div class="note-date">${new Date(note.createdAt).toLocaleDateString('pt-BR')}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderStats() {
+            const tasks = getFilteredTasks();
+            const container = document.getElementById('statsChart');
+            
+            // Contar por STATUS baseado na COLUNA
+            const statusCount = {
+                'Concluído': 0,
+                'Em Progresso': 0,
+                'A Fazer': 0
+            };
+            
+            tasks.forEach(task => {
+                if (isTaskCompleted(task)) {
+                    statusCount['Concluído']++;
+                } else if (task.column) {
+                    const col = task.column.toLowerCase();
+                    if (col.includes('doing') || col.includes('progresso') || col.includes('andamento')) {
+                        statusCount['Em Progresso']++;
+                    } else {
+                        statusCount['A Fazer']++;
+                    }
+                } else {
+                    statusCount['A Fazer']++;
+                }
+            });
+            
+            const statuses = Object.keys(statusCount).filter(s => statusCount[s] > 0);
+            const maxCount = Math.max(...Object.values(statusCount), 1);
+            
+            if (statuses.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-text">Sem dados</div></div>';
+                return;
+            }
+            
+            container.innerHTML = statuses.map((status, index) => {
+                const count = statusCount[status];
+                const height = (count / maxCount) * 180;
+                const left = index * 33;
+                
+                return `
+                    <div class="chart-bar" style="height: ${height}px; left: ${left}%;">
+                        <div class="chart-label">${status}<br>${count}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleTask(taskId) {
+            // This would update task status in localStorage
+            alert('Funcionalidade de toggle em desenvolvimento');
+        }
+
+        function addNote() {
+            const content = prompt('Digite sua nota:');
+            if (content) {
+                const notes = JSON.parse(localStorage.getItem('kanban-notes')) || [];
+                notes.push({
+                    id: Date.now(),
+                    content,
+                    createdAt: new Date().toISOString()
+                });
+                localStorage.setItem('kanban-notes', JSON.stringify(notes));
+                renderNotes();
+            }
+        }
+
+        function switchSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            
+            // Show selected section
+            document.getElementById(section + 'Section').classList.add('active');
+            
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update header title
+            const titles = {
+                dashboard: 'Dashboard',
+                tasks: 'Tarefas',
+                timeline: 'Cronograma',
+                reminders: 'Lembretes',
+                notes: 'Notas'
+            };
+            document.getElementById('headerTitle').textContent = titles[section];
+            
+            // Render section content
+            if (section === 'tasks') renderAllTasks();
+            if (section === 'timeline') renderTimeline();
+            if (section === 'reminders') renderReminders();
+            if (section === 'notes') renderNotes();
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500);
+        }
+        
+        function refreshData() {
+            // Mostrar indicador visual
+            document.getElementById('pullRefresh').classList.add('active');
+            
+            // Força reload do localStorage (limpa cache)
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks') || '[]');
+            const taskCount = tasks.length;
+            
+            setTimeout(() => {
+                updateKPIs();
+                renderRecentTasks();
+                renderStats();
+                renderAllTasks();
+                renderTimeline();
+                renderReminders();
+                renderNotes();
+                
+                document.getElementById('pullRefresh').classList.remove('active');
+                
+                // Feedback de sucesso
+                const newTaskCount = JSON.parse(localStorage.getItem('kanban-tasks') || '[]').length;
+                console.log(`✅ Dados atualizados! ${newTaskCount} tarefas carregadas.`);
+                
+                // Mostrar toast
+                showToast(`✅ Atualizado! ${newTaskCount} ${newTaskCount === 1 ? 'tarefa' : 'tarefas'}`);
+                
+                // Vibrar no mobile (se suportado)
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(50);
+                }
+            }, 500);
+        }
+
+        function openSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('settingsOverlay').classList.add('active');
+            
+            // Mostrar informações de armazenamento
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks')) || [];
+            const swimlanes = JSON.parse(localStorage.getItem('kanban-swimlanes')) || [];
+            const notes = JSON.parse(localStorage.getItem('kanban-notes')) || [];
+            const reminders = JSON.parse(localStorage.getItem('kanban-reminders')) || [];
+            
+            // Contar tarefas por status
+            const tasksByStatus = {
+                total: tasks.length,
+                withSwimlane: tasks.filter(t => t.swimlane).length,
+                withoutSwimlane: tasks.filter(t => !t.swimlane).length,
+                completed: tasks.filter(t => t.status && (t.status.toLowerCase().includes('conclu') || t.status.toLowerCase().includes('done'))).length,
+                inProgress: tasks.filter(t => t.status && t.status.toLowerCase().includes('progress')).length,
+                toDo: tasks.filter(t => !t.status || t.status.toLowerCase().includes('fazer') || t.status.toLowerCase().includes('to do')).length
+            };
+            
+            document.getElementById('storageInfo').innerHTML = `
+                <div style="margin-top: 8px; padding: 8px; background: var(--light); border-radius: 6px;">
+                    <div><strong>📊 Total de Tarefas:</strong> ${tasksByStatus.total}</div>
+                    <div style="margin-left: 16px; font-size: 12px; color: #666;">
+                        • Com raia: ${tasksByStatus.withSwimlane}<br>
+                        • Sem raia: ${tasksByStatus.withoutSwimlane}<br>
+                        • Concluídas: ${tasksByStatus.completed}<br>
+                        • Em progresso: ${tasksByStatus.inProgress}<br>
+                        • A fazer: ${tasksByStatus.toDo}
+                    </div>
+                    <div style="margin-top: 8px;"><strong>🏊 Raias:</strong> ${swimlanes.length}</div>
+                    <div style="margin-top: 8px;"><strong>📝 Notas:</strong> ${notes.length}</div>
+                    <div style="margin-top: 8px;"><strong>🔔 Lembretes:</strong> ${reminders.length}</div>
+                    <button onclick="debugTasks()" style="margin-top: 12px; width: 100%; padding: 10px; background: #e74c3c; color: white; border: none; border-radius: 6px; font-weight: 600;">
+                        🐛 Ver Todas as Tarefas (Console)
+                    </button>
+                </div>
+            `;
+        }
+        
+        function debugTasks() {
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks')) || [];
+            const swimlanes = JSON.parse(localStorage.getItem('kanban-swimlanes')) || [];
+            
+            console.clear();
+            console.log('='.repeat(60));
+            console.log('🐛 DEBUG - TODAS AS TAREFAS NO LOCALSTORAGE');
+            console.log('='.repeat(60));
+            console.log(`Total: ${tasks.length} tarefas`);
+            console.log('');
+            
+            console.log('🏊 RAIAS DISPONÍVEIS:');
+            swimlanes.forEach(sw => {
+                console.log(`   ${sw.icon} ${sw.name}`);
+                console.log(`      ID: "${sw.id}"`);
+            });
+            console.log('');
+            
+            console.log('📋 TAREFAS:');
+            tasks.forEach((task, index) => {
+                console.log(`[${index + 1}] ${task.title}`);
+                console.log(`    ID: ${task.id}`);
+                console.log(`    Coluna: ${task.column || 'SEM COLUNA'}`);
+                console.log(`    Raia ID: "${task.swimlane || 'SEM RAIA (normal)'}"`);
+                
+                // Mostrar se a raia existe
+                if (task.swimlane) {
+                    const sw = swimlanes.find(s => s.id === task.swimlane);
+                    if (sw) {
+                        console.log(`    Raia Nome: ${sw.icon} ${sw.name} ✅`);
+                    } else {
+                        console.log(`    ⚠️ ATENÇÃO: Raia "${task.swimlane}" NÃO ENCONTRADA!`);
+                    }
+                }
+                
+                console.log(`    Prioridade: ${task.priority || 'SEM PRIORIDADE'}`);
+                console.log('');
+            });
+            
+            console.log('='.repeat(60));
+            console.log('📊 RESUMO:');
+            console.log(`   • Total de raias: ${swimlanes.length}`);
+            console.log(`   • Tarefas com raia: ${tasks.filter(t => t.swimlane).length}`);
+            console.log(`   • Tarefas sem raia: ${tasks.filter(t => !t.swimlane).length}`);
+            console.log('');
+            console.log('🔍 FILTRO ATUAL:');
+            console.log(`   • currentSwimlaneFilter = "${currentSwimlaneFilter}"`);
+            console.log('='.repeat(60));
+            
+            showToast('🐛 Debug completo no Console! (F12)');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+            document.getElementById('settingsOverlay').classList.remove('active');
+        }
+
+        function importTestData() {
+            const hasData = localStorage.getItem('kanban-tasks');
+            
+            if (hasData) {
+                // Já tem dados do TaskFlow
+                if (!confirm('✅ Você já tem dados do TaskFlow!\n\n⚠️ Importar dados de teste irá SUBSTITUIR seus dados atuais.\n\nDeseja realmente continuar?')) {
+                    return;
+                }
+            } else {
+                // Sem dados - primeira vez
+                if (!confirm('📊 Bem-vindo ao TaskFlow Mobile!\n\nDeseja importar dados de TESTE para explorar as funcionalidades?\n\n(Você pode apagar depois e usar dados reais do TaskFlow)')) {
+                    return;
+                }
+            }
+            
+            // Dados de teste inline (não precisa de arquivo externo)
+            const testData = {
+                "tasks": [
+                    {
+                        "id": 1,
+                        "title": "Implementar autenticação de usuários",
+                        "description": "Criar sistema de login com JWT e OAuth2",
+                        "priority": "high",
+                        "status": "Em Progresso",
+                        "assignee": "João Silva",
+                        "assigneeEmail": "joao@empresa.com",
+                        "startDate": "2024-12-01",
+                        "endDate": "2025-01-15",
+                        "tags": ["backend", "segurança"],
+                        "swimlane": "desenvolvimento-1735605789123",
+                        "leadTime": 45,
+                        "assignees": [{"name": "João Silva", "email": "joao@empresa.com"}]
+                    },
+                    {
+                        "id": 2,
+                        "title": "Design do novo dashboard",
+                        "description": "Criar protótipo de alta fidelidade no Figma",
+                        "priority": "high",
+                        "status": "Em Progresso",
+                        "assignee": "Maria Santos",
+                        "assigneeEmail": "maria@empresa.com",
+                        "startDate": "2024-12-10",
+                        "endDate": "2025-01-20",
+                        "tags": ["ui/ux", "design"],
+                        "swimlane": "design-1735605789124",
+                        "leadTime": 41,
+                        "assignees": [{"name": "Maria Santos", "email": "maria@empresa.com"}]
+                    },
+                    {
+                        "id": 3,
+                        "title": "Corrigir bug de performance na listagem",
+                        "description": "Otimizar queries do banco de dados",
+                        "priority": "high",
+                        "status": "A Fazer",
+                        "assignee": "Pedro Costa",
+                        "assigneeEmail": "pedro@empresa.com",
+                        "startDate": "2024-12-28",
+                        "endDate": "2025-01-05",
+                        "tags": ["bug", "performance"],
+                        "swimlane": "bugs-1735605789125",
+                        "leadTime": 8,
+                        "assignees": [{"name": "Pedro Costa", "email": "pedro@empresa.com"}]
+                    },
+                    {
+                        "id": 4,
+                        "title": "Implementar chat em tempo real",
+                        "description": "Usar WebSockets para comunicação instantânea",
+                        "priority": "medium",
+                        "status": "Backlog",
+                        "assignee": "Ana Oliveira",
+                        "assigneeEmail": "ana@empresa.com",
+                        "startDate": "2025-01-15",
+                        "endDate": "2025-02-28",
+                        "tags": ["feature", "realtime"],
+                        "swimlane": "desenvolvimento-1735605789123",
+                        "leadTime": null,
+                        "assignees": [{"name": "Ana Oliveira", "email": "ana@empresa.com"}]
+                    },
+                    {
+                        "id": 5,
+                        "title": "Revisar wireframes do app mobile",
+                        "description": "Validar fluxos de navegação com stakeholders",
+                        "priority": "medium",
+                        "status": "Review",
+                        "assignee": "Maria Santos",
+                        "assigneeEmail": "maria@empresa.com",
+                        "startDate": "2024-12-20",
+                        "endDate": "2025-01-10",
+                        "tags": ["mobile", "ux"],
+                        "swimlane": "design-1735605789124",
+                        "leadTime": 21,
+                        "assignees": [{"name": "Maria Santos", "email": "maria@empresa.com"}, {"name": "Carlos Lima", "email": "carlos@empresa.com"}]
+                    },
+                    {
+                        "id": 6,
+                        "title": "Corrigir erro de validação de formulário",
+                        "description": "Campos obrigatórios não estão sendo validados",
+                        "priority": "high",
+                        "status": "Testado",
+                        "assignee": "Pedro Costa",
+                        "assigneeEmail": "pedro@empresa.com",
+                        "startDate": "2024-12-15",
+                        "endDate": "2024-12-22",
+                        "tags": ["bug", "frontend"],
+                        "swimlane": "bugs-1735605789125",
+                        "leadTime": 7,
+                        "assignees": [{"name": "Pedro Costa", "email": "pedro@empresa.com"}]
+                    },
+                    {
+                        "id": 7,
+                        "title": "Documentar API REST",
+                        "description": "Criar documentação completa com Swagger",
+                        "priority": "low",
+                        "status": "Concluído",
+                        "assignee": "João Silva",
+                        "assigneeEmail": "joao@empresa.com",
+                        "startDate": "2024-11-01",
+                        "endDate": "2024-11-30",
+                        "tags": ["documentação", "api"],
+                        "swimlane": "desenvolvimento-1735605789123",
+                        "leadTime": 29,
+                        "assignees": [{"name": "João Silva", "email": "joao@empresa.com"}]
+                    },
+                    {
+                        "id": 8,
+                        "title": "Atualizar paleta de cores do brand",
+                        "description": "Alinhar com novo guia de identidade visual",
+                        "priority": "medium",
+                        "status": "Concluído",
+                        "assignee": "Maria Santos",
+                        "assigneeEmail": "maria@empresa.com",
+                        "startDate": "2024-11-15",
+                        "endDate": "2024-12-05",
+                        "tags": ["design", "branding"],
+                        "swimlane": "design-1735605789124",
+                        "leadTime": 20,
+                        "assignees": [{"name": "Maria Santos", "email": "maria@empresa.com"}]
+                    },
+                    {
+                        "id": 9,
+                        "title": "Investigar lentidão no carregamento",
+                        "description": "Analisar e corrigir problemas de performance",
+                        "priority": "high",
+                        "status": "Resolvido",
+                        "assignee": "Pedro Costa",
+                        "assigneeEmail": "pedro@empresa.com",
+                        "startDate": "2024-12-01",
+                        "endDate": "2024-12-10",
+                        "tags": ["bug", "performance"],
+                        "swimlane": "bugs-1735605789125",
+                        "leadTime": 9,
+                        "assignees": [{"name": "Pedro Costa", "email": "pedro@empresa.com"}]
+                    },
+                    {
+                        "id": 10,
+                        "title": "Configurar ambiente de produção",
+                        "description": "Setup de servidores, CI/CD e monitoramento",
+                        "priority": "medium",
+                        "status": "A Fazer",
+                        "assignee": "Carlos Lima",
+                        "assigneeEmail": "carlos@empresa.com",
+                        "startDate": "2025-01-20",
+                        "endDate": "2025-02-15",
+                        "tags": ["devops", "infraestrutura"],
+                        "swimlane": "",
+                        "leadTime": null,
+                        "assignees": [{"name": "Carlos Lima", "email": "carlos@empresa.com"}]
+                    },
+                    {
+                        "id": 11,
+                        "title": "Criar componente de notificações",
+                        "description": "Toast notifications reutilizáveis",
+                        "priority": "low",
+                        "status": "Em Progresso",
+                        "assignee": "Ana Oliveira",
+                        "assigneeEmail": "ana@empresa.com",
+                        "startDate": "2024-12-28",
+                        "endDate": "2025-01-08",
+                        "tags": ["frontend", "componente"],
+                        "swimlane": "",
+                        "leadTime": 11,
+                        "assignees": [{"name": "Ana Oliveira", "email": "ana@empresa.com"}]
+                    },
+                    {
+                        "id": 12,
+                        "title": "Refatorar código legado do módulo de pagamentos",
+                        "description": "Melhorar qualidade e manutenibilidade",
+                        "priority": "medium",
+                        "status": "Backlog",
+                        "assignee": "João Silva",
+                        "assigneeEmail": "joao@empresa.com",
+                        "startDate": "2025-02-01",
+                        "endDate": "2025-03-15",
+                        "tags": ["refactoring", "pagamentos"],
+                        "swimlane": "desenvolvimento-1735605789123",
+                        "leadTime": null,
+                        "assignees": [{"name": "João Silva", "email": "joao@empresa.com"}]
+                    }
+                ],
+                "swimlanes": [
+                    {
+                        "id": "desenvolvimento-1735605789123",
+                        "name": "Desenvolvimento",
+                        "icon": "💻",
+                        "order": 0,
+                        "collapsed": false,
+                        "columns": [
+                            {"id": "dev-backlog", "name": "Backlog", "icon": "📋", "order": 0},
+                            {"id": "dev-review", "name": "Code Review", "icon": "👁️", "order": 1},
+                            {"id": "dev-testing", "name": "Testing", "icon": "🧪", "order": 2},
+                            {"id": "dev-deploy", "name": "Deploy", "icon": "🚀", "order": 3}
+                        ]
+                    },
+                    {
+                        "id": "design-1735605789124",
+                        "name": "Design",
+                        "icon": "🎨",
+                        "order": 1,
+                        "collapsed": false,
+                        "columns": [
+                            {"id": "design-ideacao", "name": "Ideação", "icon": "💡", "order": 0},
+                            {"id": "design-wireframe", "name": "Wireframe", "icon": "📐", "order": 1},
+                            {"id": "design-prototipo", "name": "Protótipo", "icon": "🎨", "order": 2},
+                            {"id": "design-aprovado", "name": "Aprovado", "icon": "✅", "order": 3}
+                        ]
+                    },
+                    {
+                        "id": "bugs-1735605789125",
+                        "name": "Bugs",
+                        "icon": "🐛",
+                        "order": 2,
+                        "collapsed": false,
+                        "columns": [
+                            {"id": "bug-reportado", "name": "Reportado", "icon": "📝", "order": 0},
+                            {"id": "bug-triagem", "name": "Triagem", "icon": "🔍", "order": 1},
+                            {"id": "bug-correcao", "name": "Em Correção", "icon": "🔧", "order": 2},
+                            {"id": "bug-testado", "name": "Testado", "icon": "🧪", "order": 3},
+                            {"id": "bug-resolvido", "name": "Resolvido", "icon": "✅", "order": 4}
+                        ]
+                    }
+                ],
+                "notes": [
+                    {
+                        "id": 1001,
+                        "content": "Reunião de planning na segunda-feira às 9h. Preparar apresentação dos KPIs do último sprint.",
+                        "createdAt": "2024-12-29T10:30:00.000Z"
+                    },
+                    {
+                        "id": 1002,
+                        "content": "Lembrar de revisar PR #234 antes do fim do dia. João está aguardando feedback.",
+                        "createdAt": "2024-12-29T14:15:00.000Z"
+                    },
+                    {
+                        "id": 1003,
+                        "content": "Cliente solicitou mudança na cor do botão principal. Validar com Maria antes de implementar.",
+                        "createdAt": "2024-12-30T09:00:00.000Z"
+                    },
+                    {
+                        "id": 1004,
+                        "content": "Bug crítico reportado em produção - verificar logs do servidor ASAP!",
+                        "createdAt": "2024-12-30T11:45:00.000Z"
+                    }
+                ],
+                "reminders": [
+                    {
+                        "id": 2001,
+                        "title": "Daily standup",
+                        "date": "2025-01-02",
+                        "time": "09:00"
+                    },
+                    {
+                        "id": 2002,
+                        "title": "Apresentação para stakeholders",
+                        "date": "2025-01-05",
+                        "time": "14:00"
+                    },
+                    {
+                        "id": 2003,
+                        "title": "Deadline do MVP",
+                        "date": "2025-01-15",
+                        "time": "18:00"
+                    },
+                    {
+                        "id": 2004,
+                        "title": "Code review semanal",
+                        "date": "2025-01-03",
+                        "time": "15:30"
+                    },
+                    {
+                        "id": 2005,
+                        "title": "Backup do banco de dados",
+                        "date": "2025-01-01",
+                        "time": "02:00"
+                    }
+                ]
+            };
+            
+            try {
+                // Importar dados
+                localStorage.setItem('kanban-tasks', JSON.stringify(testData.tasks));
+                localStorage.setItem('kanban-swimlanes', JSON.stringify(testData.swimlanes));
+                localStorage.setItem('kanban-notes', JSON.stringify(testData.notes));
+                localStorage.setItem('kanban-reminders', JSON.stringify(testData.reminders));
+                localStorage.setItem('kanban-swimlanes-mode', 'true');
+                
+                closeSettings();
+                
+                alert('✅ Dados de teste importados com sucesso!\n\n' +
+                      `📊 ${testData.tasks.length} tarefas\n` +
+                      `🏊 ${testData.swimlanes.length} raias\n` +
+                      `📝 ${testData.notes.length} notas\n` +
+                      `🔔 ${testData.reminders.length} lembretes`);
+                
+                // Recarregar visualizações
+                refreshData();
+            } catch (error) {
+                alert('❌ Erro ao importar dados de teste:\n\n' + error.message);
+            }
+        }
+
+        function clearAllData() {
+            if (!confirm('⚠️ ATENÇÃO! Isso irá APAGAR TODOS OS DADOS permanentemente!\n\nEsta ação não pode ser desfeita.\n\nDeseja realmente continuar?')) {
+                return;
+            }
+            
+            if (!confirm('🚨 ÚLTIMA CONFIRMAÇÃO!\n\nTODOS os dados serão perdidos:\n- Tarefas\n- Raias\n- Notas\n- Lembretes\n\nTem CERTEZA ABSOLUTA?')) {
+                return;
+            }
+            
+            localStorage.removeItem('kanban-tasks');
+            localStorage.removeItem('kanban-swimlanes');
+            localStorage.removeItem('kanban-notes');
+            localStorage.removeItem('kanban-reminders');
+            localStorage.removeItem('kanban-columns');
+            localStorage.removeItem('kanban-swimlane-columns');
+            
+            closeSettings();
+            alert('✅ Todos os dados foram apagados!');
+            refreshData();
+        }
+
+        function exportData() {
+            const data = {
+                tasks: JSON.parse(localStorage.getItem('kanban-tasks')) || [],
+                swimlanes: JSON.parse(localStorage.getItem('kanban-swimlanes')) || [],
+                notes: JSON.parse(localStorage.getItem('kanban-notes')) || [],
+                reminders: JSON.parse(localStorage.getItem('kanban-reminders')) || []
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `taskflow-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            alert('✅ Backup criado com sucesso!\n\nArquivo baixado: ' + link.download);
+        }
+
+        // Pull to Refresh
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].clientY;
+            
+            if (touchEndY - touchStartY > 100 && window.scrollY === 0) {
+                refreshData();
+            }
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Verificar se há dados
+            checkDataAndNotify();
+            
+            updateKPIs();
+            renderRecentTasks();
+            renderStats();
+            renderAllTasks();
+            renderTimeline();
+            renderReminders();
+            renderNotes();
+        });
+
+        function checkDataAndNotify() {
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks')) || [];
+            
+            if (tasks.length === 0) {
+                // Sem dados - mostrar aviso amigável
+                setTimeout(() => {
+                    const message = `
+📊 TaskFlow Mobile
+
+Não há dados para exibir no momento.
+
+COMO ADICIONAR DADOS:
+
+1️⃣ USAR TASKFLOW WEB:
+   • Abra kanban-advanced.html
+   • Crie suas tarefas
+   • Volte ao mobile e toque 🔄
+
+2️⃣ TESTAR AGORA:
+   • Toque em ⚙️ (Configurações)
+   • Toque "📥 Importar Dados de Teste"
+   • Explore com dados de exemplo!
+
+Escolha uma opção acima para começar!
+                    `.trim();
+                    
+                    if (confirm(message + '\n\nAbrir Configurações agora?')) {
+                        openSettings();
+                    }
+                }, 500);
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            updateKPIs();
+            renderRecentTasks();
+            renderStats();
+            renderAllTasks();
+            renderTimeline();
+            renderReminders();
+            renderNotes();
+        }, 30000);
+        
+        // Sync in real-time when localStorage changes (from kanban-advanced)
+        window.addEventListener('storage', (e) => {
+            if (e.key && e.key.startsWith('kanban-')) {
+                // Dados do kanban mudaram, atualizar tudo
+                console.log('🔄 Sincronizando dados do Kanban...');
+                updateKPIs();
+                renderRecentTasks();
+                renderStats();
+                renderAllTasks();
+                renderTimeline();
+                renderReminders();
+                renderNotes();
+            }
+        });
+        
+        // Also refresh when window gains focus (user returns to mobile)
+        window.addEventListener('focus', () => {
+            console.log('📱 Mobile em foco - Atualizando dados...');
+            updateKPIs();
+            renderRecentTasks();
+            renderStats();
+            renderAllTasks();
+            renderTimeline();
+            renderReminders();
+            renderNotes();
+        });
+    </script>
+</body>
+</html>
