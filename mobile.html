@@ -942,6 +942,11 @@
         // PWA Install
         let deferredPrompt;
         
+        // PWA Install Prompt
+        // Note: beforeinstallprompt requires HTTPS and Service Worker
+        // Mobile works without PWA installation
+        let deferredPrompt;
+        
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
@@ -971,12 +976,16 @@
             document.getElementById('installPrompt').classList.remove('show');
         }
 
-        // Service Worker Registration
+        // Service Worker Registration (OPCIONAL)
+        // Descomente as linhas abaixo se quiser PWA com cache offline
+        // IMPORTANTE: Precisa do arquivo sw.js no GitHub!
+        /*
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').then(() => {
-                
-            });
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('✅ Service Worker registrado:', reg.scope))
+                .catch(err => console.log('⚠️ Service Worker falhou:', err));
         }
+        */
 
         // Data Loading
         let currentSwimlaneFilter = 'all'; // Filtro global
