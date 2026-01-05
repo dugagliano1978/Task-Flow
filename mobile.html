@@ -939,11 +939,11 @@
     <div class="toast" id="toast"></div>
     
     <script>
-        // TaskFlow Mobile v3.0.59
-        // Última atualização: 2026-01-05 13:52 - FIX: Em Andamento agora usa COLUNA
+        // TaskFlow Mobile v3.0.60
+        // Última atualização: 2026-01-05 18:30 - FIX: Erro de sintaxe corrigido
         // Se você ainda vê erros, limpe o cache: Ctrl+Shift+Del
         
-        console.log('📱 TaskFlow Mobile v3.0.59 carregado - FIX: Em Andamento');
+        console.log('📱 TaskFlow Mobile v3.0.60 carregado - Sintaxe OK');
         
         // PWA Install Prompt
         // Note: beforeinstallprompt requires HTTPS and Service Worker
@@ -1156,35 +1156,33 @@
         }
         
         function getTaskStatusLabel(task) {
-            // Retorna label baseado no STATUS
-            if (!task.status) return 'A Fazer';
+            // Retorna label baseado na COLUNA
+            if (!task.column) return '';
             
-            const status = task.status.toLowerCase();
+            const col = task.column.toLowerCase();
             
-            if (status.includes('done') || 
-                status.includes('concluí') || 
-                status.includes('finaliz') ||
-                status.includes('feito')) {
+            if (col.includes('done') || 
+                col.includes('concluí') || 
+                col.includes('finaliz') ||
+                col.includes('feito')) {
                 return 'Concluído';
             }
             
-            if (status.includes('doing') || 
-                status.includes('progresso') || 
-                status.includes('andamento') ||
-                status.includes('fazendo') ||
-                status.includes('em progresso')) {
+            if (col.includes('doing') || 
+                col.includes('progresso') || 
+                col.includes('andamento') ||
+                col.includes('fazendo') ||
+                col.includes('em progresso')) {
                 return 'Em Progresso';
             }
             
-            if (status.includes('todo') || 
-                status.includes('fazer') ||
-                status.includes('a fazer')) {
+            if (col.includes('todo') || 
+                col.includes('fazer') ||
+                col.includes('a fazer')) {
                 return 'A Fazer';
             }
             
-            // Retorna o status original se não reconhecer
-            return task.status;
-        }
+            // Retorna o nome da coluna se não reconhecer
             return task.column;
         }
         
