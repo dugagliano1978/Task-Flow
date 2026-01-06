@@ -1,312 +1,316 @@
-# 🚀 TaskFlow v3.0 - Enterprise Task Management System
+# 🎯 TaskFlow - Pacote de Instalação v5.0
 
-![Version](https://img.shields.io/badge/version-3.0-blue.svg)
-![Status](https://img.shields.io/badge/status-production-green.svg)
-![License](https://img.shields.io/badge/license-MIT-green.svg)
-
-## 📋 Sobre o Projeto
-
-**TaskFlow v3.0** é um sistema completo de gestão de projetos e tarefas, 100% offline, gratuito e comparável às melhores ferramentas enterprise do mercado.
-
-### ✨ Destaques
-
-- ✅ **100% Offline** - Funciona sem internet
-- ✅ **Zero Custo** - Completamente gratuito
-- ✅ **50+ Funcionalidades** - Sistema completo
-- ✅ **Enterprise-Grade** - Qualidade profissional
-- ✅ **Privacidade Total** - Seus dados são seus
+**Data:** 06/01/2026  
+**Versão:** 5.0 FINAL
 
 ---
 
-## 📊 Comparação com Ferramentas Pagas
-
-| Feature | Jira | Trello | Asana | TaskFlow v3.0 |
-|---------|:----:|:------:|:-----:|:-------------:|
-| Kanban Completo | ✅ | ✅ | ✅ | ✅ |
-| Templates Prontos | ✅ | ⚠️ | ✅ | ✅ 12 |
-| Múltiplos Responsáveis | ✅ | ⚠️ | ✅ | ✅ |
-| Histórico Completo | 💰 | ❌ | 💰 | ✅ |
-| Dashboard Profissional | 💰 | ⚠️ | 💰 | ✅ |
-| Integrações | ✅ | ✅ | ✅ | ✅ 7 |
-| Temas Customizáveis | ⚠️ | ⚠️ | ⚠️ | ✅ 6+ |
-| Atalhos de Teclado | ✅ | ⚠️ | ✅ | ✅ 9+ |
-| Modos de Densidade | ❌ | ❌ | ❌ | ✅ 3 |
-| Funciona Offline | ❌ | ❌ | ❌ | ✅ |
-| **Preço Mensal** | $10-15 | $5-10 | $11-25 | **GRÁTIS** |
-
----
-
-## 🎯 Funcionalidades Principais
-
-### 📋 Kanban Avançado
-- Colunas dinâmicas e customizáveis
-- Drag & drop suave e intuitivo
-- Raias (swimlanes) para organização
-- Filtros por prioridade e tags
-- Busca inteligente de tarefas
-- 12 templates profissionais prontos
-
-### 👥 Gestão de Equipes
-- Múltiplos responsáveis por tarefa
-- Avatares coloridos automáticos
-- Gerenciamento de pessoas
-- Atribuição rápida
-
-### 📜 Histórico & Auditoria
-- Rastreamento completo de alterações
-- 7 tipos de ações registradas
-- Timeline visual de eventos
-- Quem fez o quê e quando
-
-### 🔔 Lembretes Avançados
-- Recorrência (Diário, Semanal, Mensal, Anual)
-- 8 categorias coloridas
-- Notificações browser nativas
-- Sons customizáveis
-- Tempos de antecedência configuráveis
-
-### 📊 Dashboard Profissional
-- 11 gráficos interativos
-- Relatórios customizados ilimitados
-- Comparação entre períodos
-- Export em PNG, PDF e CSV
-- Métricas em tempo real
-
-### 🔗 Integrações
-- Google Calendar
-- GitHub Issues
-- Slack Notifications
-- Discord Webhooks
-- Microsoft Outlook
-- API REST completa
-- Email Integration
-
-### 🎨 UX/UI Avançado
-- 6 temas pré-definidos
-- Criar temas personalizados
-- 9 atalhos de teclado
-- Paleta de comandos (Ctrl+K)
-- 3 modos de densidade
-- Transições suaves
-
----
-
-## 🚀 Como Começar
-
-### Instalação
-
-1. **Extraia o arquivo ZIP**
-2. **Abra `kanban-advanced.html` no navegador**
-3. **Pronto! Não precisa instalar nada**
-
-### Primeiro Uso
-
-1. Pressione **Ctrl+K** para abrir a paleta de comandos
-2. Clique em **🎨 Temas** para personalizar cores
-3. Use **📋 Templates** para começar rápido
-4. Configure **🔗 Integrações** se precisar
-
-### Atalhos Úteis
-
-| Atalho | Ação |
-|--------|------|
-| `Ctrl+K` | Abrir paleta de comandos |
-| `Ctrl+N` | Nova tarefa |
-| `Ctrl+/` | Mostrar todos os atalhos |
-| `Ctrl+F` | Buscar tarefas |
-| `Esc` | Fechar modais |
-
----
-
-## 📁 Estrutura de Arquivos
+## 📦 CONTEÚDO DO PACOTE:
 
 ```
-TaskFlow-v3.0/
-├── kanban-advanced.html      # Aplicação principal (TODAS as 5 fases)
-├── templates.html             # Biblioteca de 12 templates
-├── lembretes.html            # Sistema de lembretes avançados
-├── dashboard.html            # Dashboard com gráficos
-├── integracoes.html          # Hub de integrações
-├── timeline.html             # Visualização Gantt
-├── notas.html                # Bloco de notas
-├── README.md                 # Este arquivo
-└── docs/                     # Documentação completa
-    ├── FASE1_FINALIZADA.md
-    ├── FASE2_CONCLUIDA.md
-    ├── FASE3_CONCLUIDA.md
-    ├── FASE4_CONCLUIDA.md
-    ├── FASE5_CONCLUIDA_PROJETO_FINALIZADO.md
-    └── GUIA_*.md
+TaskFlow-v5.0-FINAL/
+├── kanban-advanced.html    → Kanban principal (232 KB)
+├── mobile.html              → Mobile otimizado (36 KB)
+├── test-backup.html         → Teste de backup (5.6 KB)
+├── debug-extreme.html       → Debug detalhado (3.4 KB)
+└── README.md               → Este arquivo
 ```
 
 ---
 
-## 💡 Casos de Uso
+## ✅ MELHORIAS IMPLEMENTADAS:
 
-### 👨‍💼 Gerente de Projetos
-- Use templates para projetos recorrentes
-- Dashboard para apresentações
-- Histórico para auditoria
-- Export para relatórios
+### **1. KANBAN (kanban-advanced.html)**
 
-### 👨‍💻 Desenvolvedor
-- GitHub Issues integrado
-- Kanban para sprints
-- Timeline para planejamento
-- Slack/Discord para notificações
+✅ **Campo `columnType` adicionado:**
+- Colunas de swimlane agora têm campo `type` (todo/doing/done)
+- Tarefas salvam `task.columnType` ao mover
+- Mobile usa `columnType` para KPIs corretos
 
-### 🎨 Designer
-- Temas personalizados
-- Lembretes para deadlines
-- Notas para ideias
-- Timeline para entregas
+✅ **Migração automática:**
+- Roda na primeira vez que abrir o kanban
+- Detecta colunas sem `type` e infere automaticamente
+- Atualiza todas as tarefas com `columnType`
+- Mensagens no console confirmam migração
 
-### 🏢 Equipe Remota
-- Múltiplos responsáveis
-- Integrações com ferramentas
-- Notificações em tempo real
-- Dashboard compartilhável
+✅ **Debug robusto:**
+- Health Check completo no console
+- Verifica integridade de tarefas, colunas e raias
+- Mostra estatísticas detalhadas
+- Confirma se sistema está saudável
 
----
+✅ **Backup completo:**
+- Inclui tarefas, raias, colunas, pessoas
+- Inclui notas e lembretes
+- Backup automático (diário/semanal)
+- Histórico de 10 backups
 
-## 📊 Estatísticas do Projeto
+### **2. MOBILE (mobile.html)**
 
-### Código
-- **10.000+** linhas de código
-- **~500 KB** de funcionalidades
-- **30+** arquivos
-- **5** fases completas
+✅ **Sincronização perfeita:**
+- Usa `columnType` quando disponível
+- Fallback para `status` em modo normal
+- KPIs funcionando em AMBOS os modos (normal + swimlanes)
 
-### Funcionalidades
-- **50+** features implementadas
-- **8** aplicações integradas
-- **7** integrações externas
-- **12** templates prontos
-- **6** temas customizáveis
-- **9** atalhos de teclado
-- **3** modos de densidade
+✅ **Funcionalidades:**
+- Filtros por raia
+- Modo claro/escuro
+- Auto-refresh 30s
+- PWA-ready
+- Touch-friendly
 
----
+✅ **Debug melhorado:**
+- Health Check completo
+- Mostra status únicos
+- Amostra de tarefas
+- Verifica integridade
 
-## 🔧 Tecnologias Utilizadas
+### **3. FERRAMENTAS DE DEBUG**
 
-- **HTML5** - Estrutura semântica
-- **CSS3** - Estilos modernos e animações
-- **JavaScript ES6+** - Lógica e interatividade
-- **LocalStorage** - Persistência de dados
-- **Chart.js** - Gráficos profissionais
-- **Drag & Drop API** - Interação fluida
+✅ **test-backup.html:**
+- Verifica quantas notas/lembretes tem
+- Faz backup de teste
+- Mostra o que será incluído
 
----
-
-## 📱 Compatibilidade
-
-### Navegadores Suportados
-- ✅ Chrome/Edge (Chromium) 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Opera 76+
-
-### Sistemas Operacionais
-- ✅ Windows 10/11
-- ✅ macOS 10.15+
-- ✅ Linux (todas as distros modernas)
+✅ **debug-extreme.html:**
+- Mostra todos os campos de todas as tarefas
+- Status únicos encontrados
+- Análise completa
 
 ---
 
-## 🛠️ Desenvolvimento
+## 📋 INSTRUÇÕES DE INSTALAÇÃO:
 
-### Fases Implementadas
+### **Passo 1: Backup**
+```
+1. Fazer backup do kanban atual
+2. Baixar arquivo .json
+3. Guardar em local seguro
+```
 
-1. **Fase 1** - Kanban Avançado ✅
-   - Templates, Responsáveis, Histórico
+### **Passo 2: Upload no GitHub**
+```
+1. Baixar os 4 arquivos do pacote
+2. Upload no repositório:
+   - kanban-advanced.html (substituir)
+   - mobile.html (substituir)
+   - test-backup.html (novo)
+   - debug-extreme.html (novo)
+3. Aguardar 1-2 minutos
+```
+
+### **Passo 3: Limpar Cache**
+```
+MUITO IMPORTANTE!
+1. CTRL+SHIFT+DEL
+2. Limpar cache + cookies
+3. Todo o período
+4. Fechar navegador
+5. Reabrir
+```
+
+### **Passo 4: Verificar Migração**
+```
+1. Abrir kanban-advanced.html
+2. Abrir F12 → Console
+3. Verificar mensagens:
    
-2. **Fase 2** - Lembretes Avançados ✅
-   - Recorrência, Categorias, Notificações
+   ✅ Migração: Coluna "Em Progresso" → type="doing"
+   ✅ Migração de colunas concluída!
+   ✅ Migração de 63 tarefas concluída!
    
-3. **Fase 3** - Dashboard Profissional ✅
-   - Relatórios, Comparação, Export
+   🏥 TASKFLOW - HEALTH CHECK
+   ✅ SISTEMA SAUDÁVEL - TUDO OK!
+```
+
+### **Passo 5: Testar Mobile**
+```
+1. Abrir mobile.html
+2. Abrir F12 → Console
+3. Ver:
+   🏥 TASKFLOW MOBILE - HEALTH CHECK v5.0
+   ✅ MOBILE SAUDÁVEL - TUDO OK!
    
-4. **Fase 4** - Integrações ✅
-   - 7 plataformas integradas
-   
-5. **Fase 5** - UX/UI Avançado ✅
-   - Temas, Atalhos, Densidade
-
-### Roadmap Futuro (Opcional)
-
-- [ ] Backend opcional (Node.js + MongoDB)
-- [ ] Aplicativo mobile (React Native)
-- [ ] Colaboração em tempo real
-- [ ] Mais integrações (Notion, Todoist)
-- [ ] Aplicativo desktop (Electron)
+4. Selecionar uma raia
+5. Verificar KPIs:
+   Total: X
+   Concluídas: Y
+   Em Andamento: Z ← Deve funcionar!
+   Atrasadas: W
+```
 
 ---
 
-## 📝 Licença
+## 🔍 TROUBLESHOOTING:
 
-Este projeto está sob a licença MIT. Veja o arquivo `LICENSE` para mais detalhes.
+### **Problema: KPIs zerados no mobile**
+```
+Solução:
+1. Abrir kanban-advanced.html
+2. Aguardar migração
+3. Limpar cache do mobile
+4. Recarregar mobile.html
+```
 
-Isso significa que você pode:
-- ✅ Usar comercialmente
-- ✅ Modificar como quiser
-- ✅ Distribuir livremente
-- ✅ Usar em projetos privados
+### **Problema: Mensagens de migração não aparecem**
+```
+Possíveis causas:
+1. Cache não foi limpo → Limpar e recarregar
+2. Arquivo não foi substituído → Re-upload
+3. GitHub Pages não atualizou → Aguardar 5 min
+```
 
----
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Sinta-se livre para:
-
-1. Fazer fork do projeto
-2. Criar uma branch para sua feature
-3. Fazer commit das mudanças
-4. Fazer push para a branch
-5. Abrir um Pull Request
-
----
-
-## 💬 Suporte
-
-Para dúvidas ou sugestões:
-
-- 📧 Email: suporte@taskflow.local
-- 💬 Discussões: GitHub Discussions
-- 🐛 Bugs: GitHub Issues
+### **Problema: Tarefas sem columnType**
+```
+Solução:
+1. Mover cada tarefa para outra coluna
+2. Voltar para coluna original
+3. Isso força o salvamento do columnType
+```
 
 ---
 
-## 🎉 Agradecimentos
+## 🎯 FUNCIONALIDADES PRINCIPAIS:
 
-Obrigado por usar o TaskFlow v3.0!
+### **KANBAN:**
+```
+✅ Modo Normal + Swimlanes
+✅ Drag & Drop
+✅ Tags e Prioridades
+✅ Anexos e Comentários
+✅ Histórico de alterações
+✅ Timeline/Gantt
+✅ Dashboard com gráficos
+✅ Backup automático
+✅ Notas e Lembretes
+✅ Equipe/Pessoas
+✅ Integrações
+```
 
-Este projeto representa **5 fases** de desenvolvimento intenso, **10.000+ linhas** de código, e um **sistema enterprise-grade** completo.
-
-Aproveite e seja produtivo! 🚀
+### **MOBILE:**
+```
+✅ KPIs em tempo real
+✅ Tarefas recentes (5)
+✅ Lista completa
+✅ Filtros por raia
+✅ Modo claro/escuro
+✅ Auto-refresh 30s
+✅ PWA (instalável)
+✅ Offline-ready
+```
 
 ---
 
-## 📈 Changelog
+## 📊 ESTRUTURA DE DADOS:
 
-### v3.0 (2024-12-27) - **ATUAL**
-- ✅ Todas as 5 fases implementadas
-- ✅ 50+ funcionalidades completas
-- ✅ Sistema pronto para produção
+### **Tarefa:**
+```javascript
+{
+  id: 1,
+  title: "Título",
+  status: "ap---accounts-payable-...",  // ID da coluna
+  columnType: "doing",                   // Tipo base (doing/done/todo)
+  swimlane: "projeto-oracle-...",        // ID da raia (opcional)
+  priority: "high",
+  endDate: "2026-01-10"
+}
+```
 
-### v2.2
-- ✅ Kanban básico completo
-- ✅ Dashboard inicial
-- ✅ Lembretes simples
-
-### v1.0
-- ✅ Kanban funcional
-- ✅ CRUD de tarefas
-- ✅ LocalStorage
+### **Coluna de Swimlane:**
+```javascript
+{
+  id: "ap---accounts-payable-1766858438522",
+  name: "Contas a Pagar",
+  icon: "💰",
+  type: "doing",  // ← NOVO! Tipo base
+  order: 0
+}
+```
 
 ---
 
-**TaskFlow v3.0** - Enterprise Task Management System
-**100% Offline | 100% Gratuito | 100% Seu**
+## 🆘 SUPORTE:
 
-🚀 **PRONTO PARA PRODUÇÃO!**
+### **Debug:**
+1. Abrir F12 → Console
+2. Ver mensagens de Health Check
+3. Usar `debugTasks()` no mobile
+4. Usar test-backup.html
+5. Usar debug-extreme.html
+
+### **Logs importantes:**
+```
+Kanban:
+  🏥 TASKFLOW - HEALTH CHECK
+  ✅ Migração de X tarefas concluída!
+  ✅ SISTEMA SAUDÁVEL - TUDO OK!
+
+Mobile:
+  📱 TaskFlow Mobile v5.0
+  🏥 TASKFLOW MOBILE - HEALTH CHECK
+  📊 KPIs: X total, Y concluídas, Z em andamento
+  ✅ MOBILE SAUDÁVEL - TUDO OK!
+```
+
+---
+
+## 📝 CHANGELOG:
+
+### **v5.0 (06/01/2026) - FINAL:**
+```
+🎯 CORREÇÕES PRINCIPAIS:
+- FIX: KPIs "Em Andamento" zerados em swimlanes
+- FIX: Estrutura de dados para suportar ambos os modos
+- Adicionado campo 'columnType' em colunas
+- Migração automática de dados antigos
+- Debug robusto em ambos sistemas
+
+🚀 MELHORIAS:
+- Health Check automático
+- Logs detalhados
+- Ferramentas de debug
+- Documentação completa
+```
+
+### **Versões anteriores:**
+```
+v4.7: Workaround temporário
+v4.6: Lógica de eliminação
+v4.5: Status com emojis
+v4.4: Debug automático
+v4.3: FIX swimlanesMode
+v4.2: Modo claro/escuro
+v4.1: FIX task.status
+v4.0: Reconstruído do zero
+v3.x: Patches sucessivos (deprecado)
+```
+
+---
+
+## ✅ CHECKLIST FINAL:
+
+```
+□ Backup do kanban atual feito
+□ Arquivos baixados do pacote
+□ Upload no GitHub concluído
+□ Cache limpo completamente
+□ Navegador fechado e reaberto
+□ Kanban aberto e migração executada
+□ Console verificado (Health Check OK)
+□ Mobile testado com raia selecionada
+□ KPIs funcionando corretamente
+□ Backup de teste feito e verificado
+```
+
+---
+
+## 🎉 PRONTO PARA PRODUÇÃO!
+
+**TaskFlow v5.0 está completo, testado e pronto para uso!**
+
+**Todos os KPIs funcionam perfeitamente em ambos os modos!** ✨
+
+---
+
+**Desenvolvido com ❤️ por Claude + Edu**  
+**Janeiro 2026**
