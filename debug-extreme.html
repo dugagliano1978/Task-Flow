@@ -68,14 +68,23 @@
             html += '<div class="task">';
             html += `<strong>[${i+1}] ${task.title}</strong><br>`;
             html += `ID: ${task.id}<br>`;
-            html += `Status: <span class="highlight">${task.status || 'null'}</span><br>`;
-            html += `Swimlane: ${task.swimlane || 'null'}<br>`;
-            html += `Priority: ${task.priority || 'null'}<br>`;
-            html += `EndDate: ${task.endDate || 'null'}<br>`;
+            html += `<strong>TODOS OS CAMPOS:</strong><br>`;
             
-            // Análise
+            // Mostrar TODOS os campos do objeto
+            Object.keys(task).forEach(key => {
+                const value = task[key];
+                if (key.toLowerCase().includes('status') || 
+                    key.toLowerCase().includes('column') || 
+                    key.toLowerCase().includes('state')) {
+                    html += `<span class="highlight">${key}: ${JSON.stringify(value)}</span><br>`;
+                } else {
+                    html += `${key}: ${JSON.stringify(value)}<br>`;
+                }
+            });
+            
+            // Análise do campo status
             const s = (task.status || '').toLowerCase();
-            html += '<br><strong>ANÁLISE:</strong><br>';
+            html += '<br><strong>ANÁLISE (status):</strong><br>';
             html += `includes("done"): ${s.includes('done')}<br>`;
             html += `includes("doing"): ${s.includes('doing')}<br>`;
             html += `includes("todo"): ${s.includes('todo')}<br>`;
