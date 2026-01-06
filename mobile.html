@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TaskFlow">
-    <title>TaskFlow Mobile v4.5</title>
+    <title>TaskFlow Mobile v4.6</title>
     <link rel="manifest" href="manifest.json">
     <style>
         /* ==================== RESET & BASE ==================== */
@@ -597,7 +597,7 @@
 
     <script>
         // ==================== CONFIG ====================
-        console.log('📱 TaskFlow Mobile v4.5 - Status SEMPRE visível com emojis');
+        console.log('📱 TaskFlow Mobile v4.6 - LÓGICA: não done + não todo = doing');
         console.log('🔄 Sincronização com Kanban via localStorage');
 
         // Estado Global
@@ -680,24 +680,33 @@
         function isCompleted(task) {
             if (!task.status) return false;
             const status = task.status.toLowerCase();
-            // Aceita: done, done-sl, concluído, finalizado, ou qualquer variação
+            // Aceita: done, done-sl, concluído, finalizado, completo, feito
             return status.includes('done') || 
                    status.includes('concluí') || 
                    status.includes('finaliz') ||
-                   status.includes('complete');
+                   status.includes('complete') ||
+                   status.includes('feito');
         }
 
         /**
          * Verifica se tarefa está em progresso baseado no STATUS (ID da coluna)
+         * LÓGICA: Se não é "concluído" e não é "todo", então está em progresso
          */
         function isInProgress(task) {
             if (!task.status) return false;
             const status = task.status.toLowerCase();
-            // Aceita: doing, doing-sl, em progresso, em andamento, ou qualquer variação
-            return status.includes('doing') || 
-                   status.includes('progr') ||
-                   status.includes('andamento') ||
-                   status.includes('progress');
+            
+            // Se está concluído, não está em progresso
+            if (isCompleted(task)) return false;
+            
+            // Se é "todo" ou "a fazer", não está em progresso
+            if (status.includes('todo') || status.includes('fazer') || status.includes('pendente')) {
+                return false;
+            }
+            
+            // Se chegou aqui, está em progresso!
+            // (não é done, não é todo, então está doing)
+            return true;
         }
 
         /**
@@ -748,13 +757,19 @@
             
             console.log(`📊 KPIs: ${total} total, ${completed} concluídas, ${inProgress} em andamento, ${overdue} atrasadas`);
             
-            // Debug detalhado se em andamento = 0 mas há tarefas
+            // Debug DETALHADO se em andamento = 0 mas há tarefas
             if (inProgress === 0 && total > 0) {
-                console.log('⚠️ DEBUG: Em Andamento = 0, investigando...');
-                console.log('Status das tarefas:');
-                tasks.slice(0, 5).forEach(t => {
-                    console.log(`  - "${t.title}": status="${t.status}", isInProgress=${isInProgress(t)}`);
+                console.log('⚠️ DEBUG AUTOMÁTICO: Em Andamento = 0, investigando...');
+                console.log('Status das primeiras 10 tarefas:');
+                tasks.slice(0, 10).forEach((t, i) => {
+                    console.log(`  [${i+1}] "${t.title.substring(0, 40)}..."`);
+                    console.log(`      status="${t.status}"`);
+                    console.log(`      isInProgress=${isInProgress(t)}`);
+                    console.log(`      isCompleted=${isCompleted(t)}`);
                 });
+                console.log('');
+                console.log('💡 Se alguma tarefa DEVERIA estar "Em Progresso",');
+                console.log('   copie o valor de "status" e me envie!');
             }
         }
 
