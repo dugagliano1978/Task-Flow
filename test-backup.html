@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Teste de Backup - TaskFlow</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #0f0;
+            padding: 20px;
+        }
+        .section {
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 15px;
+            margin: 15px 0;
+        }
+        .ok { color: #0f0; }
+        .error { color: #f00; }
+        h1 { color: #0ff; }
+        h2 { color: #ff0; }
+    </style>
+</head>
+<body>
+    <h1>🔍 TESTE DE BACKUP - TASKFLOW</h1>
+    
+    <div class="section">
+        <h2>📊 DADOS NO LOCALSTORAGE:</h2>
+        <div id="localStorageData"></div>
+    </div>
+    
+    <div class="section">
+        <h2>💾 SIMULAR BACKUP:</h2>
+        <button onclick="testBackup()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+            Fazer Backup de Teste
+        </button>
+        <div id="backupResult"></div>
+    </div>
+    
+    <script>
+        // Verificar dados no localStorage
+        function checkLocalStorage() {
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks') || '[]');
+            const notes = JSON.parse(localStorage.getItem('kanban-notes') || '[]');
+            const reminders = JSON.parse(localStorage.getItem('kanban-reminders') || '[]');
+            const swimlanes = JSON.parse(localStorage.getItem('kanban-swimlanes') || '[]');
+            
+            let html = '';
+            html += `<div class="${tasks.length > 0 ? 'ok' : 'error'}">✓ Tarefas: ${tasks.length}</div>`;
+            html += `<div class="${notes.length > 0 ? 'ok' : 'error'}">✓ Notas: ${notes.length}</div>`;
+            html += `<div class="${reminders.length > 0 ? 'ok' : 'error'}">✓ Lembretes: ${reminders.length}</div>`;
+            html += `<div class="${swimlanes.length > 0 ? 'ok' : 'error'}">✓ Raias: ${swimlanes.length}</div>`;
+            
+            document.getElementById('localStorageData').innerHTML = html;
+            
+            console.log('📊 Dados no localStorage:');
+            console.log(`  Tarefas: ${tasks.length}`);
+            console.log(`  Notas: ${notes.length}`);
+            console.log(`  Lembretes: ${reminders.length}`);
+            console.log(`  Raias: ${swimlanes.length}`);
+        }
+        
+        // Simular backup
+        function testBackup() {
+            const tasks = JSON.parse(localStorage.getItem('kanban-tasks') || '[]');
+            const notes = JSON.parse(localStorage.getItem('kanban-notes') || '[]');
+            const reminders = JSON.parse(localStorage.getItem('kanban-reminders') || '[]');
+            const swimlanes = JSON.parse(localStorage.getItem('kanban-swimlanes') || '[]');
+            const people = JSON.parse(localStorage.getItem('kanban-people') || '[]');
+            const columns = JSON.parse(localStorage.getItem('kanban-normal-columns') || '[]');
+            
+            const backupData = {
+                timestamp: new Date().toISOString(),
+                version: '5.0',
+                data: {
+                    // Tarefas
+                    tasks: tasks,
+                    
+                    // Colunas
+                    normalColumns: columns,
+                    
+                    // Raias (Swimlanes)
+                    swimlanes: swimlanes,
+                    swimlanesMode: JSON.parse(localStorage.getItem('kanban-swimlanes-mode') || 'false'),
+                    
+                    // Pessoas (People/Team)
+                    people: people,
+                    
+                    // Lembretes (Reminders)
+                    reminders: reminders,
+                    
+                    // Notas (Notes)
+                    notes: notes,
+                    
+                    // Metadata
+                    metadata: {
+                        totalTasks: tasks.length,
+                        totalColumns: columns.length,
+                        totalSwimlanes: swimlanes.length,
+                        totalPeople: people.length,
+                        totalReminders: reminders.length,
+                        totalNotes: notes.length,
+                        backupType: 'test',
+                        systemVersion: '5.0'
+                    }
+                }
+            };
+            
+            // Download backup file
+            const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `TaskFlow-Backup-Teste-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            let html = '<h3 class="ok">✅ Backup de teste criado!</h3>';
+            html += '<div>Arquivo baixado. Abra e verifique se contém:</div>';
+            html += `<div class="${notes.length > 0 ? 'ok' : 'error'}">• notes: ${notes.length} notas</div>`;
+            html += `<div class="${reminders.length > 0 ? 'ok' : 'error'}">• reminders: ${reminders.length} lembretes</div>`;
+            html += `<div>• tasks: ${tasks.length} tarefas</div>`;
+            html += `<div>• swimlanes: ${swimlanes.length} raias</div>`;
+            
+            document.getElementById('backupResult').innerHTML = html;
+            
+            console.log('💾 Backup criado com sucesso!');
+            console.log('Dados no backup:', backupData.data.metadata);
+        }
+        
+        // Executar ao carregar
+        checkLocalStorage();
+    </script>
+</body>
+</html>
