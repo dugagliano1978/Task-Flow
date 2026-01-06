@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TaskFlow">
-    <title>TaskFlow Mobile v4.4</title>
+    <title>TaskFlow Mobile v4.5</title>
     <link rel="manifest" href="manifest.json">
     <style>
         /* ==================== RESET & BASE ==================== */
@@ -597,7 +597,7 @@
 
     <script>
         // ==================== CONFIG ====================
-        console.log('📱 TaskFlow Mobile v4.4 - Debug swimlane status + detecção melhorada');
+        console.log('📱 TaskFlow Mobile v4.5 - Status SEMPRE visível com emojis');
         console.log('🔄 Sincronização com Kanban via localStorage');
 
         // Estado Global
@@ -712,16 +712,20 @@
          * Retorna label de status baseado no STATUS (ID da coluna)
          */
         function getStatusLabel(task) {
-            if (!task.status) return 'Sem Status';
+            if (!task.status) return 'A Fazer';
             
-            if (isCompleted(task)) return 'Concluído';
-            if (isInProgress(task)) return 'Em Progresso';
+            if (isCompleted(task)) return '✅ Concluído';
+            if (isInProgress(task)) return '⚙️ Em Progresso';
             
             const status = task.status.toLowerCase();
-            if (status.includes('todo')) return 'A Fazer';
             
-            // Retorna o próprio status se não reconhecer
-            return task.status;
+            // Detectar "todo" ou "a fazer"
+            if (status.includes('todo') || status.includes('fazer')) {
+                return '📝 A Fazer';
+            }
+            
+            // Se não reconhecer mas tem status, assumir que é "A Fazer"
+            return '📝 A Fazer';
         }
 
         // ==================== UI FUNCTIONS ====================
