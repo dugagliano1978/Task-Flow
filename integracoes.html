@@ -1,0 +1,1267 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow v3.0 - Integrações</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f8f9;
+            --bg-hover: #ebecf0;
+            --bg-card: #ffffff;
+            --border: #dfe1e6;
+            --text-primary: #172b4d;
+            --text-secondary: #5e6c84;
+            --text-tertiary: #8993a4;
+            --accent-blue: #0052cc;
+            --accent-green: #00875a;
+            --accent-orange: #ff8b00;
+            --accent-red: #de350b;
+            --accent-purple: #6554c0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1c2128;
+            --bg-secondary: #22272b;
+            --bg-hover: #2c333a;
+            --bg-card: #22272b;
+            --border: #373d45;
+            --text-primary: #f1f2f4;
+            --text-secondary: #9fadbc;
+            --text-tertiary: #738496;
+            --accent-blue: #579dff;
+            --accent-green: #4bce97;
+            --accent-orange: #faa53d;
+            --accent-red: #f87462;
+            --accent-purple: #9f8fef;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .version-badge {
+            font-size: 11px;
+            background: var(--accent-blue);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+        
+        .theme-toggle {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        /* Content */
+        .content {
+            padding: 40px 24px;
+        }
+        
+        .page-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .page-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+        
+        /* Integration Cards */
+        .integrations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .integration-card {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            position: relative;
+        }
+        
+        .integration-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--shadow);
+            border-color: var(--accent-blue);
+        }
+        
+        .integration-card.connected {
+            border-color: var(--accent-green);
+        }
+        
+        .integration-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+        
+        .integration-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        
+        .status-badge.connected {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .status-badge.available {
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+        
+        .integration-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .integration-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .integration-features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+        
+        .integration-features li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding: 6px 0;
+            padding-left: 24px;
+            position: relative;
+        }
+        
+        .integration-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--accent-green);
+            font-weight: 700;
+        }
+        
+        .integration-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-connect {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-connect.primary {
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn-connect.success {
+            background: var(--accent-green);
+            color: white;
+        }
+        
+        .btn-connect.danger {
+            background: var(--accent-red);
+            color: white;
+        }
+        
+        .btn-settings {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-hover);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        /* Activity Log */
+        .activity-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 40px;
+        }
+        
+        .activity-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .activity-item {
+            padding: 16px;
+            border-left: 3px solid var(--accent-blue);
+            background: var(--bg-hover);
+            margin-bottom: 12px;
+            border-radius: 4px;
+        }
+        
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .activity-source {
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .activity-time {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        .activity-message {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .close-btn:hover {
+            background: var(--bg-hover);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .info-box {
+            background: var(--bg-secondary);
+            border-left: 3px solid var(--accent-blue);
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .info-box-text {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        .code-block {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 12px;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 12px 0;
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                🔗 Integrações
+                <span class="version-badge">v3.0</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+                <button class="btn btn-secondary" onclick="window.close()">
+                    ← Voltar ao Kanban
+                </button>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+            <h1 class="page-title">Integrações & Automações</h1>
+            <p class="page-subtitle">Conecte o TaskFlow com suas ferramentas favoritas e automatize seu fluxo de trabalho</p>
+
+            <!-- Integrations Grid -->
+            <div class="integrations-grid">
+                <!-- Google Calendar -->
+                <div class="integration-card" id="google-calendar-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #4285f4;">📅</div>
+                        <span class="status-badge available" id="google-status">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">Google Calendar</h3>
+                    <p class="integration-description">
+                        Sincronize tarefas com deadlines automaticamente no Google Calendar. Eventos criados e atualizados em tempo real.
+                    </p>
+                    <ul class="integration-features">
+                        <li>Sincronização bidirecional automática</li>
+                        <li>Criar eventos com deadline das tarefas</li>
+                        <li>Atualizar eventos ao mover tarefas</li>
+                        <li>Lembretes nativos do Google</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="connectGoogleCalendar()">
+                            🔗 Conectar Google Calendar
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('google')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- GitHub Issues -->
+                <div class="integration-card" id="github-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #24292e; color: white;">🐙</div>
+                        <span class="status-badge available" id="github-status">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">GitHub Issues</h3>
+                    <p class="integration-description">
+                        Importe issues do GitHub como tarefas e sincronize status automaticamente. Perfeito para equipes de desenvolvimento.
+                    </p>
+                    <ul class="integration-features">
+                        <li>Importar issues como tarefas</li>
+                        <li>Sincronizar status (Open/Closed)</li>
+                        <li>Links bidirecionais automáticos</li>
+                        <li>Labels como tags</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="connectGitHub()">
+                            🔗 Conectar GitHub
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('github')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- Slack Webhooks -->
+                <div class="integration-card" id="slack-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #4a154b; color: white;">💬</div>
+                        <span class="status-badge available" id="slack-status">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">Slack Notifications</h3>
+                    <p class="integration-description">
+                        Envie notificações automáticas para canais do Slack quando tarefas forem criadas, movidas ou concluídas.
+                    </p>
+                    <ul class="integration-features">
+                        <li>Notificações em tempo real</li>
+                        <li>Mensagens customizáveis</li>
+                        <li>Múltiplos canais suportados</li>
+                        <li>Rich formatting com anexos</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="connectSlack()">
+                            🔗 Conectar Slack
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('slack')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- Discord Webhooks -->
+                <div class="integration-card" id="discord-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #5865f2; color: white;">🎮</div>
+                        <span class="status-badge available" id="discord-status">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">Discord Webhooks</h3>
+                    <p class="integration-description">
+                        Notificações automáticas em servidores Discord. Ideal para equipes que usam Discord para comunicação.
+                    </p>
+                    <ul class="integration-features">
+                        <li>Webhooks customizáveis</li>
+                        <li>Embeds ricos com cores</li>
+                        <li>Notificações de eventos</li>
+                        <li>Múltiplos servidores</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="connectDiscord()">
+                            🔗 Conectar Discord
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('discord')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- Microsoft Outlook -->
+                <div class="integration-card" id="outlook-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #0078d4; color: white;">📮</div>
+                        <span class="status-badge available" id="outlook-status">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">Microsoft Outlook</h3>
+                    <p class="integration-description">
+                        Sincronize tarefas com Microsoft Outlook e Calendar. Crie eventos, envie emails e gerencie compromissos automaticamente.
+                    </p>
+                    <ul class="integration-features">
+                        <li>Sincronização com Outlook Calendar</li>
+                        <li>Criar eventos com deadlines</li>
+                        <li>Enviar emails de notificação</li>
+                        <li>Importar compromissos como tarefas</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="connectOutlook()">
+                            🔗 Conectar Outlook
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('outlook')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- Zapier/Make -->
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #ff4a00; color: white;">⚡</div>
+                        <span class="status-badge available">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">Zapier / Make</h3>
+                    <p class="integration-description">
+                        API REST para conectar com Zapier, Make (Integromat) ou outras plataformas de automação.
+                    </p>
+                    <ul class="integration-features">
+                        <li>API REST completa</li>
+                        <li>Webhooks de eventos</li>
+                        <li>CRUD de tarefas</li>
+                        <li>Documentação OpenAPI</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="showAPIDocumentation()">
+                            📖 Ver Documentação
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('api')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+
+                <!-- Email Integration -->
+                <div class="integration-card">
+                    <div class="integration-header">
+                        <div class="integration-icon" style="background: #ea4335; color: white;">📧</div>
+                        <span class="status-badge available">Disponível</span>
+                    </div>
+                    <h3 class="integration-title">Email Integration</h3>
+                    <p class="integration-description">
+                        Crie tarefas por email e receba notificações. Endereço único para seu workspace.
+                    </p>
+                    <ul class="integration-features">
+                        <li>Criar tarefas por email</li>
+                        <li>Notificações por email</li>
+                        <li>Anexos como descrição</li>
+                        <li>Parsing inteligente de assunto</li>
+                    </ul>
+                    <div class="integration-actions">
+                        <button class="btn-connect primary" onclick="setupEmail()">
+                            🔗 Configurar Email
+                        </button>
+                        <button class="btn-settings" onclick="openSettings('email')" title="Configurações">⚙️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Log -->
+            <div class="activity-section">
+                <h2 class="activity-title">📊 Log de Atividades</h2>
+                <div id="activityLog">
+                    <p style="text-align: center; color: var(--text-secondary); padding: 40px;">
+                        Nenhuma atividade de integração ainda. Conecte uma integração para começar!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="settingsTitle">Configurações</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body" id="settingsBody">
+                <!-- Content will be dynamically loaded -->
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveSettings()">💾 Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let integrations = {
+            google: { connected: false, settings: {} },
+            github: { connected: false, settings: {} },
+            slack: { connected: false, settings: {} },
+            discord: { connected: false, settings: {} },
+            outlook: { connected: false, settings: {} },
+            api: { connected: false, settings: {} },
+            email: { connected: false, settings: {} }
+        };
+        let activityLog = [];
+        let currentIntegration = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            setupTheme();
+            loadIntegrations();
+            renderActivityLog();
+        });
+
+        // Theme
+        function setupTheme() {
+            const theme = localStorage.getItem('kanban-theme') || 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('kanban-theme', newTheme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Storage
+        function loadIntegrations() {
+            const data = localStorage.getItem('taskflow-integrations');
+            if (data) {
+                integrations = JSON.parse(data);
+                updateIntegrationStatus();
+            }
+            
+            const log = localStorage.getItem('taskflow-integration-log');
+            if (log) {
+                activityLog = JSON.parse(log);
+            }
+        }
+
+        function saveIntegrations() {
+            localStorage.setItem('taskflow-integrations', JSON.stringify(integrations));
+        }
+
+        function saveActivityLog() {
+            localStorage.setItem('taskflow-integration-log', JSON.stringify(activityLog));
+        }
+
+        function updateIntegrationStatus() {
+            Object.keys(integrations).forEach(key => {
+                const card = document.getElementById(`${key}-card`);
+                const status = document.getElementById(`${key}-status`);
+                if (card && status) {
+                    if (integrations[key].connected) {
+                        card.classList.add('connected');
+                        status.textContent = 'Conectado';
+                        status.classList.remove('available');
+                        status.classList.add('connected');
+                    }
+                }
+            });
+        }
+
+        // Google Calendar
+        function connectGoogleCalendar() {
+            showNotification('🔄 Iniciando conexão com Google Calendar...');
+            
+            // Simular OAuth flow
+            setTimeout(() => {
+                integrations.google.connected = true;
+                integrations.google.settings = {
+                    calendarId: 'primary',
+                    syncEnabled: true,
+                    createEvents: true,
+                    updateEvents: true
+                };
+                saveIntegrations();
+                updateIntegrationStatus();
+                
+                logActivity('Google Calendar', 'Conectado com sucesso');
+                showNotification('✅ Google Calendar conectado!');
+                
+                // Update button
+                const card = document.getElementById('google-calendar-card');
+                const btn = card.querySelector('.btn-connect');
+                btn.textContent = '✓ Conectado';
+                btn.classList.remove('primary');
+                btn.classList.add('success');
+                btn.onclick = () => disconnectIntegration('google');
+            }, 1500);
+        }
+
+        // GitHub
+        function connectGitHub() {
+            const repo = prompt('Digite o repositório (formato: usuario/repo):');
+            if (!repo || !repo.includes('/')) {
+                showNotification('❌ Formato inválido!');
+                return;
+            }
+            
+            showNotification('🔄 Conectando ao GitHub...');
+            
+            setTimeout(() => {
+                integrations.github.connected = true;
+                integrations.github.settings = {
+                    repository: repo,
+                    syncIssues: true,
+                    syncLabels: true,
+                    autoClose: true
+                };
+                saveIntegrations();
+                updateIntegrationStatus();
+                
+                logActivity('GitHub', `Conectado ao repositório ${repo}`);
+                showNotification('✅ GitHub conectado!');
+                
+                // Simulate importing issues
+                setTimeout(() => {
+                    const count = Math.floor(Math.random() * 10) + 5;
+                    logActivity('GitHub', `${count} issues importadas como tarefas`);
+                    showNotification(`📥 ${count} issues importadas!`);
+                }, 2000);
+                
+                // Update button
+                const card = document.getElementById('github-card');
+                const btn = card.querySelector('.btn-connect');
+                btn.textContent = '✓ Conectado';
+                btn.classList.remove('primary');
+                btn.classList.add('success');
+                btn.onclick = () => disconnectIntegration('github');
+            }, 1500);
+        }
+
+        // Slack
+        function connectSlack() {
+            const webhook = prompt('Cole a URL do Webhook do Slack:');
+            if (!webhook || !webhook.startsWith('https://hooks.slack.com/')) {
+                showNotification('❌ URL de webhook inválida!');
+                return;
+            }
+            
+            showNotification('🔄 Conectando ao Slack...');
+            
+            setTimeout(() => {
+                integrations.slack.connected = true;
+                integrations.slack.settings = {
+                    webhookUrl: webhook,
+                    channel: '#general',
+                    notifyOnCreate: true,
+                    notifyOnMove: true,
+                    notifyOnComplete: true
+                };
+                saveIntegrations();
+                updateIntegrationStatus();
+                
+                logActivity('Slack', 'Conectado com sucesso');
+                showNotification('✅ Slack conectado!');
+                
+                // Update button
+                const card = document.getElementById('slack-card');
+                const btn = card.querySelector('.btn-connect');
+                btn.textContent = '✓ Conectado';
+                btn.classList.remove('primary');
+                btn.classList.add('success');
+                btn.onclick = () => disconnectIntegration('slack');
+            }, 1500);
+        }
+
+        // Discord
+        function connectDiscord() {
+            const webhook = prompt('Cole a URL do Webhook do Discord:');
+            if (!webhook || !webhook.startsWith('https://discord.com/api/webhooks/')) {
+                showNotification('❌ URL de webhook inválida!');
+                return;
+            }
+            
+            showNotification('🔄 Conectando ao Discord...');
+            
+            setTimeout(() => {
+                integrations.discord.connected = true;
+                integrations.discord.settings = {
+                    webhookUrl: webhook,
+                    embedColor: '#3b82f6',
+                    notifyOnCreate: true,
+                    notifyOnMove: false,
+                    notifyOnComplete: true
+                };
+                saveIntegrations();
+                updateIntegrationStatus();
+                
+                logActivity('Discord', 'Conectado com sucesso');
+                showNotification('✅ Discord conectado!');
+                
+                // Update button
+                const card = document.getElementById('discord-card');
+                const btn = card.querySelector('.btn-connect');
+                btn.textContent = '✓ Conectado';
+                btn.classList.remove('primary');
+                btn.classList.add('success');
+                btn.onclick = () => disconnectIntegration('discord');
+            }, 1500);
+        }
+
+        // Microsoft Outlook
+        function connectOutlook() {
+            showNotification('🔄 Iniciando conexão com Microsoft Outlook...');
+            
+            // Simular OAuth flow com Microsoft
+            setTimeout(() => {
+                integrations.outlook.connected = true;
+                integrations.outlook.settings = {
+                    calendarId: 'primary',
+                    syncCalendar: true,
+                    syncTasks: true,
+                    sendNotifications: true,
+                    createEvents: true,
+                    importAppointments: false
+                };
+                saveIntegrations();
+                updateIntegrationStatus();
+                
+                logActivity('Microsoft Outlook', 'Conectado com sucesso');
+                showNotification('✅ Microsoft Outlook conectado!');
+                
+                // Simulate syncing calendar
+                setTimeout(() => {
+                    const count = Math.floor(Math.random() * 5) + 3;
+                    logActivity('Microsoft Outlook', `${count} compromissos sincronizados com Calendar`);
+                    showNotification(`📅 ${count} compromissos sincronizados!`);
+                }, 2000);
+                
+                // Update button
+                const card = document.getElementById('outlook-card');
+                const btn = card.querySelector('.btn-connect');
+                btn.textContent = '✓ Conectado';
+                btn.classList.remove('primary');
+                btn.classList.add('success');
+                btn.onclick = () => disconnectIntegration('outlook');
+            }, 1500);
+        }
+
+        // Email
+        function setupEmail() {
+            showNotification('📧 Configurando integração de email...');
+            
+            setTimeout(() => {
+                const email = `taskflow-${Date.now()}@tasks.local`;
+                integrations.email.connected = true;
+                integrations.email.settings = {
+                    inboundEmail: email,
+                    enableNotifications: true,
+                    parseAttachments: true
+                };
+                saveIntegrations();
+                
+                logActivity('Email', `Endereço criado: ${email}`);
+                alert(`✅ Email configurado!\n\nEnvie emails para:\n${email}\n\nO assunto será o título da tarefa.`);
+            }, 1000);
+        }
+
+        // API Documentation
+        function showAPIDocumentation() {
+            alert(`📖 API REST Documentation
+
+Base URL: http://localhost:8080/api/v1
+
+Endpoints:
+━━━━━━━━━━━━━━━━━━━━━━
+GET    /tasks           Lista todas as tarefas
+POST   /tasks           Cria nova tarefa
+GET    /tasks/:id       Busca tarefa por ID
+PUT    /tasks/:id       Atualiza tarefa
+DELETE /tasks/:id       Remove tarefa
+
+POST   /webhooks        Configura webhook
+GET    /webhooks        Lista webhooks
+
+Autenticação:
+━━━━━━━━━━━━━━━━━━━━━━
+Header: Authorization: Bearer {token}
+
+Exemplo de Payload:
+{
+  "title": "Nova tarefa",
+  "description": "Descrição",
+  "priority": "high",
+  "status": "todo"
+}
+
+Documentação completa em /docs`);
+        }
+
+        // Settings
+        function openSettings(integration) {
+            currentIntegration = integration;
+            const modal = document.getElementById('settingsModal');
+            const title = document.getElementById('settingsTitle');
+            const body = document.getElementById('settingsBody');
+            
+            const integrationNames = {
+                google: 'Google Calendar',
+                github: 'GitHub Issues',
+                slack: 'Slack Notifications',
+                discord: 'Discord Webhooks',
+                outlook: 'Microsoft Outlook',
+                api: 'API & Webhooks',
+                email: 'Email Integration'
+            };
+            
+            title.textContent = `Configurações - ${integrationNames[integration]}`;
+            
+            body.innerHTML = getSettingsHTML(integration);
+            
+            modal.classList.add('active');
+        }
+
+        function getSettingsHTML(integration) {
+            const settings = integrations[integration].settings || {};
+            
+            if (integration === 'google') {
+                return `
+                    <div class="form-group">
+                        <label>Calendário</label>
+                        <select id="calendarId">
+                            <option value="primary">Calendário Principal</option>
+                            <option value="work">Trabalho</option>
+                            <option value="personal">Pessoal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="createEvents" ${settings.createEvents ? 'checked' : ''}>
+                            Criar eventos automaticamente
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="updateEvents" ${settings.updateEvents ? 'checked' : ''}>
+                            Atualizar eventos ao mover tarefas
+                        </label>
+                    </div>
+                `;
+            } else if (integration === 'slack') {
+                return `
+                    <div class="form-group">
+                        <label>Webhook URL</label>
+                        <input type="text" id="webhookUrl" value="${settings.webhookUrl || ''}" placeholder="https://hooks.slack.com/...">
+                    </div>
+                    <div class="form-group">
+                        <label>Canal</label>
+                        <input type="text" id="channel" value="${settings.channel || '#general'}" placeholder="#general">
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="notifyOnCreate" ${settings.notifyOnCreate ? 'checked' : ''}>
+                            Notificar ao criar tarefa
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="notifyOnComplete" ${settings.notifyOnComplete ? 'checked' : ''}>
+                            Notificar ao concluir tarefa
+                        </label>
+                    </div>
+                `;
+            } else if (integration === 'outlook') {
+                return `
+                    <div class="form-group">
+                        <label>Calendário</label>
+                        <select id="calendarId">
+                            <option value="primary">Calendário Principal</option>
+                            <option value="work">Trabalho</option>
+                            <option value="personal">Pessoal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="syncCalendar" ${settings.syncCalendar ? 'checked' : ''}>
+                            Sincronizar com Outlook Calendar
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="syncTasks" ${settings.syncTasks ? 'checked' : ''}>
+                            Sincronizar tarefas do Outlook
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="createEvents" ${settings.createEvents ? 'checked' : ''}>
+                            Criar eventos para tarefas com deadline
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="sendNotifications" ${settings.sendNotifications ? 'checked' : ''}>
+                            Enviar notificações por email do Outlook
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="importAppointments" ${settings.importAppointments ? 'checked' : ''}>
+                            Importar compromissos como tarefas
+                        </label>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-title">ℹ️ Sobre a Integração</div>
+                        <div class="info-box-text">
+                            A integração com Microsoft Outlook permite sincronização bidirecional entre suas tarefas do TaskFlow e o Outlook Calendar/Tasks. 
+                            Eventos criados, notificações enviadas e compromissos sincronizados automaticamente.
+                        </div>
+                    </div>
+                `;
+            }
+            
+            return '<p>Configurações em desenvolvimento</p>';
+        }
+
+        function saveSettings() {
+            if (!currentIntegration) return;
+            
+            // Get form values
+            const settings = integrations[currentIntegration].settings || {};
+            
+            if (currentIntegration === 'slack') {
+                const webhookUrl = document.getElementById('webhookUrl')?.value;
+                const channel = document.getElementById('channel')?.value;
+                const notifyOnCreate = document.getElementById('notifyOnCreate')?.checked;
+                const notifyOnComplete = document.getElementById('notifyOnComplete')?.checked;
+                
+                integrations.slack.settings = {
+                    webhookUrl,
+                    channel,
+                    notifyOnCreate,
+                    notifyOnComplete
+                };
+            } else if (currentIntegration === 'outlook') {
+                const calendarId = document.getElementById('calendarId')?.value;
+                const syncCalendar = document.getElementById('syncCalendar')?.checked;
+                const syncTasks = document.getElementById('syncTasks')?.checked;
+                const createEvents = document.getElementById('createEvents')?.checked;
+                const sendNotifications = document.getElementById('sendNotifications')?.checked;
+                const importAppointments = document.getElementById('importAppointments')?.checked;
+                
+                integrations.outlook.settings = {
+                    calendarId,
+                    syncCalendar,
+                    syncTasks,
+                    createEvents,
+                    sendNotifications,
+                    importAppointments
+                };
+            }
+            
+            saveIntegrations();
+            closeModal();
+            showNotification('✅ Configurações salvas!');
+        }
+
+        function closeModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function disconnectIntegration(integration) {
+            if (!confirm('Desconectar esta integração?')) return;
+            
+            integrations[integration].connected = false;
+            integrations[integration].settings = {};
+            saveIntegrations();
+            
+            location.reload();
+        }
+
+        // Activity Log
+        function logActivity(source, message) {
+            const activity = {
+                id: Date.now(),
+                source: source,
+                message: message,
+                timestamp: new Date().toISOString()
+            };
+            
+            activityLog.unshift(activity);
+            if (activityLog.length > 50) activityLog = activityLog.slice(0, 50);
+            
+            saveActivityLog();
+            renderActivityLog();
+        }
+
+        function renderActivityLog() {
+            const container = document.getElementById('activityLog');
+            
+            if (activityLog.length === 0) {
+                container.innerHTML = `
+                    <p style="text-align: center; color: var(--text-secondary); padding: 40px;">
+                        Nenhuma atividade de integração ainda. Conecte uma integração para começar!
+                    </p>
+                `;
+                return;
+            }
+            
+            container.innerHTML = activityLog.slice(0, 20).map(activity => `
+                <div class="activity-item">
+                    <div class="activity-header">
+                        <span class="activity-source">${activity.source}</span>
+                        <span class="activity-time">${formatTimeAgo(activity.timestamp)}</span>
+                    </div>
+                    <div class="activity-message">${activity.message}</div>
+                </div>
+            `).join('');
+        }
+
+        function formatTimeAgo(timestamp) {
+            const now = new Date();
+            const then = new Date(timestamp);
+            const seconds = Math.floor((now - then) / 1000);
+            
+            if (seconds < 60) return 'agora mesmo';
+            if (seconds < 3600) return `há ${Math.floor(seconds / 60)} minuto${Math.floor(seconds / 60) > 1 ? 's' : ''}`;
+            if (seconds < 86400) return `há ${Math.floor(seconds / 3600)} hora${Math.floor(seconds / 3600) > 1 ? 's' : ''}`;
+            
+            return then.toLocaleDateString('pt-BR');
+        }
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 80px;
+                right: 20px;
+                background: var(--accent-green);
+                color: white;
+                padding: 16px 24px;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                z-index: 10000;
+                font-weight: 600;
+                font-size: 14px;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
+        // Close modal on click outside
+        document.getElementById('settingsModal').addEventListener('click', (e) => {
+            if (e.target.id === 'settingsModal') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

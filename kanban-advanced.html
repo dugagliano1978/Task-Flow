@@ -1970,21 +1970,6 @@ button:active,
     padding: 0 12px;
 }
 
-        
-        /* Import Swimlane Modal Radio Options */
-        .radio-option:hover {
-            border-color: var(--accent-blue) !important;
-            background: var(--bg-hover);
-        }
-        
-        .radio-option input[type="radio"]:checked + div {
-            color: var(--accent-blue);
-        }
-        
-        .radio-option:has(input[type="radio"]:checked) {
-            border-color: var(--accent-blue) !important;
-            background: rgba(52, 152, 219, 0.1);
-        }
     </style>
 </head>
 <body>
@@ -2043,14 +2028,14 @@ button:active,
                 <button class="btn btn-secondary" onclick="openBackupManager()" title="Sistema de Backup Completo">
                     💾 Backup
                 </button>
-                <button class="btn btn-secondary" onclick="exportToExcel()" title="Exportar tarefas para Excel">
-                    📤 Exportar Excel
+                <button class="btn btn-secondary" onclick="exportToCSV()" title="Fazer backup dos dados">
+                    📤 Exportar CSV
                 </button>
                 <button class="btn btn-secondary" onclick="exportToProjectXML()" title="Exportar para MS Project">
                     📤 Exportar Project
                 </button>
-                <button class="btn btn-secondary" onclick="document.getElementById('excelFileInput').click()" title="Importar dados do Excel">
-                    📥 Importar Excel
+                <button class="btn btn-secondary" onclick="document.getElementById('csvFileInput').click()" title="Importar dados do CSV">
+                    📥 Importar CSV
                 </button>
                 <button class="btn btn-secondary" onclick="document.getElementById('projectFileInput').click()" title="Importar do MS Project">
                     📋 Importar Project
@@ -2058,7 +2043,7 @@ button:active,
                 <button class="btn btn-secondary" onclick="toggleSwimlanesMode()">
                     <span id="swimlaneToggleIcon">🏊</span> <span id="swimlaneToggleText">Ativar Raias</span>
                 </button>
-                <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display: none;" onchange="importFromExcel(event)">
+                <input type="file" id="csvFileInput" accept=".csv" style="display: none;" onchange="importFromCSV(event)">
                 <input type="file" id="projectFileInput" accept=".xml,.mpp" style="display: none;" onchange="importFromProject(event)">
             </div>
         </div>
@@ -2325,7 +2310,7 @@ button:active,
 
     <!-- Swimlane Modal -->
     <div class="modal" id="swimlaneModal">
-        <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2 id="swimlaneModalTitle">Nova Raia</h2>
                 <button class="close-btn" onclick="closeSwimlaneModal()">×</button>
@@ -2389,30 +2374,6 @@ button:active,
                         </div>
                     </div>
                 </div>
-                
-                <!-- Template de Colunas -->
-                <div class="form-group" id="columnTemplateGroup" style="display: none;">
-                    <label>Template de Colunas</label>
-                    <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-                        Escolha um template de colunas para esta raia. Você pode adicionar/remover colunas depois.
-                    </p>
-                    <select id="columnTemplate" class="form-control" onchange="previewColumnTemplate()" style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-secondary); color: var(--text); font-size: 14px;">
-                        <option value="empty">🏊 Raia Vazia (Sem colunas - adicionar depois)</option>
-                        <option value="development">💻 Desenvolvimento (Backlog → Code Review → Testing → Deploy)</option>
-                        <option value="design">🎨 Design (Ideação → Wireframe → Protótipo → Aprovado)</option>
-                        <option value="bugs">🐛 Bug Tracking (Reportado → Triagem → Em Correção → Testado → Resolvido)</option>
-                        <option value="features">✨ Feature Development (Planejamento → Dev → QA → Staging → Produção)</option>
-                        <option value="kanban">📋 Kanban Clássico (Backlog → A Fazer → Em Progresso → Concluído)</option>
-                        <option value="scrum">🚀 Sprint Scrum (Product Backlog → Sprint Backlog → In Progress → Review → Done)</option>
-                        <option value="marketing">📊 Marketing (Ideias → Planejamento → Criação → Aprovação → Publicado)</option>
-                        <option value="sales">💼 Vendas (Lead → Qualificação → Proposta → Negociação → Fechado)</option>
-                        <option value="onboarding">🎓 Onboarding (Inicial → Treinamento → Prática → Avaliação → Completo)</option>
-                    </select>
-                    <div id="columnTemplatePreview" style="margin-top: 12px; padding: 12px; background: var(--bg-hover); border-radius: 6px; font-size: 13px; color: var(--text-secondary); display: none;">
-                        <!-- Preview será preenchido via JavaScript -->
-                    </div>
-                </div>
-                
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeSwimlaneModal()">Cancelar</button>
                     <button type="submit" class="btn">Criar Raia</button>
@@ -2421,63 +2382,7 @@ button:active,
         </div>
     </div>
 
-    <!-- Modal de Seleção de Raia para Importação -->
-    <div class="modal" id="importSwimlaneModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>📥 Selecionar Destino da Importação</h2>
-                <button class="close-btn" onclick="closeImportSwimlaneModal()">×</button>
-            </div>
-            <div class="modal-body">
-                <p style="margin-bottom: 20px; color: var(--text-secondary);">
-                    <strong id="importTaskCount">0</strong> tarefa(s) será(ão) importada(s). 
-                    Escolha onde deseja adicionar essas tarefas:
-                </p>
-                
-                <div class="form-group">
-                    <label>Modo de Importação</label>
-                    <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 12px;">
-                        <label class="radio-option" style="display: flex; align-items: flex-start; padding: 16px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                            <input type="radio" name="importMode" value="normal" checked onchange="updateImportModeDisplay()" style="margin-top: 4px; margin-right: 12px;">
-                            <div>
-                                <div style="font-weight: 600; margin-bottom: 4px;">📋 Modo Normal</div>
-                                <div style="font-size: 13px; color: var(--text-secondary);">
-                                    As tarefas serão importadas sem raia associada (modo tradicional)
-                                </div>
-                            </div>
-                        </label>
-                        
-                        <label class="radio-option" style="display: flex; align-items: flex-start; padding: 16px; border: 2px solid var(--border); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-                            <input type="radio" name="importMode" value="swimlane" onchange="updateImportModeDisplay()" style="margin-top: 4px; margin-right: 12px;">
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600; margin-bottom: 4px;">🏊 Importar em Raia</div>
-                                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-                                    Todas as tarefas serão adicionadas à raia selecionada
-                                </div>
-                                <div id="swimlaneSelectContainer" style="display: none;">
-                                    <select id="importSwimlaneSelect" class="form-control" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--bg-secondary); color: var(--text);">
-                                        <!-- Opções serão preenchidas via JavaScript -->
-                                    </select>
-                                </div>
-                            </div>
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeImportSwimlaneModal()">Cancelar</button>
-                <button type="button" class="btn" onclick="confirmImport()">Importar</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // ====== LOG INICIAL DE CARREGAMENTO ======
-        console.log('🚀 TaskFlow v3.0.58 - Script JavaScript iniciado');
-        console.log('⏰ Timestamp:', new Date().toLocaleString());
-        console.log('📍 URL:', window.location.href);
-        console.log('=======================================');
-        
         // State management
         let tasks = JSON.parse(localStorage.getItem('kanban-tasks')) || [];
         
@@ -2503,154 +2408,6 @@ button:active,
         let swimlanesMode = JSON.parse(localStorage.getItem('kanban-swimlanes-mode')) || false;
         let currentTheme = localStorage.getItem('kanban-theme') || 'dark';
         let taskIdCounter = tasks.length > 0 ? Math.max(...tasks.map(t => t.id)) + 1 : 1;
-        
-        // ==================== MIGRAÇÃO: Adicionar 'type' em colunas antigas ====================
-        function migrateColumnsAndTasks() {
-            let needsSave = false;
-            
-            // Migrar colunas de swimlanes
-            swimlanes.forEach(swimlane => {
-                if (swimlane.columns) {
-                    swimlane.columns.forEach(column => {
-                        if (!column.type) {
-                            // Inferir tipo pelo nome ou ID
-                            const nameLower = column.name.toLowerCase();
-                            const idLower = column.id.toLowerCase();
-                            
-                            if (nameLower.includes('conclu') || nameLower.includes('done') || 
-                                nameLower.includes('feito') || idLower.includes('done')) {
-                                column.type = 'done';
-                            } else if (nameLower.includes('progr') || nameLower.includes('doing') || 
-                                       nameLower.includes('andamento') || idLower.includes('doing')) {
-                                column.type = 'doing';
-                            } else if (nameLower.includes('fazer') || nameLower.includes('todo') || 
-                                       nameLower.includes('backlog') || idLower.includes('todo') || 
-                                       idLower.includes('backlog')) {
-                                column.type = 'todo';
-                            } else {
-                                // Padrão: doing
-                                column.type = 'doing';
-                            }
-                            
-                            needsSave = true;
-                            console.log(`✅ Migração: Coluna "${column.name}" → type="${column.type}"`);
-                        }
-                    });
-                }
-            });
-            
-            if (needsSave) {
-                localStorage.setItem('kanban-swimlanes', JSON.stringify(swimlanes));
-                console.log('✅ Migração de colunas concluída!');
-            }
-            
-            // Migrar tarefas: adicionar columnType baseado no status
-            let tasksNeedSave = false;
-            tasks.forEach(task => {
-                if (!task.columnType && task.status) {
-                    // Se tem swimlane, procurar o tipo da coluna
-                    if (task.swimlane) {
-                        const swimlane = swimlanes.find(s => s.id === task.swimlane);
-                        if (swimlane && swimlane.columns) {
-                            const column = swimlane.columns.find(c => c.id === task.status);
-                            if (column && column.type) {
-                                task.columnType = column.type;
-                                tasksNeedSave = true;
-                            }
-                        }
-                    } else {
-                        // Modo normal: status já é o tipo
-                        task.columnType = task.status;
-                        tasksNeedSave = true;
-                    }
-                }
-            });
-            
-            if (tasksNeedSave) {
-                localStorage.setItem('kanban-tasks', JSON.stringify(tasks));
-                console.log(`✅ Migração de ${tasks.length} tarefas concluída!`);
-            }
-        }
-        
-        // Executar migração
-        migrateColumnsAndTasks();
-        // ====================================================================================
-        
-        // ==================== DEBUG FINAL - HEALTH CHECK ====================
-        function healthCheck() {
-            console.log('');
-            console.log('='.repeat(80));
-            console.log('🏥 TASKFLOW - HEALTH CHECK');
-            console.log('='.repeat(80));
-            console.log('');
-            
-            // 1. Dados carregados
-            console.log('📦 DADOS CARREGADOS:');
-            console.log(`   ✓ Tarefas: ${tasks.length}`);
-            console.log(`   ✓ Raias: ${swimlanes.length}`);
-            console.log(`   ✓ Pessoas: ${people.length}`);
-            console.log(`   ✓ Notas: ${JSON.parse(localStorage.getItem('kanban-notes') || '[]').length}`);
-            console.log(`   ✓ Lembretes: ${JSON.parse(localStorage.getItem('kanban-reminders') || '[]').length}`);
-            console.log('');
-            
-            // 2. Modo atual
-            console.log('🎮 MODO ATUAL:');
-            console.log(`   ✓ Swimlanes Mode: ${swimlanesMode ? 'ATIVO' : 'DESATIVADO'}`);
-            console.log(`   ✓ Tema: ${currentTheme}`);
-            console.log('');
-            
-            // 3. Verificar integridade das tarefas
-            console.log('🔍 INTEGRIDADE DAS TAREFAS:');
-            let tasksOk = 0;
-            let tasksWithColumnType = 0;
-            let tasksWithSwimlane = 0;
-            
-            tasks.forEach(task => {
-                if (task.status) tasksOk++;
-                if (task.columnType) tasksWithColumnType++;
-                if (task.swimlane) tasksWithSwimlane++;
-            });
-            
-            console.log(`   ✓ Tarefas com status: ${tasksOk}/${tasks.length}`);
-            console.log(`   ✓ Tarefas com columnType: ${tasksWithColumnType}/${tasks.length}`);
-            console.log(`   ✓ Tarefas em swimlanes: ${tasksWithSwimlane}/${tasks.length}`);
-            console.log('');
-            
-            // 4. Verificar colunas de swimlanes
-            if (swimlanes.length > 0) {
-                console.log('🏊 COLUNAS DE SWIMLANES:');
-                swimlanes.forEach(sl => {
-                    const columnsWithType = sl.columns ? sl.columns.filter(c => c.type).length : 0;
-                    const totalColumns = sl.columns ? sl.columns.length : 0;
-                    console.log(`   ✓ ${sl.name}: ${columnsWithType}/${totalColumns} colunas com 'type'`);
-                });
-                console.log('');
-            }
-            
-            // 5. Backup
-            const lastBackup = localStorage.getItem('last-backup-date');
-            console.log('💾 BACKUP:');
-            console.log(`   ✓ Último backup: ${lastBackup ? new Date(lastBackup).toLocaleString('pt-BR') : 'Nunca'}`);
-            console.log('');
-            
-            // 6. Status final
-            const allOk = tasksOk === tasks.length && 
-                         (tasksWithSwimlane === 0 || tasksWithColumnType === tasksWithSwimlane);
-            
-            console.log('='.repeat(80));
-            if (allOk) {
-                console.log('✅ SISTEMA SAUDÁVEL - TUDO OK!');
-            } else {
-                console.log('⚠️ ATENÇÃO - Algumas tarefas podem precisar de migração');
-            }
-            console.log('='.repeat(80));
-            console.log('');
-        }
-        
-        // Executar health check
-        setTimeout(healthCheck, 1000);
-        // ====================================================================================
-        
         let currentFilter = 'all';
         let editingTaskId = null;
         let editingColumnId = null;
@@ -2731,9 +2488,7 @@ button:active,
         }
 
         function toggleSwimlanesMode() {
-            console.log('🔄 Toggle chamado! Modo atual:', swimlanesMode);
             swimlanesMode = !swimlanesMode;
-            console.log('✅ Novo modo:', swimlanesMode ? 'RAIAS' : 'NORMAL');
             localStorage.setItem('kanban-swimlanes-mode', JSON.stringify(swimlanesMode));
             
             // Switch active columns based on mode
@@ -2754,21 +2509,18 @@ button:active,
         }
 
         function updateSwimlanesMode() {
-            console.log('📊 UpdateSwimlanesMode chamado. Modo:', swimlanesMode);
             const swimlanesContainer = document.getElementById('swimlanesContainer');
             const normalBoard = document.getElementById('board');
             const toggleIcon = document.getElementById('swimlaneToggleIcon');
             const toggleText = document.getElementById('swimlaneToggleText');
 
             if (swimlanesMode) {
-                console.log('🏊 Ativando MODO RAIAS');
                 swimlanesContainer.style.display = 'block';
                 normalBoard.style.display = 'none';
                 toggleIcon.textContent = '📋';
                 toggleText.textContent = 'Modo Normal';
                 renderSwimlanes();
             } else {
-                console.log('📋 Ativando MODO NORMAL');
                 swimlanesContainer.style.display = 'none';
                 normalBoard.style.display = 'flex';
                 toggleIcon.textContent = '🏊';
@@ -2858,28 +2610,22 @@ button:active,
             board.className = 'board';
             board.dataset.swimlaneId = swimlane.id;
             
-            // NOVO: Usar colunas específicas da raia OU colunas globais (retrocompatibilidade)
-            const swimlaneColumns = swimlane.columns && swimlane.columns.length > 0 
-                ? swimlane.columns 
-                : columns; // Fallback para raias antigas
-            
-            const sortedColumns = [...swimlaneColumns].sort((a, b) => a.order - b.order);
+            // Render columns for this swimlane
+            const sortedColumns = [...columns].sort((a, b) => a.order - b.order);
             sortedColumns.forEach((column, colIndex) => {
                 const columnEl = createColumnElement(column, colIndex, swimlane.id);
                 board.appendChild(columnEl);
             });
 
-            // Add column button - apenas para raias vazias
-            if (!swimlane.columns || swimlane.columns.length === 0) {
-                const addColumnBtn = document.createElement('div');
-                addColumnBtn.className = 'add-column-btn';
-                addColumnBtn.innerHTML = `
-                    <div class="add-column-btn-icon">➕</div>
-                    <div>Adicionar Coluna</div>
-                `;
-                addColumnBtn.onclick = () => addColumnToSwimlane(swimlane.id);
-                board.appendChild(addColumnBtn);
-            }
+            // Add column button
+            const addColumnBtn = document.createElement('div');
+            addColumnBtn.className = 'add-column-btn';
+            addColumnBtn.innerHTML = `
+                <div class="add-column-btn-icon">➕</div>
+                <div>Adicionar Coluna</div>
+            `;
+            addColumnBtn.onclick = openColumnModal;
+            board.appendChild(addColumnBtn);
 
             content.appendChild(board);
             div.appendChild(header);
@@ -2898,118 +2644,6 @@ button:active,
             renderAllTasks();
         }
 
-        // Adicionar coluna em raia específica
-        function addColumnToSwimlane(swimlaneId) {
-            const swimlane = swimlanes.find(s => s.id === swimlaneId);
-            if (!swimlane) return;
-            
-            const columnName = prompt('Nome da nova coluna:', 'Nova Coluna');
-            if (!columnName) return;
-            
-            const columnIcon = prompt('Ícone da coluna (emoji):', '📌');
-            
-            // Perguntar o tipo da coluna (doing, done, todo)
-            const columnType = prompt('Tipo da coluna (todo/doing/done):', 'doing');
-            
-            if (!swimlane.columns) {
-                swimlane.columns = [];
-            }
-            
-            const newColumn = {
-                id: `${swimlane.id}-${columnName.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
-                name: columnName,
-                icon: columnIcon || '📌',
-                type: columnType || 'doing',  // ← NOVO: tipo base da coluna
-                order: swimlane.columns.length
-            };
-            
-            swimlane.columns.push(newColumn);
-            saveSwimlanes();
-            renderSwimlanes();
-            renderAllTasks();
-        }
-
-        // Templates de colunas para raias
-        const columnTemplates = {
-            empty: [],
-            development: [
-                { name: 'Backlog', icon: '📋' },
-                { name: 'Code Review', icon: '👁️' },
-                { name: 'Testing', icon: '🧪' },
-                { name: 'Deploy', icon: '🚀' }
-            ],
-            design: [
-                { name: 'Ideação', icon: '💡' },
-                { name: 'Wireframe', icon: '📐' },
-                { name: 'Protótipo', icon: '🎨' },
-                { name: 'Aprovado', icon: '✅' }
-            ],
-            bugs: [
-                { name: 'Reportado', icon: '📝' },
-                { name: 'Triagem', icon: '🔍' },
-                { name: 'Em Correção', icon: '🔧' },
-                { name: 'Testado', icon: '🧪' },
-                { name: 'Resolvido', icon: '✅' }
-            ],
-            features: [
-                { name: 'Planejamento', icon: '📋' },
-                { name: 'Desenvolvimento', icon: '💻' },
-                { name: 'QA', icon: '🧪' },
-                { name: 'Staging', icon: '🎭' },
-                { name: 'Produção', icon: '🚀' }
-            ],
-            kanban: [
-                { name: 'Backlog', icon: '📋' },
-                { name: 'A Fazer', icon: '📝' },
-                { name: 'Em Progresso', icon: '⚡' },
-                { name: 'Concluído', icon: '✅' }
-            ],
-            scrum: [
-                { name: 'Product Backlog', icon: '📦' },
-                { name: 'Sprint Backlog', icon: '🎯' },
-                { name: 'In Progress', icon: '⚡' },
-                { name: 'Review', icon: '👁️' },
-                { name: 'Done', icon: '✅' }
-            ],
-            marketing: [
-                { name: 'Ideias', icon: '💡' },
-                { name: 'Planejamento', icon: '📋' },
-                { name: 'Criação', icon: '🎨' },
-                { name: 'Aprovação', icon: '👁️' },
-                { name: 'Publicado', icon: '📢' }
-            ],
-            sales: [
-                { name: 'Lead', icon: '👤' },
-                { name: 'Qualificação', icon: '🔍' },
-                { name: 'Proposta', icon: '📄' },
-                { name: 'Negociação', icon: '💬' },
-                { name: 'Fechado', icon: '🤝' }
-            ],
-            onboarding: [
-                { name: 'Inicial', icon: '👋' },
-                { name: 'Treinamento', icon: '📚' },
-                { name: 'Prática', icon: '💻' },
-                { name: 'Avaliação', icon: '📊' },
-                { name: 'Completo', icon: '🎓' }
-            ]
-        };
-
-        // Preview do template selecionado
-        function previewColumnTemplate() {
-            const template = document.getElementById('columnTemplate').value;
-            const preview = document.getElementById('columnTemplatePreview');
-            const columns = columnTemplates[template];
-            
-            if (!columns || columns.length === 0) {
-                preview.style.display = 'none';
-                return;
-            }
-            
-            const columnNames = columns.map(c => `${c.icon} ${c.name}`).join(' → ');
-            preview.innerHTML = `<strong>Colunas:</strong> ${columnNames}`;
-            preview.style.display = 'block';
-        }
-
         function openSwimlaneModal() {
             editingSwimlaneId = null;
             document.getElementById('swimlaneModalTitle').textContent = 'Nova Raia';
@@ -3017,12 +2651,6 @@ button:active,
             document.getElementById('swimlaneIcon').value = '🏊';
             document.getElementById('swimlaneEmojiPreview').textContent = '🏊';
             updateSwimlaneEmojiSelection('🏊');
-            
-            // Mostrar seletor de template ao criar nova raia
-            document.getElementById('columnTemplateGroup').style.display = 'block';
-            document.getElementById('columnTemplate').value = 'empty';
-            document.getElementById('columnTemplatePreview').style.display = 'none';
-            
             document.getElementById('swimlaneModal').classList.add('active');
         }
 
@@ -3066,24 +2694,12 @@ button:active,
                 };
             } else {
                 const id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                const template = document.getElementById('columnTemplate').value;
-                const templateColumns = columnTemplates[template] || [];
-                
-                // Criar colunas específicas para esta raia
-                const swimlaneColumns = templateColumns.map((col, index) => ({
-                    id: `${id}-${col.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${index}`,
-                    name: col.name,
-                    icon: col.icon,
-                    order: index
-                }));
-                
                 const newSwimlane = {
                     id: id + '-' + Date.now(),
                     name,
                     icon,
                     order: swimlanes.length,
-                    collapsed: false,
-                    columns: swimlaneColumns // Colunas específicas desta raia
+                    collapsed: false
                 };
                 swimlanes.push(newSwimlane);
             }
@@ -3105,10 +2721,6 @@ button:active,
             document.getElementById('swimlaneIcon').value = swimlane.icon;
             document.getElementById('swimlaneEmojiPreview').textContent = swimlane.icon;
             updateSwimlaneEmojiSelection(swimlane.icon);
-            
-            // Esconder seletor de template ao editar
-            document.getElementById('columnTemplateGroup').style.display = 'none';
-            
             document.getElementById('swimlaneModal').classList.add('active');
         }
 
@@ -3355,15 +2967,9 @@ button:active,
         }
 
         function managePeople() {
-            console.log('✅ Função managePeople DEFINIDA e EXECUTADA');
-            console.log('👥 managePeople() chamado');
-            console.log('Pessoas atuais:', people);
-            
             const modal = document.createElement('div');
             modal.className = 'modal active';
             modal.id = 'peopleModal';
-            
-            console.log('Modal criado:', modal);
             
             const peopleList = people.map(p => `
                 <div class="person-item" style="display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 4px; background: var(--bg-hover); margin-bottom: 8px;">
@@ -3377,8 +2983,6 @@ button:active,
                     </button>
                 </div>
             `).join('');
-            
-            console.log('Lista de pessoas HTML criada');
             
             modal.innerHTML = `
                 <div class="modal-content" style="max-width: 500px;">
@@ -3407,9 +3011,7 @@ button:active,
                 </div>
             `;
             
-            console.log('HTML do modal definido');
             document.body.appendChild(modal);
-            console.log('✅ Modal adicionado ao DOM');
         }
 
         function closePeopleModal() {
@@ -4082,12 +3684,7 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
             if (swimlanesMode) {
                 // Render tasks in swimlanes
                 swimlanes.forEach(swimlane => {
-                    // NOVO: Usar colunas específicas da raia OU colunas globais
-                    const swimlaneColumns = swimlane.columns && swimlane.columns.length > 0 
-                        ? swimlane.columns 
-                        : columns;
-                    
-                    swimlaneColumns.forEach(column => {
+                    columns.forEach(column => {
                         const containerId = `${swimlane.id}-${column.id}-tasks`;
                         const countId = `${swimlane.id}-${column.id}-count`;
                         const container = document.getElementById(containerId);
@@ -4099,10 +3696,7 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
                         
                         const filteredTasks = tasks.filter(task => {
                             if (task.status !== column.id) return false;
-                            // Comparação estrita: tarefa deve ter swimlane EXATAMENTE igual ao ID da raia
                             if (task.swimlane !== swimlane.id) return false;
-                            // Garantir que não seja null, undefined ou string vazia
-                            if (!task.swimlane || task.swimlane === '') return false;
                             if (currentFilter === 'all') return true;
                             return task.priority === currentFilter;
                         });
@@ -4299,24 +3893,9 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
                     const task = tasks.find(t => t.id === taskId);
                     if (task) {
                         task.status = newStatus;
-                        
-                        // ← NOVO: Salvar tipo da coluna separadamente
-                        if (swimlanesMode && swimlaneId) {
+                        if (swimlanesMode) {
                             task.swimlane = swimlaneId;
-                            
-                            // Encontrar a coluna e pegar seu tipo
-                            const swimlane = swimlanes.find(s => s.id === swimlaneId);
-                            if (swimlane && swimlane.columns) {
-                                const column = swimlane.columns.find(c => c.id === newStatus);
-                                if (column && column.type) {
-                                    task.columnType = column.type; // doing, done, todo
-                                }
-                            }
-                        } else {
-                            // Modo normal: status já é o tipo correto
-                            task.columnType = newStatus;
                         }
-                        
                         saveTasks();
                         renderAllTasks();
                         updateStats();
@@ -4375,6 +3954,13 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
                 modeTasks = tasks.filter(t => !t.swimlane || t.swimlane === '');
             }
             
+            console.log('📊 UpdateStats:', {
+                mode: swimlanesMode ? 'RAIAS' : 'NORMAL',
+                totalTasks: tasks.length,
+                modeTasks: modeTasks.length,
+                columns: columns.length
+            });
+            
             const total = modeTasks.length;
             
             // Count tasks by checking column names (independent of column IDs)
@@ -4407,7 +3993,7 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
             
             const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
-            
+            console.log('📊 Stats Result:', { total, inProgress, completed, completionRate });
 
             const totalEl = document.getElementById('totalTasks');
             const inProgressEl = document.getElementById('inProgressTasks');
@@ -4453,268 +4039,292 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
         */
 
         // Exportar dados para CSV
-        function exportToExcel() {
+        function exportToCSV() {
             if (tasks.length === 0) {
                 alert('Não há tarefas para exportar!');
                 return;
             }
 
-            // Preparar dados no formato do modelo de importação
-            const excelData = tasks.map(task => {
-                // Calcular lead time se tiver datas
-                let leadTime = 0;
-                if (task.startDate && task.endDate) {
-                    const start = new Date(task.startDate);
-                    const end = new Date(task.endDate);
-                    leadTime = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-                }
-                
-                return {
-                    'id': task.id,
-                    'title': task.title || '',
-                    'description': task.description || `Lead time: ${leadTime} dias`,
-                    'priority': task.priority || 'medium',
-                    'status': task.status || 'a-fazer',
-                    'startDate': task.startDate || '',
-                    'endDate': task.endDate || '',
-                    'assignedTo': task.assignee || '',
-                    'tags': task.tags ? task.tags.join(',') : '',
-                    'progress': task.progress || 0
-                };
+            // Cabeçalhos do CSV
+            const headers = [
+                'ID',
+                'Título',
+                'Descrição',
+                'Prioridade',
+                'Status',
+                'Responsável',
+                'Email do Responsável',
+                'Raia',
+                'Tags',
+                'Data de Criação',
+                'Data de Início',
+                'Data de Término',
+                'Lead Time (dias)'
+            ];
+
+            // Converter tarefas para linhas CSV
+            const rows = tasks.map(task => {
+                return [
+                    task.id,
+                    escapeCsvValue(task.title),
+                    escapeCsvValue(task.description || ''),
+                    task.priority,
+                    task.status,
+                    escapeCsvValue(task.assignee || ''),
+                    escapeCsvValue(task.assigneeEmail || ''),
+                    task.swimlane || '',
+                    escapeCsvValue(task.tags ? task.tags.join('; ') : ''),
+                    task.createdAt || '',
+                    task.startDate || '',
+                    task.endDate || '',
+                    task.leadTime || ''
+                ].join(',');
             });
 
-            // Criar workbook e worksheet
-            const ws = XLSX.utils.json_to_sheet(excelData);
+            // Juntar cabeçalhos e linhas
+            const csvContent = [headers.join(','), ...rows].join('\n');
+
+            // Criar blob e fazer download
+            const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
             
-            // Ajustar largura das colunas
-            const colWidths = [
-                { wch: 5 },   // id
-                { wch: 40 },  // title
-                { wch: 50 },  // description
-                { wch: 10 },  // priority
-                { wch: 15 },  // status
-                { wch: 12 },  // startDate
-                { wch: 12 },  // endDate
-                { wch: 20 },  // assignedTo
-                { wch: 30 },  // tags
-                { wch: 10 }   // progress
-            ];
-            ws['!cols'] = colWidths;
-
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Tarefas');
-
-            // Gerar nome do arquivo
             const now = new Date();
-            const fileName = `TaskFlow_Export_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}.xlsx`;
-
-            // Download do arquivo
-            XLSX.writeFile(wb, fileName);
+            const fileName = `taskflow_backup_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}.csv`;
+            
+            link.setAttribute('href', url);
+            link.setAttribute('download', fileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
 
             // Mostrar mensagem de sucesso
-            alert(`✅ Exportação concluída!\n\n${tasks.length} tarefa(s) exportada(s).\n\nArquivo: ${fileName}`);
+            alert(`✅ Backup criado com sucesso!\n\n${tasks.length} tarefa(s) exportada(s).\n\nArquivo: ${fileName}`);
         }
 
-        // Variável global para armazenar dados da importação
-        let pendingImportData = null;
-
-        // Importar dados do Excel
-        // Abrir modal de seleção de raia
-        function openImportSwimlaneModal() {
-            if (!pendingImportData) return;
-            
-            // Atualizar contador de tarefas
-            document.getElementById('importTaskCount').textContent = pendingImportData.length;
-            
-            // Preencher select de raias
-            const select = document.getElementById('importSwimlaneSelect');
-            select.innerHTML = '';
-            
-            if (swimlanes.length > 0) {
-                swimlanes.forEach(swimlane => {
-                    const option = document.createElement('option');
-                    option.value = swimlane.id;
-                    option.textContent = `${swimlane.icon} ${swimlane.name}`;
-                    select.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Nenhuma raia disponível';
-                select.appendChild(option);
+        // Escapar valores para CSV (lidar com vírgulas, aspas e quebras de linha)
+        function escapeCsvValue(value) {
+            if (value === null || value === undefined) return '';
+            const stringValue = String(value);
+            if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+                return '"' + stringValue.replace(/"/g, '""') + '"';
             }
-            
-            // Resetar para modo normal
-            document.querySelector('input[name="importMode"][value="normal"]').checked = true;
-            updateImportModeDisplay();
-            
-            // Mostrar modal
-            document.getElementById('importSwimlaneModal').classList.add('active');
+            return stringValue;
         }
 
-        // Fechar modal de seleção de raia
-        function closeImportSwimlaneModal() {
-            document.getElementById('importSwimlaneModal').classList.remove('active');
-            pendingImportData = null;
-        }
-
-        // Atualizar display do modo de importação
-        function updateImportModeDisplay() {
-            const mode = document.querySelector('input[name="importMode"]:checked').value;
-            const swimlaneContainer = document.getElementById('swimlaneSelectContainer');
-            
-            if (mode === 'swimlane') {
-                swimlaneContainer.style.display = 'block';
-            } else {
-                swimlaneContainer.style.display = 'none';
-            }
-        }
-
-        // Confirmar e processar importação
-        function confirmImport() {
-            if (!pendingImportData) return;
-            
-            const mode = document.querySelector('input[name="importMode"]:checked').value;
-            const selectedSwimlane = mode === 'swimlane' ? document.getElementById('importSwimlaneSelect').value : null;
-            
-            // Verificar se raia foi selecionada quando modo raia está ativo
-            if (mode === 'swimlane' && (!selectedSwimlane || selectedSwimlane === '')) {
-                alert('⚠️ Por favor, selecione uma raia!');
-                return;
-            }
-            
-            // Confirmar importação
-            const confirmMsg = tasks.length > 0 
-                ? `📥 Importar ${pendingImportData.length} tarefa(s)\n\n✅ Existentes: ${tasks.length} tarefa(s)\n✅ Novas: ${pendingImportData.length} tarefa(s)\n${mode === 'swimlane' ? `✅ Destino: Raia "${swimlanes.find(s => s.id === selectedSwimlane)?.name}"\n` : '✅ Destino: Modo Normal\n'}\n✅ Total após: ${tasks.length + pendingImportData.length} tarefas\n\nDeseja continuar?`
-                : `📥 Importar ${pendingImportData.length} tarefa(s) do Excel?`;
-            
-            if (!confirm(confirmMsg)) {
-                return;
-            }
-            
-            // Processar importação
-            processImport(pendingImportData, selectedSwimlane);
-            
-            // Fechar modal
-            closeImportSwimlaneModal();
-        }
-
-        // Processar importação
-        function processImport(jsonData, swimlaneId) {
-            // Pegar maior ID existente para não haver conflitos
-            let maxId = taskIdCounter - 1;
-            tasks.forEach(task => {
-                if (task.id > maxId) maxId = task.id;
-            });
-
-            // Processar novas tarefas
-            const newTasks = [];
-            const existingIds = new Set(tasks.map(t => t.id));
-
-            jsonData.forEach((row, index) => {
-                // Calcular lead time se não tiver
-                let leadTime = 0;
-                if (row.startDate && row.endDate) {
-                    const start = new Date(row.startDate);
-                    const end = new Date(row.endDate);
-                    if (!isNaN(start) && !isNaN(end)) {
-                        leadTime = Math.floor((end - start) / (1000 * 60 * 60 * 24));
-                    }
-                }
-
-                // Determinar ID da tarefa
-                let taskId;
-                if (row.id && !isNaN(parseInt(row.id))) {
-                    // Se ID foi fornecido e não existe, usa ele
-                    const providedId = parseInt(row.id);
-                    if (!existingIds.has(providedId)) {
-                        taskId = providedId;
-                        existingIds.add(providedId);
-                    } else {
-                        // ID já existe, gera um novo
-                        maxId++;
-                        taskId = maxId;
-                        existingIds.add(taskId);
-                    }
-                } else {
-                    // ID não fornecido ou inválido, gera automaticamente
-                    maxId++;
-                    taskId = maxId;
-                    existingIds.add(taskId);
-                }
-
-                const task = {
-                    id: taskId,
-                    title: row.title || 'Sem título',
-                    description: row.description || '',
-                    priority: row.priority || 'medium',
-                    status: row.status || columns[0]?.id || 'a-fazer',
-                    assignee: row.assignedTo || '',
-                    assigneeEmail: '',
-                    swimlane: swimlaneId || null, // Usar raia selecionada ou null
-                    tags: row.tags ? row.tags.split(',').map(t => t.trim()).filter(t => t) : [],
-                    createdAt: new Date().toISOString(),
-                    startDate: row.startDate || '',
-                    endDate: row.endDate || '',
-                    leadTime: leadTime,
-                    progress: parseInt(row.progress) || 0
-                };
-
-                newTasks.push(task);
-            });
-
-            // ADICIONAR novas tarefas às existentes (NÃO SUBSTITUIR)
-            tasks = [...tasks, ...newTasks];
-            taskIdCounter = maxId + 1;
-            saveTasks();
-            renderAllTasks();
-            updateStats();
-
-            const swimlaneName = swimlaneId ? swimlanes.find(s => s.id === swimlaneId)?.name : 'Modo Normal';
-            alert(`✅ Importação concluída!\n\n📥 ${newTasks.length} tarefa(s) ADICIONADA(s)\n🏊 Destino: ${swimlaneName}\n📊 Total agora: ${tasks.length} tarefas`);
-        }
-
-        // Função separada para importação do Excel
-        function importFromExcel(event) {
+        // Importar dados do CSV
+        function importFromCSV(event) {
             const file = event.target.files[0];
             if (!file) return;
 
             const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    // Ler arquivo Excel
-                    const data = new Uint8Array(e.target.result);
-                    const workbook = XLSX.read(data, { type: 'array' });
+                    const csvContent = e.target.result;
+                    const lines = csvContent.split('\n').filter(line => line.trim());
                     
-                    // Pegar primeira sheet
-                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                    
-                    // Converter para JSON
-                    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-                    
-                    if (jsonData.length === 0) {
-                        alert('❌ Arquivo Excel vazio ou inválido!');
+                    if (lines.length < 2) {
+                        alert('❌ Arquivo CSV vazio ou inválido!');
                         return;
                     }
 
-                    // Armazenar dados para importação
-                    pendingImportData = jsonData;
+                    // Confirmar importação
+                    const confirmMsg = tasks.length > 0 
+                        ? `⚠️ Atenção!\n\nVocê tem ${tasks.length} tarefa(s) atualmente.\n\nDeseja:\n- OK: SUBSTITUIR todas as tarefas pelos dados do CSV\n- Cancelar: Manter tarefas atuais`
+                        : `Importar ${lines.length - 1} tarefa(s) do CSV?`;
                     
-                    // Abrir modal de seleção de raia
-                    openImportSwimlaneModal();
+                    if (!confirm(confirmMsg)) {
+                        event.target.value = ''; // Limpar input
+                        return;
+                    }
+
+                    // Parsear CSV
+                    const headers = parseCSVLine(lines[0]);
+                    const newTasks = [];
+                    let maxId = 0;
+
+                    for (let i = 1; i < lines.length; i++) {
+                        const values = parseCSVLine(lines[i]);
+                        if (values.length < headers.length - 2) continue; // Pular linhas inválidas
+
+                        const startDate = values[10] || '';
+                        const endDate = values[11] || '';
+                        const leadTime = values[12] ? parseInt(values[12]) : calculateLeadTime(startDate, endDate);
+
+                        const task = {
+                            id: parseInt(values[0]) || (maxId + 1),
+                            title: values[1] || 'Sem título',
+                            description: values[2] || '',
+                            priority: values[3] || 'medium',
+                            status: values[4] || columns[0]?.id || 'backlog',
+                            assignee: values[5] || '',
+                            assigneeEmail: values[6] || '',
+                            swimlane: values[7] || null,
+                            tags: values[8] ? values[8].split(';').map(t => t.trim()).filter(t => t) : [],
+                            createdAt: values[9] || new Date().toISOString(),
+                            startDate: startDate,
+                            endDate: endDate,
+                            leadTime: leadTime
+                        };
+
+                        newTasks.push(task);
+                        if (task.id > maxId) maxId = task.id;
+                    }
+
+                    // Atualizar dados
+                    tasks = newTasks;
+                    taskIdCounter = maxId + 1;
+                    saveTasks();
+                    renderAllTasks();
+                    updateStats();
+
+                    alert(`✅ Importação concluída!\n\n${newTasks.length} tarefa(s) importada(s) com sucesso.`);
                     
                 } catch (error) {
-                    console.error('Erro ao importar Excel:', error);
-                    alert('❌ Erro ao importar arquivo Excel!\n\nVerifique se o arquivo está no formato correto.');
+                    console.error('Erro ao importar CSV:', error);
+                    alert('❌ Erro ao importar arquivo CSV!\n\nVerifique se o arquivo está no formato correto.');
                 }
                 
-                // Limpar input
+                // Limpar input para permitir reimportar o mesmo arquivo
                 event.target.value = '';
             };
 
-            reader.readAsArrayBuffer(file);
+            reader.readAsText(file, 'UTF-8');
         }
 
+        // Parsear linha CSV (lidar com valores entre aspas)
+        function parseCSVLine(line) {
+            const values = [];
+            let current = '';
+            let inQuotes = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                const nextChar = line[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    values.push(current);
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current);
+
+            return values.map(v => v.trim());
+        }
+
+        // Importar do MS Project XML
+        function importFromProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const xmlContent = e.target.result;
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlContent, "text/xml");
+
+                    // Verificar se é um XML válido do MS Project
+                    const projectElement = xmlDoc.querySelector('Project');
+                    if (!projectElement) {
+                        alert('❌ Arquivo XML inválido!\n\nEste não parece ser um arquivo do Microsoft Project.');
+                        return;
+                    }
+
+                    // Confirmar importação
+                    const tasksInFile = xmlDoc.querySelectorAll('Task').length;
+                    const confirmMsg = tasks.length > 0 
+                        ? `⚠️ Atenção!\n\nVocê tem ${tasks.length} tarefa(s) atualmente.\n\nDeseja importar ${tasksInFile} tarefa(s) do MS Project?\n\n- OK: SUBSTITUIR todas as tarefas\n- Cancelar: Manter tarefas atuais`
+                        : `Importar ${tasksInFile} tarefa(s) do Microsoft Project?`;
+                    
+                    if (!confirm(confirmMsg)) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    // Parsear tarefas do XML
+                    const projectTasks = xmlDoc.querySelectorAll('Task');
+                    const newTasks = [];
+                    let maxId = 0;
+
+                    projectTasks.forEach((task, index) => {
+                        // Pular task resumo (summary tasks) se desejar apenas tarefas individuais
+                        const isSummary = task.querySelector('Summary')?.textContent === '1';
+                        
+                        const taskId = parseInt(task.querySelector('ID')?.textContent) || (index + 1);
+                        const name = task.querySelector('Name')?.textContent || 'Sem título';
+                        const notes = task.querySelector('Notes')?.textContent || '';
+                        const priority = parseInt(task.querySelector('Priority')?.textContent) || 500;
+                        const percentComplete = parseInt(task.querySelector('PercentComplete')?.textContent) || 0;
+                        const start = task.querySelector('Start')?.textContent || '';
+                        const finish = task.querySelector('Finish')?.textContent || '';
+                        const resourceNames = task.querySelector('ResourceNames')?.textContent || '';
+
+                        // Mapear prioridade do MS Project (0-1000) para TaskFlow (high, medium, low)
+                        let taskPriority = 'medium';
+                        if (priority >= 700) taskPriority = 'high';
+                        else if (priority <= 300) taskPriority = 'low';
+
+                        // Mapear percentual de conclusão para status
+                        let taskStatus = columns[0]?.id || 'backlog';
+                        if (percentComplete === 0) {
+                            taskStatus = 'backlog';
+                        } else if (percentComplete < 50) {
+                            taskStatus = columns.find(c => c.name.toLowerCase().includes('fazer'))?.id || 'a-fazer';
+                        } else if (percentComplete < 100) {
+                            taskStatus = columns.find(c => c.name.toLowerCase().includes('progresso'))?.id || 'em-progresso';
+                        } else {
+                            taskStatus = columns.find(c => c.name.toLowerCase().includes('conclu'))?.id || 'concluido';
+                        }
+
+                        const newTask = {
+                            id: taskId,
+                            title: name,
+                            description: notes,
+                            priority: taskPriority,
+                            status: taskStatus,
+                            assignee: resourceNames.split(',')[0]?.trim() || '',
+                            assigneeEmail: '',
+                            swimlane: isSummary ? 'summary' : null,
+                            tags: isSummary ? ['projeto'] : [],
+                            createdAt: new Date().toISOString(),
+                            startDate: start ? formatProjectDate(start) : '',
+                            endDate: finish ? formatProjectDate(finish) : ''
+                        };
+
+                        newTasks.push(newTask);
+                        if (taskId > maxId) maxId = taskId;
+                    });
+
+                    // Atualizar dados
+                    tasks = newTasks;
+                    taskIdCounter = maxId + 1;
+                    saveTasks();
+                    renderAllTasks();
+                    updateStats();
+
+                    alert(`✅ Importação do MS Project concluída!\n\n${newTasks.length} tarefa(s) importada(s) com sucesso.`);
+                    
+                } catch (error) {
+                    console.error('Erro ao importar MS Project:', error);
+                    alert('❌ Erro ao importar arquivo!\n\nVerifique se o arquivo é um XML válido do Microsoft Project.');
+                }
+                
+                event.target.value = '';
+            };
+
+            reader.readAsText(file, 'UTF-8');
+        }
 
         // Formatar data do MS Project (ISO) para YYYY-MM-DD
         function formatProjectDate(dateString) {
@@ -4871,8 +4481,19 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
                         return;
                     }
 
-                    // Parsear tarefas para formato compatível
-                    const parsedTasks = [];
+                    // Confirmar importação
+                    const confirmMsg = tasks.length > 0 
+                        ? `⚠️ Atenção!\n\nVocê tem ${tasks.length} tarefa(s) atualmente.\n\nForam encontradas ${xmlTasks.length} tarefa(s) no MS Project.\n\nDeseja:\n- OK: SUBSTITUIR todas as tarefas\n- Cancelar: Manter tarefas atuais`
+                        : `Importar ${xmlTasks.length} tarefa(s) do MS Project?`;
+                    
+                    if (!confirm(confirmMsg)) {
+                        event.target.value = '';
+                        return;
+                    }
+
+                    const newTasks = [];
+                    let maxId = 0;
+                    let importedCount = 0;
 
                     xmlTasks.forEach((taskNode, index) => {
                         // Extrair dados do XML
@@ -4884,16 +4505,20 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
                         const start = getXMLValue(taskNode, 'Start');
                         const finish = getXMLValue(taskNode, 'Finish');
                         const resourceNames = getXMLValue(taskNode, 'ResourceNames');
+                        const outlineLevel = getXMLValue(taskNode, 'OutlineLevel');
 
+                        // Pular tarefas resumo (summary tasks) se tiver outline level > 1
+                        // Você pode ajustar isso conforme necessário
+                        
                         if (!name || name.trim() === '') return; // Pular tarefas sem nome
 
-                        // Mapear prioridade
+                        // Mapear prioridade do MS Project (0-1000) para TaskFlow (low/medium/high)
                         let taskPriority = 'medium';
                         const msPriority = parseInt(priority) || 500;
                         if (msPriority >= 700) taskPriority = 'high';
                         else if (msPriority <= 300) taskPriority = 'low';
 
-                        // Mapear status
+                        // Mapear status baseado no percentual de conclusão
                         let taskStatus = 'backlog';
                         const completion = parseInt(percentComplete) || 0;
                         if (completion === 100) taskStatus = 'concluido';
@@ -4904,29 +4529,42 @@ Esta é uma mensagem automática do sistema TaskFlow.`;
                         const startDate = start ? formatProjectDate(start) : '';
                         const endDate = finish ? formatProjectDate(finish) : '';
 
-                        // Criar objeto compatível com processImport
-                        parsedTasks.push({
-                            title: name.substring(0, 100),
+                        // Criar tarefa
+                        const taskId = parseInt(uid) || (maxId + 1);
+                        const task = {
+                            id: taskId,
+                            title: name.substring(0, 100), // Limitar título
                             description: notes || '',
                             priority: taskPriority,
                             status: taskStatus,
-                            assignedTo: resourceNames || '',
+                            assignee: resourceNames || '',
+                            assigneeEmail: '',
+                            swimlane: null,
+                            tags: [],
+                            createdAt: new Date().toISOString(),
                             startDate: startDate,
-                            endDate: endDate,
-                            progress: completion,
-                            tags: ''
-                        });
+                            endDate: endDate
+                        };
+
+                        newTasks.push(task);
+                        if (taskId > maxId) maxId = taskId;
+                        importedCount++;
                     });
 
-                    if (parsedTasks.length === 0) {
+                    if (newTasks.length === 0) {
                         alert('❌ Nenhuma tarefa válida foi encontrada no arquivo!');
                         event.target.value = '';
                         return;
                     }
 
-                    // Usar o mesmo fluxo do Excel: armazenar dados e abrir modal
-                    pendingImportData = parsedTasks;
-                    openImportSwimlaneModal();
+                    // Atualizar dados
+                    tasks = newTasks;
+                    taskIdCounter = maxId + 1;
+                    saveTasks();
+                    renderAllTasks();
+                    updateStats();
+
+                    alert(`✅ Importação do MS Project concluída!\n\n${importedCount} tarefa(s) importada(s) com sucesso.\n\n💡 Dica: Revise os status e responsáveis conforme necessário.`);
                     
                 } catch (error) {
                     console.error('Erro ao importar MS Project:', error);
@@ -5159,15 +4797,9 @@ function applyTheme(themeId) {
 }
 
 function openThemeEditor() {
-    console.log('🎨 openThemeEditor() chamado');
-    console.log('customThemes:', customThemes);
-    console.log('currentThemeId:', currentThemeId);
-    
     const modal = document.createElement('div');
     modal.className = 'modal active';
     modal.id = 'themeEditorModal';
-    
-    console.log('Modal temas criado');
     
     const themesList = Object.entries(customThemes).map(([id, theme]) => `
         <div class="theme-preset ${currentThemeId === id ? 'active' : ''}" onclick="applyTheme('${id}')">
@@ -5180,8 +4812,6 @@ function openThemeEditor() {
             ${currentThemeId === id ? '<span class="theme-active-badge">✓ Ativo</span>' : ''}
         </div>
     `).join('');
-    
-    console.log('Lista de temas gerada');
     
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 700px;">
@@ -5206,7 +4836,6 @@ function openThemeEditor() {
     `;
     
     document.body.appendChild(modal);
-    console.log('✅ Modal de temas adicionado ao DOM');
 }
 
 function closeThemeEditor() {
@@ -5277,13 +4906,9 @@ function initializeKeyboardShortcuts() {
 }
 
 function openCommandPalette() {
-    console.log('⌨️ openCommandPalette() chamado');
-    
     const modal = document.createElement('div');
     modal.className = 'modal active';
     modal.id = 'commandPaletteModal';
-    
-    console.log('Modal comandos criado');
     
     modal.innerHTML = `
         <div class="command-palette">
@@ -5298,7 +4923,6 @@ function openCommandPalette() {
     `;
     
     document.body.appendChild(modal);
-    console.log('✅ Modal comandos adicionado ao DOM');
     
     // Attach listeners to command items
     attachCommandListeners();
@@ -5317,8 +4941,6 @@ function openCommandPalette() {
 }
 
 function renderCommandResults(query) {
-    console.log('🔍 renderCommandResults chamado com query:', query);
-    
     const commands = [
         { name: 'Nova Tarefa', icon: '➕', id: 'cmd-new-task' },
         { name: 'Abrir Dashboard', icon: '📊', id: 'cmd-dashboard' },
@@ -5336,8 +4958,6 @@ function renderCommandResults(query) {
         cmd.name.toLowerCase().includes(query.toLowerCase())
     );
     
-    console.log('Comandos filtrados:', filtered.length);
-    
     if (filtered.length === 0) {
         return '<div class="command-empty">Nenhum comando encontrado</div>';
     }
@@ -5351,92 +4971,49 @@ function renderCommandResults(query) {
 }
 
 function attachCommandListeners() {
-    console.log('📎 attachCommandListeners() chamado');
-    const items = document.querySelectorAll('.command-item');
-    console.log('Itens de comando encontrados:', items.length);
-    
-    items.forEach(item => {
+    document.querySelectorAll('.command-item').forEach(item => {
         item.addEventListener('click', function() {
             const commandId = this.getAttribute('data-command');
-            console.log('🖱️ Comando clicado:', commandId);
             executeCommand(commandId);
         });
     });
-    
-    console.log('✅ Listeners anexados');
 }
 
 function executeCommand(commandId) {
-    console.log('⚡ executeCommand() chamado com:', commandId);
-    
     closeCommandPalette();
-    console.log('Modal fechado');
-    
-    console.log('Executando switch para:', commandId);
     
     switch(commandId) {
         case 'cmd-new-task':
-            console.log('→ Abrindo modal nova tarefa');
             openModal();
             break;
         case 'cmd-dashboard':
-            console.log('→ Abrindo dashboard');
-            // Verificar se está em servidor ou arquivo local
-            if (window.location.protocol === 'file:') {
-                alert('💡 Dashboard\n\nPara acessar o Dashboard, abra o arquivo "dashboard.html" diretamente.\n\nOu use um servidor local (Live Server, http-server, etc)');
-            } else {
-                window.open('dashboard.html', '_blank');
-            }
+            window.open('dashboard.html', '_blank');
             break;
         case 'cmd-lembretes':
-            console.log('→ Abrindo lembretes');
-            if (window.location.protocol === 'file:') {
-                alert('💡 Lembretes\n\nPara acessar Lembretes, abra o arquivo "lembretes.html" diretamente.\n\nOu use um servidor local (Live Server, http-server, etc)');
-            } else {
-                window.open('lembretes.html', '_blank');
-            }
+            window.open('lembretes.html', '_blank');
             break;
         case 'cmd-templates':
-            console.log('→ Abrindo templates');
-            if (window.location.protocol === 'file:') {
-                alert('💡 Templates\n\nPara acessar Templates, abra o arquivo "templates.html" diretamente.\n\nOu use um servidor local (Live Server, http-server, etc)');
-            } else {
-                window.open('templates.html', '_blank');
-            }
+            window.open('templates.html', '_blank');
             break;
         case 'cmd-integracoes':
-            console.log('→ Abrindo integrações');
-            if (window.location.protocol === 'file:') {
-                alert('💡 Integrações\n\nPara acessar Integrações, abra o arquivo "integracoes.html" diretamente.\n\nOu use um servidor local (Live Server, http-server, etc)');
-            } else {
-                window.open('integracoes.html', '_blank');
-            }
+            window.open('integracoes.html', '_blank');
             break;
         case 'cmd-temas':
-            console.log('→ Abrindo editor de temas');
             openThemeEditor();
             break;
         case 'cmd-atalhos':
-            console.log('→ Mostrando atalhos');
             showShortcutsHelp();
             break;
         case 'cmd-densidade':
-            console.log('→ Alternando densidade');
             cycleDensity();
             break;
         case 'cmd-pessoas':
-            console.log('→ Gerenciando pessoas');
             managePeople();
             break;
         case 'cmd-export':
-            console.log('→ Exportando para Excel');
-            exportToExcel();
+            exportToCSV();
             break;
-        default:
-            console.warn('⚠️ Comando não reconhecido:', commandId);
     }
-    
-    console.log('✅ executeCommand concluído');
 }
 
 function closeCommandPalette() {
@@ -5546,14 +5123,9 @@ function cycleDensity() {
 }
 
 function openDensitySettings() {
-    console.log('📏 openDensitySettings() chamado');
-    console.log('densityMode atual:', densityMode);
-    
     const modal = document.createElement('div');
     modal.className = 'modal active';
     modal.id = 'densityModal';
-    
-    console.log('Modal densidade criado');
     
     modal.innerHTML = `
         <div class="modal-content" style="max-width: 500px;">
@@ -5595,7 +5167,6 @@ function openDensitySettings() {
     `;
     
     document.body.appendChild(modal);
-    console.log('✅ Modal densidade adicionado ao DOM');
 }
 
 function closeDensitySettings() {
@@ -6382,28 +5953,7 @@ function closeBackupManager() {
     if (modal) modal.remove();
 }
 
-// ====== LOG FINAL - TODAS FUNÇÕES CARREGADAS ======
-console.log('=======================================');
-console.log('✅ Todas as funções foram definidas!');
-console.log('Verificando funções críticas:');
-console.log('  managePeople:', typeof managePeople);
-console.log('  openThemeEditor:', typeof openThemeEditor);
-console.log('  openCommandPalette:', typeof openCommandPalette);
-console.log('  openDensitySettings:', typeof openDensitySettings);
-console.log('  openBackupManager:', typeof openBackupManager);
-console.log('  exportToExcel:', typeof exportToExcel);
-console.log('  exportToProjectXML:', typeof exportToProjectXML);
-console.log('  toggleSwimlanesMode:', typeof toggleSwimlanesMode);
-console.log('  XLSX:', typeof XLSX);
-console.log('=======================================');
-console.log('🎉 TaskFlow v3.0.58 carregado completamente!');
-console.log('📝 Se alguma função acima estiver "undefined", há erro de sintaxe antes dela.');
-console.log('=======================================');
-
 
     </script>
-    
-    <!-- SheetJS (XLSX) para importar/exportar Excel -->
-    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 </body>
 </html>

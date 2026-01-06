@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Templates de Projetos</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f7f8f9;
+            --bg-hover: #ebecf0;
+            --bg-card: #ffffff;
+            --border: #dfe1e6;
+            --text-primary: #172b4d;
+            --text-secondary: #5e6c84;
+            --text-tertiary: #8993a4;
+            --accent-blue: #0052cc;
+            --accent-green: #00875a;
+            --accent-orange: #ff8b00;
+            --accent-red: #de350b;
+            --accent-purple: #6554c0;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #1c2128;
+            --bg-secondary: #22272b;
+            --bg-hover: #2c333a;
+            --bg-card: #22272b;
+            --border: #373d45;
+            --text-primary: #f1f2f4;
+            --text-secondary: #9fadbc;
+            --text-tertiary: #738496;
+            --accent-blue: #579dff;
+            --accent-green: #4bce97;
+            --accent-orange: #faa53d;
+            --accent-red: #f87462;
+            --accent-purple: #9f8fef;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-primary);
+            border-bottom: 2px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .template-count {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 3px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--accent-blue);
+            color: white;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: var(--bg-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .theme-toggle {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        /* Categories */
+        .categories {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+        }
+        
+        .category-btn {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        
+        .category-btn:hover {
+            background: var(--bg-hover);
+        }
+        
+        .category-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+        
+        /* Templates Grid */
+        .main-content {
+            padding: 24px;
+        }
+        
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .template-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .template-card:hover {
+            box-shadow: 0 4px 12px var(--shadow);
+            transform: translateY(-2px);
+            border-color: var(--accent-blue);
+        }
+        
+        .template-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .template-icon {
+            font-size: 32px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+        }
+        
+        .template-info {
+            flex: 1;
+        }
+        
+        .template-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .template-category {
+            font-size: 12px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .template-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        
+        .template-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        .template-stats {
+            display: flex;
+            gap: 16px;
+        }
+        
+        .template-badge {
+            background: var(--accent-blue);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+        
+        .modal-title-section {
+            flex: 1;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .modal-close:hover {
+            background: var(--bg-hover);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .preview-section {
+            margin-bottom: 24px;
+        }
+        
+        .preview-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+        
+        .columns-preview {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+        
+        .column-chip {
+            background: var(--bg-secondary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            border: 1px solid var(--border);
+        }
+        
+        .tasks-preview {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .task-preview-item {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+        }
+        
+        .task-preview-title {
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .task-preview-meta {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .task-preview-tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: var(--bg-hover);
+            color: var(--text-secondary);
+        }
+        
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-footer-info {
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: var(--accent-green);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 10000;
+            font-weight: 600;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .empty-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .empty-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">
+                    <span>📋</span>
+                    <span>Templates de Projetos</span>
+                </div>
+                <span class="template-count" id="templateCount">12 templates</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                    🌙
+                </button>
+                <button class="btn-secondary" onclick="window.close()">
+                    ← Voltar ao Kanban
+                </button>
+            </div>
+        </div>
+
+        <!-- Categories -->
+        <div class="categories">
+            <button class="category-btn active" onclick="filterCategory('todos')">
+                🎯 Todos
+            </button>
+            <button class="category-btn" onclick="filterCategory('desenvolvimento')">
+                💻 Desenvolvimento
+            </button>
+            <button class="category-btn" onclick="filterCategory('marketing')">
+                📢 Marketing
+            </button>
+            <button class="category-btn" onclick="filterCategory('rh')">
+                👥 RH
+            </button>
+            <button class="category-btn" onclick="filterCategory('produto')">
+                🚀 Produto
+            </button>
+            <button class="category-btn" onclick="filterCategory('negocios')">
+                💼 Negócios
+            </button>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="templates-grid" id="templatesGrid">
+                <!-- Templates will be rendered here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Preview Modal -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title-section">
+                    <div class="modal-title" id="modalTitle"></div>
+                    <div class="modal-subtitle" id="modalSubtitle"></div>
+                </div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="preview-section">
+                    <div class="preview-title">📊 Colunas do Projeto</div>
+                    <div class="columns-preview" id="columnsPreview"></div>
+                </div>
+                <div class="preview-section">
+                    <div class="preview-title">📝 Tarefas Incluídas (<span id="taskCount"></span>)</div>
+                    <div class="tasks-preview" id="tasksPreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-footer-info">
+                    ⚠️ Isso criará as colunas e tarefas no seu Kanban
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button class="btn" onclick="applyTemplate()">✨ Aplicar Template</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Templates Database
+        const templates = [
+            {
+                id: 'web-dev',
+                name: 'Desenvolvimento Web',
+                category: 'desenvolvimento',
+                icon: '💻',
+                description: 'Projeto completo de desenvolvimento web, do design ao deploy',
+                columns: ['Backlog', 'Design', 'Desenvolvimento', 'Code Review', 'Testes', 'Deploy', 'Concluído'],
+                tasks: [
+                    { title: 'Setup do projeto', column: 'Backlog', priority: 'alta', tags: ['setup', 'inicial'], description: 'Configurar repositório, CI/CD e ambiente de desenvolvimento' },
+                    { title: 'Definir arquitetura', column: 'Backlog', priority: 'alta', tags: ['arquitetura'], description: 'Escolher stack tecnológico e definir estrutura do projeto' },
+                    { title: 'Criar wireframes', column: 'Design', priority: 'media', tags: ['ui', 'design'], description: 'Desenhar estrutura das principais telas' },
+                    { title: 'Design system', column: 'Design', priority: 'media', tags: ['design', 'ui'], description: 'Cores, tipografia, componentes base' },
+                    { title: 'Mockups de alta fidelidade', column: 'Design', priority: 'media', tags: ['design'], description: 'Protótipos finais no Figma' },
+                    { title: 'Implementar backend API', column: 'Desenvolvimento', priority: 'alta', tags: ['backend', 'api'], description: 'Criar endpoints RESTful' },
+                    { title: 'Implementar frontend', column: 'Desenvolvimento', priority: 'alta', tags: ['frontend'], description: 'Desenvolver interfaces' },
+                    { title: 'Integrar frontend e backend', column: 'Desenvolvimento', priority: 'alta', tags: ['integracao'], description: 'Conectar frontend com API' },
+                    { title: 'Code review principal', column: 'Code Review', priority: 'alta', tags: ['review'], description: 'Revisão de código da equipe' },
+                    { title: 'Testes unitários', column: 'Testes', priority: 'alta', tags: ['testes'], description: 'Cobertura mínima de 80%' },
+                    { title: 'Testes de integração', column: 'Testes', priority: 'media', tags: ['testes'], description: 'Testar fluxos completos' },
+                    { title: 'Testes E2E', column: 'Testes', priority: 'media', tags: ['testes', 'qa'], description: 'Cypress ou Playwright' },
+                    { title: 'Deploy staging', column: 'Deploy', priority: 'alta', tags: ['deploy'], description: 'Ambiente de homologação' },
+                    { title: 'Deploy produção', column: 'Deploy', priority: 'alta', tags: ['deploy', 'prod'], description: 'Lançamento oficial' }
+                ]
+            },
+            {
+                id: 'sprint-scrum',
+                name: 'Sprint Scrum',
+                category: 'desenvolvimento',
+                icon: '🏃',
+                description: 'Sprint de 2 semanas seguindo metodologia Scrum',
+                columns: ['Backlog', 'Sprint Backlog', 'Em Progresso', 'Review', 'Concluído'],
+                tasks: [
+                    { title: 'Sprint Planning', column: 'Sprint Backlog', priority: 'alta', tags: ['cerimonia'], description: 'Reunião de planejamento da sprint' },
+                    { title: 'Daily Standup - Dia 1', column: 'Sprint Backlog', priority: 'media', tags: ['cerimonia', 'daily'], description: 'Reunião diária de 15min' },
+                    { title: 'Daily Standup - Dia 2', column: 'Sprint Backlog', priority: 'media', tags: ['cerimonia', 'daily'], description: 'Reunião diária de 15min' },
+                    { title: 'Daily Standup - Dia 3', column: 'Sprint Backlog', priority: 'media', tags: ['cerimonia', 'daily'], description: 'Reunião diária de 15min' },
+                    { title: 'Daily Standup - Dia 4', column: 'Sprint Backlog', priority: 'media', tags: ['cerimonia', 'daily'], description: 'Reunião diária de 15min' },
+                    { title: 'Daily Standup - Dia 5', column: 'Sprint Backlog', priority: 'media', tags: ['cerimonia', 'daily'], description: 'Reunião diária de 15min' },
+                    { title: 'Desenvolvimento Feature A', column: 'Em Progresso', priority: 'alta', tags: ['desenvolvimento'], description: 'Implementar funcionalidade principal' },
+                    { title: 'Desenvolvimento Feature B', column: 'Em Progresso', priority: 'alta', tags: ['desenvolvimento'], description: 'Segunda funcionalidade' },
+                    { title: 'Code Review Features', column: 'Review', priority: 'alta', tags: ['review'], description: 'Revisar PRs das features' },
+                    { title: 'Testes QA', column: 'Review', priority: 'alta', tags: ['qa', 'testes'], description: 'Quality Assurance' },
+                    { title: 'Sprint Review', column: 'Review', priority: 'alta', tags: ['cerimonia'], description: 'Apresentar resultados' },
+                    { title: 'Sprint Retrospective', column: 'Review', priority: 'alta', tags: ['cerimonia'], description: 'O que funcionou e melhorias' }
+                ]
+            },
+            {
+                id: 'marketing-campaign',
+                name: 'Campanha de Marketing',
+                category: 'marketing',
+                icon: '📢',
+                description: 'Lançamento completo de campanha de marketing digital',
+                columns: ['Ideias', 'Planejamento', 'Criação', 'Aprovação', 'Publicação', 'Análise'],
+                tasks: [
+                    { title: 'Brainstorm conceito', column: 'Ideias', priority: 'alta', tags: ['ideacao'], description: 'Sessão criativa para definir conceito' },
+                    { title: 'Definir público-alvo', column: 'Planejamento', priority: 'alta', tags: ['estrategia'], description: 'Personas e segmentação' },
+                    { title: 'Criar briefing', column: 'Planejamento', priority: 'alta', tags: ['briefing'], description: 'Documento com objetivos e diretrizes' },
+                    { title: 'Definir budget', column: 'Planejamento', priority: 'alta', tags: ['financeiro'], description: 'Orçamento e distribuição' },
+                    { title: 'Calendário de publicações', column: 'Planejamento', priority: 'media', tags: ['planejamento'], description: 'Cronograma de posts' },
+                    { title: 'Design de posts', column: 'Criação', priority: 'alta', tags: ['design'], description: 'Artes para redes sociais' },
+                    { title: 'Copys e textos', column: 'Criação', priority: 'alta', tags: ['copywriting'], description: 'Textos persuasivos' },
+                    { title: 'Vídeos/Stories', column: 'Criação', priority: 'media', tags: ['video', 'conteudo'], description: 'Conteúdo audiovisual' },
+                    { title: 'Landing page', column: 'Criação', priority: 'alta', tags: ['web', 'design'], description: 'Página de conversão' },
+                    { title: 'Aprovação cliente', column: 'Aprovação', priority: 'alta', tags: ['aprovacao'], description: 'Validação final do cliente' },
+                    { title: 'Publicar nas redes', column: 'Publicação', priority: 'alta', tags: ['publicacao'], description: 'Instagram, Facebook, LinkedIn' },
+                    { title: 'Ativar anúncios', column: 'Publicação', priority: 'alta', tags: ['ads'], description: 'Google Ads e Meta Ads' },
+                    { title: 'Email marketing', column: 'Publicação', priority: 'media', tags: ['email'], description: 'Disparar campanhas' },
+                    { title: 'Monitorar métricas', column: 'Análise', priority: 'alta', tags: ['analytics'], description: 'Acompanhar KPIs' },
+                    { title: 'Relatório de resultados', column: 'Análise', priority: 'alta', tags: ['relatorio'], description: 'Apresentar performance' }
+                ]
+            },
+            {
+                id: 'onboarding',
+                name: 'Onboarding Funcionário',
+                category: 'rh',
+                icon: '👋',
+                description: 'Processo completo de integração de novo colaborador',
+                columns: ['Preparação', 'Dia 1', 'Semana 1', 'Mês 1', 'Concluído'],
+                tasks: [
+                    { title: 'Setup equipamento', column: 'Preparação', priority: 'alta', tags: ['ti'], description: 'Notebook, mouse, teclado, monitor' },
+                    { title: 'Criar acessos', column: 'Preparação', priority: 'alta', tags: ['ti', 'seguranca'], description: 'Email, sistemas, ferramentas' },
+                    { title: 'Preparar workspace', column: 'Preparação', priority: 'media', tags: ['facilities'], description: 'Mesa, cadeira, material' },
+                    { title: 'Enviar welcome kit', column: 'Preparação', priority: 'baixa', tags: ['rh'], description: 'Camiseta, caneca, manual' },
+                    { title: 'Boas-vindas e apresentação', column: 'Dia 1', priority: 'alta', tags: ['rh'], description: 'Recepção e tour' },
+                    { title: 'Conhecer equipe', column: 'Dia 1', priority: 'alta', tags: ['integracao'], description: 'Apresentar colegas' },
+                    { title: 'Treinamento sistemas', column: 'Semana 1', priority: 'alta', tags: ['treinamento'], description: 'Ferramentas internas' },
+                    { title: 'Revisar processos', column: 'Semana 1', priority: 'alta', tags: ['processos'], description: 'Como trabalhamos' },
+                    { title: 'Primeira task', column: 'Semana 1', priority: 'media', tags: ['trabalho'], description: 'Tarefa inicial guiada' },
+                    { title: 'Coffee com gestor', column: 'Semana 1', priority: 'media', tags: ['1on1'], description: 'Alinhamento inicial' },
+                    { title: 'Projeto de integração', column: 'Mês 1', priority: 'alta', tags: ['projeto'], description: 'Primeiro projeto real' },
+                    { title: 'Feedback 1 mês', column: 'Mês 1', priority: 'alta', tags: ['feedback'], description: 'Avaliação e ajustes' }
+                ]
+            },
+            {
+                id: 'product-launch',
+                name: 'Lançamento de Produto',
+                category: 'produto',
+                icon: '🚀',
+                description: 'Checklist completo para lançamento de novo produto',
+                columns: ['Planejamento', 'Desenvolvimento', 'Testes Beta', 'Marketing', 'Lançamento', 'Pós-lançamento'],
+                tasks: [
+                    { title: 'Pesquisa de mercado', column: 'Planejamento', priority: 'alta', tags: ['research'], description: 'Validar demanda' },
+                    { title: 'Definir MVP', column: 'Planejamento', priority: 'alta', tags: ['produto'], description: 'Features mínimas viáveis' },
+                    { title: 'Roadmap produto', column: 'Planejamento', priority: 'alta', tags: ['roadmap'], description: 'Planejamento de releases' },
+                    { title: 'Desenvolver MVP', column: 'Desenvolvimento', priority: 'alta', tags: ['dev'], description: 'Construir versão inicial' },
+                    { title: 'Documentação técnica', column: 'Desenvolvimento', priority: 'media', tags: ['docs'], description: 'Guias e API docs' },
+                    { title: 'Recrutar beta testers', column: 'Testes Beta', priority: 'alta', tags: ['beta'], description: '50-100 usuários early adopters' },
+                    { title: 'Coletar feedback', column: 'Testes Beta', priority: 'alta', tags: ['feedback'], description: 'Surveys e entrevistas' },
+                    { title: 'Iterar baseado em feedback', column: 'Testes Beta', priority: 'alta', tags: ['dev'], description: 'Melhorias e ajustes' },
+                    { title: 'Criar landing page', column: 'Marketing', priority: 'alta', tags: ['web'], description: 'Página de lançamento' },
+                    { title: 'Press release', column: 'Marketing', priority: 'media', tags: ['pr'], description: 'Comunicado para mídia' },
+                    { title: 'Campanha redes sociais', column: 'Marketing', priority: 'alta', tags: ['social'], description: 'Buzz antes do lançamento' },
+                    { title: 'Launch day!', column: 'Lançamento', priority: 'alta', tags: ['launch'], description: 'Dia do lançamento oficial' },
+                    { title: 'Monitorar métricas', column: 'Pós-lançamento', priority: 'alta', tags: ['analytics'], description: 'Acompanhar adoção' },
+                    { title: 'Suporte inicial', column: 'Pós-lançamento', priority: 'alta', tags: ['suporte'], description: 'Ajudar primeiros usuários' },
+                    { title: 'Ajustes pós-launch', column: 'Pós-lançamento', priority: 'media', tags: ['dev'], description: 'Correções rápidas' }
+                ]
+            },
+            {
+                id: 'content-creation',
+                name: 'Criação de Conteúdo',
+                category: 'marketing',
+                icon: '✍️',
+                description: 'Pipeline de produção de conteúdo para blog/redes',
+                columns: ['Ideias', 'Pesquisa', 'Escrita', 'Revisão', 'Design', 'Publicado'],
+                tasks: [
+                    { title: 'Brainstorm tópicos', column: 'Ideias', priority: 'alta', tags: ['ideacao'], description: 'Lista de 10 ideias' },
+                    { title: 'Pesquisa de keywords', column: 'Pesquisa', priority: 'alta', tags: ['seo'], description: 'Google Keyword Planner' },
+                    { title: 'Pesquisa referências', column: 'Pesquisa', priority: 'media', tags: ['research'], description: 'Artigos concorrentes' },
+                    { title: 'Outline do artigo', column: 'Escrita', priority: 'alta', tags: ['escrita'], description: 'Estrutura e tópicos' },
+                    { title: 'Escrever rascunho', column: 'Escrita', priority: 'alta', tags: ['escrita'], description: 'Primeira versão completa' },
+                    { title: 'Revisão ortográfica', column: 'Revisão', priority: 'alta', tags: ['revisao'], description: 'Corrigir erros' },
+                    { title: 'Revisão de conteúdo', column: 'Revisão', priority: 'alta', tags: ['revisao'], description: 'Melhorar argumentos' },
+                    { title: 'SEO optimization', column: 'Revisão', priority: 'media', tags: ['seo'], description: 'Meta tags, headers' },
+                    { title: 'Criar imagem destaque', column: 'Design', priority: 'alta', tags: ['design'], description: 'Banner principal' },
+                    { title: 'Design infográficos', column: 'Design', priority: 'media', tags: ['design'], description: 'Gráficos e ilustrações' },
+                    { title: 'Publicar no blog', column: 'Publicado', priority: 'alta', tags: ['publicacao'], description: 'WordPress/CMS' },
+                    { title: 'Compartilhar nas redes', column: 'Publicado', priority: 'alta', tags: ['social'], description: 'Divulgar conteúdo' }
+                ]
+            },
+            {
+                id: 'event-planning',
+                name: 'Planejamento de Evento',
+                category: 'negocios',
+                icon: '🎉',
+                description: 'Organização completa de evento corporativo',
+                columns: ['Conceito', 'Logística', 'Marketing', 'Preparação', 'Evento', 'Follow-up'],
+                tasks: [
+                    { title: 'Definir objetivo do evento', column: 'Conceito', priority: 'alta', tags: ['planejamento'], description: 'Por que fazer o evento?' },
+                    { title: 'Definir budget', column: 'Conceito', priority: 'alta', tags: ['financeiro'], description: 'Orçamento total' },
+                    { title: 'Escolher data e local', column: 'Logística', priority: 'alta', tags: ['venue'], description: 'Reservar espaço' },
+                    { title: 'Contratar fornecedores', column: 'Logística', priority: 'alta', tags: ['fornecedores'], description: 'Catering, som, decoração' },
+                    { title: 'Confirmar palestrantes', column: 'Logística', priority: 'alta', tags: ['speakers'], description: 'Agendar apresentadores' },
+                    { title: 'Criar landing page', column: 'Marketing', priority: 'alta', tags: ['web'], description: 'Inscrições online' },
+                    { title: 'Campanha de divulgação', column: 'Marketing', priority: 'alta', tags: ['marketing'], description: 'Email e redes sociais' },
+                    { title: 'Vender ingressos', column: 'Marketing', priority: 'alta', tags: ['vendas'], description: 'Plataforma de tickets' },
+                    { title: 'Testar equipamentos', column: 'Preparação', priority: 'alta', tags: ['tecnico'], description: 'Som, vídeo, internet' },
+                    { title: 'Ensaio geral', column: 'Preparação', priority: 'media', tags: ['ensaio'], description: 'Dry run do evento' },
+                    { title: 'Briefing equipe', column: 'Preparação', priority: 'alta', tags: ['equipe'], description: 'Alinhamento final' },
+                    { title: 'Execução do evento', column: 'Evento', priority: 'alta', tags: ['execucao'], description: 'Dia D!' },
+                    { title: 'Enviar fotos e vídeos', column: 'Follow-up', priority: 'media', tags: ['conteudo'], description: 'Material pós-evento' },
+                    { title: 'Coletar feedback', column: 'Follow-up', priority: 'alta', tags: ['feedback'], description: 'Survey participantes' },
+                    { title: 'Relatório final', column: 'Follow-up', priority: 'alta', tags: ['relatorio'], description: 'Resultados e métricas' }
+                ]
+            },
+            {
+                id: 'mvp-startup',
+                name: 'MVP de Startup',
+                category: 'produto',
+                icon: '💡',
+                description: 'Do conceito ao MVP em 8 semanas',
+                columns: ['Validação', 'Design', 'Desenvolvimento', 'Testes', 'Launch'],
+                tasks: [
+                    { title: 'Problem/Solution Fit', column: 'Validação', priority: 'alta', tags: ['lean'], description: 'Validar que problema existe' },
+                    { title: 'Entrevistas com clientes', column: 'Validação', priority: 'alta', tags: ['discovery'], description: '20+ entrevistas' },
+                    { title: 'Definir features MVP', column: 'Validação', priority: 'alta', tags: ['produto'], description: 'O mínimo viável' },
+                    { title: 'User flows', column: 'Design', priority: 'alta', tags: ['ux'], description: 'Jornada do usuário' },
+                    { title: 'Wireframes', column: 'Design', priority: 'alta', tags: ['ui'], description: 'Estrutura das telas' },
+                    { title: 'Protótipo clicável', column: 'Design', priority: 'media', tags: ['prototype'], description: 'Figma prototype' },
+                    { title: 'Setup projeto', column: 'Desenvolvimento', priority: 'alta', tags: ['dev'], description: 'Boilerplate e infra' },
+                    { title: 'Autenticação', column: 'Desenvolvimento', priority: 'alta', tags: ['backend'], description: 'Login e registro' },
+                    { title: 'Feature principal', column: 'Desenvolvimento', priority: 'alta', tags: ['dev'], description: 'Core functionality' },
+                    { title: 'Payment integration', column: 'Desenvolvimento', priority: 'alta', tags: ['payments'], description: 'Stripe/PagSeguro' },
+                    { title: 'Beta testing', column: 'Testes', priority: 'alta', tags: ['testing'], description: '50 beta users' },
+                    { title: 'Analytics setup', column: 'Testes', priority: 'media', tags: ['analytics'], description: 'Google Analytics' },
+                    { title: 'Soft launch', column: 'Launch', priority: 'alta', tags: ['launch'], description: 'Product Hunt, redes' }
+                ]
+            },
+            {
+                id: 'quarterly-okrs',
+                name: 'OKRs Trimestrais',
+                category: 'negocios',
+                icon: '🎯',
+                description: 'Estrutura para definir e acompanhar OKRs do trimestre',
+                columns: ['Definição', 'Q1', 'Q2', 'Q3', 'Review'],
+                tasks: [
+                    { title: 'Workshop OKRs', column: 'Definição', priority: 'alta', tags: ['okr'], description: 'Sessão com time de liderança' },
+                    { title: 'Definir Objectives', column: 'Definição', priority: 'alta', tags: ['okr'], description: '3-5 objetivos principais' },
+                    { title: 'Definir Key Results', column: 'Definição', priority: 'alta', tags: ['okr'], description: '3-5 KRs por objective' },
+                    { title: 'Comunicar OKRs', column: 'Definição', priority: 'alta', tags: ['comunicacao'], description: 'All hands meeting' },
+                    { title: 'Check-in mensal', column: 'Q1', priority: 'alta', tags: ['review'], description: 'Revisar progresso' },
+                    { title: 'Ajustes mid-quarter', column: 'Q2', priority: 'media', tags: ['ajuste'], description: 'Corrigir rumo se necessário' },
+                    { title: 'Sprint final', column: 'Q3', priority: 'alta', tags: ['execucao'], description: 'Última milha para atingir metas' },
+                    { title: 'Calcular scores', column: 'Review', priority: 'alta', tags: ['metricas'], description: 'Scoring 0.0-1.0' },
+                    { title: 'Retrospectiva OKRs', column: 'Review', priority: 'alta', tags: ['retro'], description: 'O que aprendemos' },
+                    { title: 'Celebrar conquistas', column: 'Review', priority: 'media', tags: ['cultura'], description: 'Reconhecer time' }
+                ]
+            },
+            {
+                id: 'bug-fixing-sprint',
+                name: 'Sprint de Bug Fixing',
+                category: 'desenvolvimento',
+                icon: '🐛',
+                description: 'Sprint dedicado a resolver bugs e débito técnico',
+                columns: ['Backlog Bugs', 'Triagem', 'Em Correção', 'Testing', 'Resolvido'],
+                tasks: [
+                    { title: 'Listar todos os bugs', column: 'Backlog Bugs', priority: 'alta', tags: ['bugs'], description: 'Consolidar de todas as fontes' },
+                    { title: 'Categorizar por severidade', column: 'Triagem', priority: 'alta', tags: ['triagem'], description: 'Critical, High, Medium, Low' },
+                    { title: 'Estimar esforço', column: 'Triagem', priority: 'alta', tags: ['planning'], description: 'Story points ou horas' },
+                    { title: 'Priorizar bugs críticos', column: 'Triagem', priority: 'alta', tags: ['priorizacao'], description: 'Começar pelos mais graves' },
+                    { title: 'Fix: Login quebrado', column: 'Em Correção', priority: 'alta', tags: ['critical', 'auth'], description: 'Bug crítico de autenticação' },
+                    { title: 'Fix: Performance lenta', column: 'Em Correção', priority: 'alta', tags: ['performance'], description: 'Otimizar queries' },
+                    { title: 'Fix: UI responsivo', column: 'Em Correção', priority: 'media', tags: ['ui', 'mobile'], description: 'Corrigir mobile' },
+                    { title: 'Regression testing', column: 'Testing', priority: 'alta', tags: ['qa'], description: 'Garantir que nada quebrou' },
+                    { title: 'Deploy hotfixes', column: 'Resolvido', priority: 'alta', tags: ['deploy'], description: 'Subir correções' },
+                    { title: 'Atualizar documentação', column: 'Resolvido', priority: 'media', tags: ['docs'], description: 'Documentar mudanças' }
+                ]
+            },
+            {
+                id: 'client-onboarding',
+                name: 'Onboarding de Cliente',
+                category: 'negocios',
+                icon: '🤝',
+                description: 'Processo de ativação de novo cliente',
+                columns: ['Boas-vindas', 'Setup', 'Treinamento', 'Go-live', 'Suporte Inicial'],
+                tasks: [
+                    { title: 'Welcome email', column: 'Boas-vindas', priority: 'alta', tags: ['comunicacao'], description: 'Email de boas-vindas' },
+                    { title: 'Kickoff call', column: 'Boas-vindas', priority: 'alta', tags: ['reuniao'], description: 'Primeira reunião' },
+                    { title: 'Criar conta', column: 'Setup', priority: 'alta', tags: ['admin'], description: 'Configurar usuário' },
+                    { title: 'Configurar integrações', column: 'Setup', priority: 'alta', tags: ['tecnico'], description: 'APIs, webhooks' },
+                    { title: 'Importar dados', column: 'Setup', priority: 'alta', tags: ['migracao'], description: 'Migração de sistema antigo' },
+                    { title: 'Sessão de treinamento', column: 'Treinamento', priority: 'alta', tags: ['treinamento'], description: '2h de onboarding' },
+                    { title: 'Materiais de suporte', column: 'Treinamento', priority: 'media', tags: ['docs'], description: 'Vídeos e guias' },
+                    { title: 'Teste em ambiente sandbox', column: 'Treinamento', priority: 'alta', tags: ['testes'], description: 'Cliente testa' },
+                    { title: 'Go-live!', column: 'Go-live', priority: 'alta', tags: ['lancamento'], description: 'Ativar em produção' },
+                    { title: 'Check-in 1 semana', column: 'Suporte Inicial', priority: 'alta', tags: ['suporte'], description: 'Como está indo?' },
+                    { title: 'Check-in 1 mês', column: 'Suporte Inicial', priority: 'alta', tags: ['suporte'], description: 'Feedback e ajustes' }
+                ]
+            },
+            {
+                id: 'rebranding',
+                name: 'Rebranding Completo',
+                category: 'marketing',
+                icon: '🎨',
+                description: 'Projeto de rebranding da empresa',
+                columns: ['Pesquisa', 'Conceito', 'Design', 'Implementação', 'Lançamento'],
+                tasks: [
+                    { title: 'Auditoria de marca', column: 'Pesquisa', priority: 'alta', tags: ['brand'], description: 'Estado atual da marca' },
+                    { title: 'Pesquisa competidores', column: 'Pesquisa', priority: 'alta', tags: ['research'], description: 'Análise de mercado' },
+                    { title: 'Workshops stakeholders', column: 'Conceito', priority: 'alta', tags: ['estrategia'], description: 'Definir posicionamento' },
+                    { title: 'Criar brand guidelines', column: 'Conceito', priority: 'alta', tags: ['brand'], description: 'Manual de marca' },
+                    { title: 'Design novo logo', column: 'Design', priority: 'alta', tags: ['design'], description: 'Identidade visual' },
+                    { title: 'Paleta de cores', column: 'Design', priority: 'alta', tags: ['design'], description: 'Sistema de cores' },
+                    { title: 'Tipografia', column: 'Design', priority: 'media', tags: ['design'], description: 'Fontes primária e secundária' },
+                    { title: 'Aplicações da marca', column: 'Design', priority: 'media', tags: ['design'], description: 'Cartão, papel timbrado, etc' },
+                    { title: 'Redesign website', column: 'Implementação', priority: 'alta', tags: ['web'], description: 'Novo site com nova marca' },
+                    { title: 'Atualizar redes sociais', column: 'Implementação', priority: 'alta', tags: ['social'], description: 'Novos perfis' },
+                    { title: 'Materiais de marketing', column: 'Implementação', priority: 'media', tags: ['marketing'], description: 'Brochuras, apresentações' },
+                    { title: 'Comunicado de rebrand', column: 'Lançamento', priority: 'alta', tags: ['pr'], description: 'Anunciar mudança' },
+                    { title: 'Launch party', column: 'Lançamento', priority: 'media', tags: ['evento'], description: 'Evento de lançamento' }
+                ]
+            }
+        ];
+
+        let currentCategory = 'todos';
+        let selectedTemplate = null;
+
+        // Initialize
+        setupTheme();
+        renderTemplates();
+        updateCount();
+
+        // Render templates
+        function renderTemplates() {
+            const grid = document.getElementById('templatesGrid');
+            const filtered = currentCategory === 'todos' 
+                ? templates 
+                : templates.filter(t => t.category === currentCategory);
+
+            grid.innerHTML = filtered.map(template => `
+                <div class="template-card" onclick="previewTemplate('${template.id}')">
+                    <div class="template-header">
+                        <div class="template-icon">${template.icon}</div>
+                        <div class="template-info">
+                            <div class="template-title">${template.name}</div>
+                            <div class="template-category">${getCategoryName(template.category)}</div>
+                        </div>
+                    </div>
+                    <div class="template-description">${template.description}</div>
+                    <div class="template-meta">
+                        <div class="template-stats">
+                            <span>📊 ${template.columns.length} colunas</span>
+                            <span>📝 ${template.tasks.length} tarefas</span>
+                        </div>
+                        <div class="template-badge">Popular</div>
+                    </div>
+                </div>
+            `).join('');
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <div class="empty-icon">📋</div>
+                        <div class="empty-title">Nenhum template encontrado</div>
+                        <div class="empty-text">Tente selecionar outra categoria</div>
+                    </div>
+                `;
+            }
+        }
+
+        // Filter by category
+        function filterCategory(category) {
+            currentCategory = category;
+            
+            // Update active button
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            renderTemplates();
+            updateCount();
+        }
+
+        // Get category display name
+        function getCategoryName(category) {
+            const names = {
+                'desenvolvimento': '💻 Desenvolvimento',
+                'marketing': '📢 Marketing',
+                'rh': '👥 RH',
+                'produto': '🚀 Produto',
+                'negocios': '💼 Negócios'
+            };
+            return names[category] || category;
+        }
+
+        // Update count
+        function updateCount() {
+            const filtered = currentCategory === 'todos' 
+                ? templates 
+                : templates.filter(t => t.category === currentCategory);
+            document.getElementById('templateCount').textContent = 
+                `${filtered.length} template${filtered.length !== 1 ? 's' : ''}`;
+        }
+
+        // Preview template
+        function previewTemplate(templateId) {
+            const template = templates.find(t => t.id === templateId);
+            if (!template) return;
+            
+            selectedTemplate = template;
+            
+            // Set modal content
+            document.getElementById('modalTitle').innerHTML = 
+                `${template.icon} ${template.name}`;
+            document.getElementById('modalSubtitle').textContent = template.description;
+            document.getElementById('taskCount').textContent = template.tasks.length;
+            
+            // Render columns
+            document.getElementById('columnsPreview').innerHTML = template.columns
+                .map(col => `<div class="column-chip">${col}</div>`)
+                .join('');
+            
+            // Render tasks (show first 10)
+            const tasksToShow = template.tasks.slice(0, 10);
+            document.getElementById('tasksPreview').innerHTML = tasksToShow
+                .map(task => `
+                    <div class="task-preview-item">
+                        <div class="task-preview-title">${task.title}</div>
+                        <div class="task-preview-meta">
+                            <span class="task-preview-tag">📍 ${task.column}</span>
+                            <span class="task-preview-tag">⚡ ${task.priority}</span>
+                            ${task.tags.map(tag => 
+                                `<span class="task-preview-tag">#${tag}</span>`
+                            ).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            
+            if (template.tasks.length > 10) {
+                document.getElementById('tasksPreview').innerHTML += `
+                    <div style="text-align: center; padding: 12px; color: var(--text-secondary); font-size: 13px;">
+                        ... e mais ${template.tasks.length - 10} tarefas
+                    </div>
+                `;
+            }
+            
+            // Show modal
+            document.getElementById('previewModal').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('previewModal').classList.remove('active');
+            selectedTemplate = null;
+        }
+
+        // Apply template
+        function applyTemplate() {
+            if (!selectedTemplate) return;
+            
+            if (!confirm(`Aplicar template "${selectedTemplate.name}"?\n\nIsso criará ${selectedTemplate.columns.length} colunas e ${selectedTemplate.tasks.length} tarefas no seu Kanban.`)) {
+                return;
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('taskflow-template-to-apply', JSON.stringify(selectedTemplate));
+            
+            // Show notification
+            showNotification(`✅ Template "${selectedTemplate.name}" aplicado! Fechando em 1.5s...`);
+            
+            // Close tab
+            setTimeout(() => {
+                window.close();
+            }, 1500);
+        }
+
+        // Show notification
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        // Theme Management
+        function setupTheme() {
+            const savedTheme = localStorage.getItem('kanban-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon();
+        }
+
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute('data-theme');
+            const newTheme = current === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('kanban-theme', newTheme);
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            document.getElementById('themeToggle').textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Close modal on escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Close modal on click outside
+        document.getElementById('previewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
