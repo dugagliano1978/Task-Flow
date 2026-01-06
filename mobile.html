@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="TaskFlow">
-    <title>TaskFlow Mobile v4.3</title>
+    <title>TaskFlow Mobile v4.4</title>
     <link rel="manifest" href="manifest.json">
     <style>
         /* ==================== RESET & BASE ==================== */
@@ -597,7 +597,7 @@
 
     <script>
         // ==================== CONFIG ====================
-        console.log('📱 TaskFlow Mobile v4.3 - FIX: swimlanesMode removido');
+        console.log('📱 TaskFlow Mobile v4.4 - Debug swimlane status + detecção melhorada');
         console.log('🔄 Sincronização com Kanban via localStorage');
 
         // Estado Global
@@ -680,7 +680,11 @@
         function isCompleted(task) {
             if (!task.status) return false;
             const status = task.status.toLowerCase();
-            return status.includes('done');
+            // Aceita: done, done-sl, concluído, finalizado, ou qualquer variação
+            return status.includes('done') || 
+                   status.includes('concluí') || 
+                   status.includes('finaliz') ||
+                   status.includes('complete');
         }
 
         /**
@@ -689,7 +693,11 @@
         function isInProgress(task) {
             if (!task.status) return false;
             const status = task.status.toLowerCase();
-            return status.includes('doing');
+            // Aceita: doing, doing-sl, em progresso, em andamento, ou qualquer variação
+            return status.includes('doing') || 
+                   status.includes('progr') ||
+                   status.includes('andamento') ||
+                   status.includes('progress');
         }
 
         /**
@@ -735,6 +743,15 @@
             document.getElementById('kpiOverdue').textContent = overdue;
             
             console.log(`📊 KPIs: ${total} total, ${completed} concluídas, ${inProgress} em andamento, ${overdue} atrasadas`);
+            
+            // Debug detalhado se em andamento = 0 mas há tarefas
+            if (inProgress === 0 && total > 0) {
+                console.log('⚠️ DEBUG: Em Andamento = 0, investigando...');
+                console.log('Status das tarefas:');
+                tasks.slice(0, 5).forEach(t => {
+                    console.log(`  - "${t.title}": status="${t.status}", isInProgress=${isInProgress(t)}`);
+                });
+            }
         }
 
         /**
