@@ -49,7 +49,7 @@
             font-family: 'Inter', -apple-system, sans-serif;
             background: var(--bg-secondary);
             color: var(--text-primary);
-            overflow-x: auto;
+            overflow: hidden;  /* Remove scrollbars */
         }
         
         .container {
@@ -185,7 +185,7 @@
         .table-side {
             width: 600px;
             border-right: 2px solid var(--border);
-            overflow-y: auto;
+            overflow-y: hidden;  /* Removido scroll vertical */
             background: var(--bg-primary);
         }
         
@@ -293,7 +293,7 @@
         .chart-side {
             flex: 1;
             overflow-x: auto;
-            overflow-y: auto;
+            overflow-y: hidden;  /* Removido scroll vertical */
             background: var(--bg-primary);
             position: relative;
         }
@@ -749,12 +749,21 @@
                     <button class="view-btn active" onclick="changeView('weeks')" id="viewWeeks">Semanas</button>
                     <button class="view-btn" onclick="changeView('months')" id="viewMonths">Meses</button>
                 </div>
+                
+                <!-- Seletor de Raia -->
+                <select id="swimlaneFilter" onchange="filterTimelineBySwimlane()" style="padding: 8px 12px; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border); border-radius: 6px; font-size: 13px; cursor: pointer; margin-left: 12px; min-width: 180px;">
+                    <option value="all">📊 Todas as Tarefas</option>
+                    <option value="normal">📋 Modo Normal (Sem Raia)</option>
+                    <!-- Raias serão adicionadas via JavaScript -->
+                </select>
+                
                 <input 
                     type="text" 
                     class="filter-input" 
                     placeholder="🔍 Filtrar tarefas..." 
                     id="filterInput"
                     onkeyup="filterTasks()"
+                    style="margin-left: 12px;"
                 >
             </div>
         </div>
@@ -844,10 +853,19 @@
     </div>
 
     <script>
+        // Declarar funções antes para garantir hoisting
+        let changeView, filterTimelineBySwimlane, manualRefresh, toggleTheme;
+        
         // Load tasks from localStorage
         function loadTasks() {
             const tasksData = localStorage.getItem('kanban-tasks');
             return tasksData ? JSON.parse(tasksData) : [];
+        }
+
+        // Load swimlanes
+        function loadSwimlanes() {
+            const swimlanesData = localStorage.getItem('kanban-swimlanes');
+            return swimlanesData ? JSON.parse(swimlanesData) : [];
         }
 
         // Load swimlane mode
@@ -870,16 +888,64 @@
         }
 
         let allTasks = loadTasks();
-        let tasks = filterTasksByMode(allTasks);
+        let tasks = allTasks; // Agora usa todas as tarefas
+        let currentSwimlaneFilter = 'all'; // Filtro atual
         let currentView = 'weeks';
         let filteredTasks = tasks.filter(t => t.startDate && t.endDate);
 
-        console.log('🔄 Timeline Inicializada:', {
-            totalTasks: allTasks.length,
-            modeFilteredTasks: tasks.length,
-            tasksWithDates: filteredTasks.length,
-            currentView: currentView
-        });
+        // Inicializar seletor de raias
+        function initializeSwimlaneFilterTimeline() {
+            const select = document.getElementById('swimlaneFilter');
+            const swimlanes = loadSwimlanes();
+            
+            // Limpar opções existentes (mantém as duas primeiras)
+            while (select.options.length > 2) {
+                select.remove(2);
+            }
+            
+            // Adicionar raias
+            swimlanes.forEach(swimlane => {
+                const option = document.createElement('option');
+                option.value = swimlane.id;
+                option.textContent = `${swimlane.icon} ${swimlane.name}`;
+                select.appendChild(option);
+            });
+        }
+
+        // Filtrar timeline por raia
+        filterTimelineBySwimlane = function() {
+            const select = document.getElementById('swimlaneFilter');
+            currentSwimlaneFilter = select.value;
+            
+            // Aplicar filtro
+            if (currentSwimlaneFilter === 'all') {
+                tasks = allTasks;
+            } else if (currentSwimlaneFilter === 'normal') {
+                tasks = allTasks.filter(t => !t.swimlane || t.swimlane === '');
+            } else {
+                tasks = allTasks.filter(t => t.swimlane === currentSwimlaneFilter);
+            }
+            
+            // Atualizar tarefas filtradas com datas
+            filteredTasks = tasks.filter(t => t.startDate && t.endDate);
+            
+            // Atualizar contador
+            updateTaskCountTimeline();
+            
+            // Redesenhar timeline
+            renderTimeline();
+        }
+
+        // Atualizar contador de tarefas
+        function updateTaskCountTimeline() {
+            const counter = document.getElementById('taskCount');
+            if (counter) {
+                const filterName = currentSwimlaneFilter === 'all' ? 'Todas' : 
+                                   currentSwimlaneFilter === 'normal' ? 'Normal' :
+                                   document.getElementById('swimlaneFilter').selectedOptions[0].textContent;
+                counter.textContent = `${filteredTasks.length} tarefas - ${filterName}`;
+            }
+        }
 
         // Modal Functions
         function showTaskModal(taskId) {
@@ -949,9 +1015,11 @@
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon();
 
-        function toggleTheme() {
+        toggleTheme = function() {
+            console.log('🎨 toggleTheme chamado');
             const current = document.documentElement.getAttribute('data-theme');
             const newTheme = current === 'dark' ? 'light' : 'dark';
+            console.log('Tema atual:', current, '→ Novo tema:', newTheme);
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('kanban-theme', newTheme);
             updateThemeIcon();
@@ -963,10 +1031,15 @@
         }
 
         // Change View
-        function changeView(view) {
+        changeView = function(view) {
+            console.log('📅 changeView chamado com:', view);
             currentView = view;
             document.querySelectorAll('.view-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1)).classList.add('active');
+            const targetBtn = document.getElementById('view' + view.charAt(0).toUpperCase() + view.slice(1));
+            console.log('Botão alvo:', targetBtn);
+            if (targetBtn) {
+                targetBtn.classList.add('active');
+            }
             renderTimeline();
         }
 
@@ -985,10 +1058,14 @@
         }
 
         // Manual Refresh
-        function manualRefresh() {
+        manualRefresh = function() {
+            console.log('🔄 manualRefresh chamado');
             allTasks = loadTasks();
+            console.log('Tarefas carregadas:', allTasks.length);
             tasks = filterTasksByMode(allTasks);
+            console.log('Tarefas filtradas:', tasks.length);
             filteredTasks = tasks.filter(t => t.startDate && t.endDate);
+            console.log('Tarefas com datas:', filteredTasks.length);
             renderTimeline();
             showNotification('✅ Timeline atualizada');
         }
@@ -1022,11 +1099,6 @@
         // Render Timeline
         function renderTimeline() {
             const tasksWithDates = filteredTasks;
-            
-            console.log('📊 RenderTimeline chamado:', {
-                tasksWithDates: tasksWithDates.length,
-                currentView: currentView
-            });
             
             // Update task count
             document.getElementById('taskCount').textContent = `${tasksWithDates.length} tarefa${tasksWithDates.length !== 1 ? 's' : ''}`;
@@ -1379,15 +1451,6 @@
                 const taskStatus = (task.status || '').toLowerCase();
                 const isCompleted = taskStatus.includes('concluí') || taskStatus.includes('done') || taskStatus.includes('completo');
                 
-                console.log('📊 Calculando indicadores:', task.title, {
-                    totalDays,
-                    elapsedDays,
-                    progressPercent: progressPercent.toFixed(1) + '%',
-                    overdueDays,
-                    isOverdue,
-                    isCompleted
-                });
-                
                 // OPÇÃO 3: Semáforo de cores baseado no progresso
                 let statusColor = 'green';
                 if (isCompleted) {
@@ -1521,9 +1584,9 @@
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
                 
-                console.log('=== LINHA HOJE - ALINHAMENTO ===');
-                console.log('📍 Data hoje:', today.toLocaleDateString('pt-BR'));
-                console.log('📍 Modo atual:', currentView);
+                
+                
+                
                 
                 if (today >= minDate && today <= maxDate) {
                     let todayPosition = null;
@@ -1542,14 +1605,14 @@
                         if (currentView === 'days') {
                             // Each day is a column
                             todayPosition = todayPeriodIndex * columnWidth + (columnWidth / 2);
-                            console.log('📍 DIAS - Period index:', todayPeriodIndex, 'Position:', todayPosition);
+                            
                             
                         } else if (currentView === 'weeks') {
                             // Calculate position within week
                             const daysSinceWeekStart = (today - todayPeriod.start) / (1000 * 60 * 60 * 24);
                             const percentInWeek = daysSinceWeekStart / 7;
                             todayPosition = (todayPeriodIndex * columnWidth) + (percentInWeek * columnWidth);
-                            console.log('📍 SEMANAS - Period:', todayPeriodIndex, 'Days in week:', daysSinceWeekStart, 'Position:', todayPosition);
+                            
                             
                         } else if (currentView === 'months') {
                             // Calculate position within month
@@ -1559,7 +1622,7 @@
                             const dayOfMonth = today.getDate();
                             const percentInMonth = (dayOfMonth - 1) / daysInMonth;
                             todayPosition = (todayPeriodIndex * columnWidth) + (percentInMonth * columnWidth);
-                            console.log('📍 MESES - Period:', todayPeriodIndex, 'Day of month:', dayOfMonth, 'Position:', todayPosition);
+                            
                         }
                         
                         if (todayPosition !== null && todayPosition >= 0) {
@@ -1568,11 +1631,11 @@
                             todayLine.style.left = todayPosition + 'px';
                             todayLine.title = 'Hoje';
                             chartBody.appendChild(todayLine);
-                            console.log('✅ LINHA HOJE ADICIONADA EM:', todayPosition + 'px');
+                            
                         }
                     }
                 }
-                console.log('=== FIM LINHA HOJE ===');
+                
                 
             } catch (error) {
                 console.error('❌ Erro ao adicionar linha Hoje:', error);
@@ -1589,15 +1652,18 @@
 
         setInterval(() => {
             const currentAllTasks = loadTasks();
-            const currentMode = loadSwimlanesMode();
-            const currentTasks = filterTasksByMode(currentAllTasks);
             
-            if (JSON.stringify(currentTasks) !== JSON.stringify(tasks)) {
+            if (JSON.stringify(currentAllTasks) !== JSON.stringify(allTasks)) {
                 allTasks = currentAllTasks;
-                tasks = currentTasks;
-                filterTasks();
+                filterTimelineBySwimlane(); // Reaplicar filtro
             }
         }, 3000);
+
+        // Inicializar ao carregar página
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSwimlaneFilterTimeline();
+            updateTaskCountTimeline();
+        });
     </script>
 </body>
 </html>
